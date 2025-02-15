@@ -1,0 +1,46 @@
+Here is a structured summary of the CMPUT 365 Winter 2025 course syllabus based on the information provided:
+
+### START OF SECTION CMPUT 365 ###
+
+111-LectureDays: [MWF] -111  
+111-LectureTime: [13:00-13:50] -111  
+111-LectureLocation: [T, LB-002] -111  
+
+222-InstructorName: [Csaba Szepesvári] -222  
+222-InstructorEmail: [TBD] -222  
+
+333-Weightage table-333  
+element1: Coursera Practice Quiz 1 -[0.73]- -DUE [TBD] TIME [TBD]-
+element2: Coursera Practice Quiz 2 -[0.73]- -DUE [TBD] TIME [TBD]-
+element3: Coursera Practice Quiz 3 -[0.73]- -DUE [TBD] TIME [TBD]-
+element4: Coursera Practice Quiz 4 -[0.73]- -DUE [TBD] TIME [TBD]-
+element5: Coursera Practice Quiz 5 -[0.73]- -DUE [TBD] TIME [TBD]-
+element6: Coursera Practice Quiz 6 -[0.73]- -DUE [TBD] TIME [TBD]-
+element7: Coursera Practice Quiz 7 -[0.73]- -DUE [TBD] TIME [TBD]-
+element8: Coursera Practice Quiz 8 -[0.73]- -DUE [TBD] TIME [TBD]-
+element9: Coursera Practice Quiz 9 -[0.73]- -DUE [TBD] TIME [TBD]-
+element10: Coursera Practice Quiz 10 -[0.73]- -DUE [TBD] TIME [TBD]-
+element11: Coursera Practice Quiz 11 -[0]- -DUE [TBD] TIME [TBD]-
+
+element12: Coursera Assignment 1 -[2.2]- -DUE [TBD] TIME [23:59]-
+element13: Coursera Assignment 2 -[2.2]- -DUE [TBD] TIME [23:59]-
+element14: Coursera Assignment 3 -[2.2]- -DUE [TBD] TIME [23:59]-
+element15: Coursera Assignment 4 -[2.2]- -DUE [TBD] TIME [23:59]-
+element16: Coursera Assignment 5 -[2.2]- -DUE [TBD] TIME [23:59]-
+element17: Coursera Assignment 6 -[2.2]- -DUE [TBD] TIME [23:59]-
+element18: Coursera Assignment 7 -[2.2]- -DUE [TBD] TIME [23:59]-
+element19: Coursera Assignment 8 -[2.2]- -DUE [TBD] TIME [23:59]-
+element20: Coursera Assignment 9 -[2.2]- -DUE [TBD] TIME [23:59]-
+element21: Coursera Assignment 10 -[0]- -DUE [TBD] TIME [23:59]-
+
+element22: Written Assignment 1 -[5]- -DUE [TBD] TIME [TBD]-
+element23: Written Assignment 2 -[5]- -DUE [TBD] TIME [TBD]-
+
+element24: Midterm 1 -[15]- -DUE [TBD] TIME [TBD]-
+element25: Midterm 2 -[15]- -DUE [TBD] TIME [TBD]-
+element26: Final Exam -[30]- -DUE [TBD] TIME [TBD]-
+333-Weightage table-333 
+
+### END OF SECTION CMPUT 365 ###
+
+Note: Instructor email and specific due dates and times for quizzes and assignments are not available in the provided information.
