@@ -1,37 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="/static/style.css">
+{% extends "base.html" %}
 
-    <!-- MathJax for rendering mathematical expressions -->
-    <script type="text/javascript" async
-        src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script type="text/javascript" async
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-</head>
-<body>
-    <div class="dashboard-container">
-        <h2>Welcome to your Dashboard!</h2>
-        <p>You are logged in. Here you can manage your tasks or view your profile.</p>
-        <button onclick="window.location.href='/'">Logout</button>
+{% block title %}Dashboard - StudyZee{% endblock %}
 
-        <div class="math-content">
-            <h3>Mathematical Concepts</h3>
-
-            <p>{ $math_content }</p>
-        </div>
-    </div>
-
-    <!-- Force MathJax to reprocess the math content -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            if (window.MathJax) {
-                MathJax.typeset();
-            }
-        });
-    </script>
-</body>
-</html>
+{% block content %}
+<div class="dashboard-container">
+    <h2>Welcome to your Dashboard!</h2>
+    <p>You are logged in. Here you can manage your tasks or view your profile.</p>
+</div>
+{% endblock %}
