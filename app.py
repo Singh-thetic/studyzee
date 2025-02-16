@@ -102,5 +102,29 @@ def logout():
     flash("Logged out successfully!", "success")
     return redirect(url_for("home"))
 
+@app.route("/edit-profile", methods=["POST", "GET"])
+@login_required
+def edit_profile():
+    if request.method == "POST":
+        name = request.form.get("name")
+        study_level = request.form.get("study_level")
+        year_of_study = request.form.get("year_of_study")
+        major = request.form.get("major")
+
+        #optional
+        home_country = request.form.get("home_country")
+        ethnicity = request.form.get("ethnicity")
+        gender = request.form.get("gender")
+        academic_goal = request.form.get("academic_goal")
+
+        supabase_client.from_("users").update({"full_name": name, "study_level": study_level, "study_year": year_of_study, "major": major, "home_country": home_country, "ethnicity": ethnicity, "gender": gender, "academic_goal": academic_goal}).eq("id", current_user.id).execute()
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for("dashboard"))
+    
+    elif request.method == "GET":
+        response = supabase_client.from_("users").select("*").eq("id", current_user.id).single().execute()
+        user = response.data
+        return render_template("profile.html", user=user)
+
 if __name__ == "__main__":
     app.run(debug=True)
