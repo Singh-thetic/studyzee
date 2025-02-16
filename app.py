@@ -67,11 +67,6 @@ def login():
         flash("Invalid email or password", "error")
         return redirect(url_for("home"))
 
-@app.route("/dashboard")
-@login_required
-def dashboard():
-    return render_template("dashboard.html")
-
 @app.route("/signup", methods=["POST"])
 def signup():
     username = request.form.get("username")
