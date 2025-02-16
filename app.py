@@ -116,6 +116,7 @@ def edit_profile():
         gender = request.form.get("gender")
         academic_goal = request.form.get("academic_goal")
 
+
         supabase_client.from_("users").update({"full_name": name, "study_level": study_level, "study_year": year_of_study, "major": major, "home_country": home_country, "ethnicity": ethnicity, "gender": gender, "academic_goal": academic_goal}).eq("id", current_user.id).execute()
         flash("Profile updated successfully!", "success")
         return redirect(url_for("dashboard"))
@@ -254,23 +255,23 @@ def update_pic():
         return redirect(url_for("edit_profile"))
 
     if file and file.filename.lower().endswith((".png", ".jpg", ".jpeg")):
-        filename = secure_filename(file.filename)
-        UPLOAD_FOLDER = f"static/uploads/{current_user.id}/profile_pics"
+        filename = f"{current_user.id}_{secure_filename(file.filename)}"
+        UPLOAD_FOLDER = f"static/profile_pics"
         if not os.path.exists(UPLOAD_FOLDER):
             os.makedirs(UPLOAD_FOLDER)
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         file.save(file_path)
 
         with open(file_path, "rb") as f:
-            response = supabase_client.storage.from_("pictures").upload(file_path, f)
+            response = supabase_client.storage.from_("pictures").upload(filename, f)
 
         res_dict = response.model_dump() if hasattr(response, 'model_dump') else response
         if isinstance(res_dict, dict) and "error" in res_dict and res_dict["error"]:
             flash("Upload failed", "error")
             return redirect(url_for("edit_profile"))
 
-        file_url = f"{SUPABASE_URL}/storage/v1/object/public/pictures/{UPLOAD_FOLDER}/{filename}"
-        supabase_client.from_("users").update({"profile_picture": file_path}).eq("id", current_user.id).execute()
+        file_url = f"{SUPABASE_URL}/storage/v1/object/public/pictures/{filename}"
+        supabase_client.from_("users").update({"profile_picture": file_url}).eq("id", current_user.id).execute()
 
         flash("Profile picture updated successfully!", "success")
         return redirect(url_for("edit_profile"))
