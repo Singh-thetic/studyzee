@@ -9,7 +9,9 @@
     <div class="main-content">
         <!-- Sidebar (User Profile) -->
         <div class="sidebar">
-            <img src="{{ url_for('static', filename='profile-placeholder.png') }}" alt="Profile Picture" class="profile-img">
+            <a href="{{ url_for('edit_profile') }}">
+                <img src="{{ user_data.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}" alt="Profile Picture" class="profile-img">
+            </a></a>
             <h3 class="username">{{ user_data.full_name }}</h3>
             <p class="user-handle">@{{ user_data.username }}</p>
             

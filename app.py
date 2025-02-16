@@ -242,5 +242,42 @@ def complete_task():
 
     return redirect(url_for("dashboard"))
 
+@app.route('/update_pic', methods=["POST"])
+@login_required
+def update_pic():
+    if "profile_pic" not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files["profile_pic"]
+    if file.filename == "":
+        flash("No selected file", "error")
+        return redirect(url_for("edit_profile"))
+
+    if file and file.filename.lower().endswith((".png", ".jpg", ".jpeg")):
+        filename = secure_filename(file.filename)
+        UPLOAD_FOLDER = f"static/uploads/{current_user.id}/profile_pics"
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
+
+        with open(file_path, "rb") as f:
+            response = supabase_client.storage.from_("pictures").upload(file_path, f)
+
+        res_dict = response.model_dump() if hasattr(response, 'model_dump') else response
+        if isinstance(res_dict, dict) and "error" in res_dict and res_dict["error"]:
+            flash("Upload failed", "error")
+            return redirect(url_for("edit_profile"))
+
+        file_url = f"{SUPABASE_URL}/storage/v1/object/public/pictures/{UPLOAD_FOLDER}/{filename}"
+        supabase_client.from_("users").update({"profile_picture": file_path}).eq("id", current_user.id).execute()
+
+        flash("Profile picture updated successfully!", "success")
+        return redirect(url_for("edit_profile"))
+
+    else:
+        flash("Invalid file format", "error")
+        return redirect(url_for("edit_profile"))
+
 if __name__ == "__main__":
     app.run(debug=True)
