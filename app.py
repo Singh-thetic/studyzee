@@ -5,6 +5,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
 
 # Load environment variables
 load_dotenv()
@@ -23,10 +24,12 @@ login_manager.login_view = "home"
 # Supabase client setup
 SUPABASE_URL = "https://mmtdthmtsasvthysqwrx.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tdGR0aG10c2FzdnRoeXNxd3J4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk2NDYzMTQsImV4cCI6MjA1NTIyMjMxNH0.uxTcUuR2xAs2gQjbA0bqwsRyOVArXY6qD99eo2os9wU"
-
+BUCKET_NAME = "course"
 
 supabase_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+UPLOAD_FOLDER = "static/uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 class User(UserMixin):
     def __init__(self, id, email, password):
@@ -125,6 +128,43 @@ def edit_profile():
         response = supabase_client.from_("users").select("*").eq("id", current_user.id).single().execute()
         user = response.data
         return render_template("profile.html", user=user)
+
+@app.route("/add-course")
+@login_required
+def add_course():
+    return render_template("add_course.html")
+
+@app.route("/upload-course", methods=["POST"])
+@login_required
+def upload_course():
+    if "file" not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "No selected file"}), 400
+    
+    if file and file.filename.endswith(".pdf"):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
+        with open(file_path, "rb") as f:
+            response = supabase_client.storage.from_(BUCKET_NAME).upload(file_path, f, {"content_type": "application/pdf"})
+
+        if response.get("error"):
+            return jsonify({"error": response["error"]["message"]}), 500
+        
+        file_url = f"{SUPABASE_URL}/storage/v1/object/public/{BUCKET_NAME}/{filename}"
+        supabase_client.table("documents").insert({
+            "file_name": filename,
+            "file_url": file_url,
+            "user_id": current_user.id,  # Use the user_id of the current logged in user
+        }).execute()
+        os.remove(file_path)
+        return jsonify({"message": "File uploaded successfully!"}), 200
+    else:
+        return jsonify({"error": "Invalid file format"}), 400
+
 
 if __name__ == "__main__":
     app.run(debug=True)
