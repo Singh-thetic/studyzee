@@ -6,6 +6,8 @@ from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
+from pdf_parse import *
+import shutil
 
 # Load environment variables
 load_dotenv()
@@ -23,14 +25,12 @@ login_manager.login_view = "home"
 
 # Supabase client setup
 SUPABASE_URL = "https://mmtdthmtsasvthysqwrx.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tdGR0aG10c2FzdnRoeXNxd3J4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk2NDYzMTQsImV4cCI6MjA1NTIyMjMxNH0.uxTcUuR2xAs2gQjbA0bqwsRyOVArXY6qD99eo2os9wU"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tdGR0aG10c2FzdnRoeXNxd3J4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTY0NjMxNCwiZXhwIjoyMDU1MjIyMzE0fQ.uUo4VvRjUKmL-mx5MpN_I6K4lgMQUz_ctb26OHNd3ak"
 BUCKET_NAME = "course"
+os.makedirs("static/uploads", exist_ok=True)
 
 supabase_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-UPLOAD_FOLDER = "static/uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
+course_data = {}
 class User(UserMixin):
     def __init__(self, id, email, password):
         self.id = id
@@ -39,8 +39,8 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    response = supabase_client.from_("users").select("*").eq("id", user_id).single().execute()
-    user_data = response.data
+    response = supabase_client.from_("users").select("*").eq("id", user_id).maybe_single().execute()
+    user_data = response.data if response else None
     if user_data:
         return User(user_data["id"], user_data["email"], user_data["password_hash"])
     return None
@@ -54,14 +54,14 @@ def login():
     username = request.form.get("username")
     input_password = request.form.get("password")
 
-    response = supabase_client.from_("users").select("*").eq("username", username).single().execute()
-    user = response.data
+    response = supabase_client.from_("users").select("*").eq("username", username).maybe_single().execute()
+    user = response.data if response else None
     
     if user and bcrypt.check_password_hash(user["password_hash"], input_password):
         user_obj = User(user["id"], user["email"], user["password_hash"])
         login_user(user_obj)
         flash("Login successful!", "success")
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("add_course"))
     
     else:
         flash("Invalid email or password", "error")
@@ -82,7 +82,7 @@ def signup():
     year_of_study = request.form.get("year_of_study")
     major = request.form.get("major")
     response = supabase_client.from_("users").select("*").eq("username", username).execute()
-    existing_user = response.data[0] if response.data else None
+    existing_user = response.data[0] if response else None
     
     if existing_user:
         flash("User already exists", "error")
@@ -125,46 +125,80 @@ def edit_profile():
         return redirect(url_for("dashboard"))
     
     elif request.method == "GET":
-        response = supabase_client.from_("users").select("*").eq("id", current_user.id).single().execute()
+        response = supabase_client.from_("users").select("*").eq("id", current_user.id).maybe_single().execute()
         user = response.data
         return render_template("profile.html", user=user)
-
-@app.route("/add-course")
+    
+@app.route("/add-course", methods=["GET", "POST"])
 @login_required
 def add_course():
-    return render_template("add_course.html")
+    if request.method == "POST":
+        global course_data
+        # Handle the POST request here
+        subject = request.form.get("subject")
+        course_code = request.form.get("course_code")
+        course_data = {'subject': subject, 'course_code': course_code}
+        return render_template("add_course.html", stage=2, course_data=course_data)
+
+    return render_template("add_course.html", stage=1)
+
 
 @app.route("/upload-course", methods=["POST"])
 @login_required
 def upload_course():
-    if "file" not in request.files:
+    if "files" not in request.files:
         return jsonify({"error": "No file part"}), 400
     
-    file = request.files["file"]
-    if file.filename == "":
-        return jsonify({"error": "No selected file"}), 400
+    files = request.files.getlist("files")
+    if not files or len(files) == 0:
+        return jsonify({"error": "No file selected"}), 400
     
-    if file and file.filename.endswith(".pdf"):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
-        with open(file_path, "rb") as f:
-            response = supabase_client.storage.from_(BUCKET_NAME).upload(file_path, f, {"content_type": "application/pdf"})
+    uploaded_files = []
+    for file in files:
+        if file and file.filename.endswith(".pdf"):
+            filename = secure_filename(file.filename)
+            UPLOAD_FOLDER = f"static/uploads/{current_user.id}"
+            if not os.path.exists(UPLOAD_FOLDER):
+                os.makedirs(UPLOAD_FOLDER)
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+            with open(file_path, "rb") as f:
+                response = supabase_client.storage.from_(BUCKET_NAME).upload(file_path, f, {"content_type": "application/pdf"})
+            # Convert response to dictionary (if necessary)
+            res_dict = response.model_dump() if hasattr(response, 'model_dump') else response
+            if isinstance(res_dict, dict) and "error" in res_dict and res_dict["error"]:
+                return jsonify({"error": "Upload failed", "details": res_dict["error"]}), 500
+            
+            file_url = f"{SUPABASE_URL}/storage/v1/object/public/{BUCKET_NAME}/{filename}"
+            supabase_client.table("documents").insert({
+                "file_name": filename,
+                "file_url": file_url,
+                "user_id": current_user.id,  # Use the user_id of the current logged in user
+            }).execute()
+            temp_folder = f"static/uploads/{current_user.id}/temp"
+            if not os.path.exists(temp_folder):
+                os.makedirs(temp_folder)
+            temp_file_path = os.path.join(temp_folder, filename)
+            shutil.copy(file_path, temp_file_path)
 
-        if response.get("error"):
-            return jsonify({"error": response["error"]["message"]}), 500
-        
-        file_url = f"{SUPABASE_URL}/storage/v1/object/public/{BUCKET_NAME}/{filename}"
-        supabase_client.table("documents").insert({
-            "file_name": filename,
-            "file_url": file_url,
-            "user_id": current_user.id,  # Use the user_id of the current logged in user
-        }).execute()
-        os.remove(file_path)
-        return jsonify({"message": "File uploaded successfully!"}), 200
-    else:
-        return jsonify({"error": "Invalid file format"}), 400
+            uploaded_files.append(temp_file_path)
+            os.remove(file_path)
 
+        else:
+            return jsonify({"error": "Invalid file format"}), 400
+    global course_data
+    return redirect(url_for("edit_course", course_data=course_data, uploaded_files=uploaded_files))
+
+@app.route("/edit-course", methods=["GET", "POST"])
+@login_required
+def edit_course():
+    
+    course_data = request.args.get("course_data")
+    uploaded_files = request.args.getlist("uploaded_files")
+    print(uploaded_files)
+    course_data = course_info(uploaded_files)
+    
+    return jsonify(course_data)
 
 if __name__ == "__main__":
     app.run(debug=True)

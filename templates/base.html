@@ -17,18 +17,7 @@
 <body>
     <header>
         <h1>Welcome to StudyZee</h1>
-        {% if session.get('user') %}  <!-- Show navbar only when logged in -->
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-                <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                <li><a href="{{ url_for('courses') }}">Courses</a></li>
-                <li><a href="{{ url_for('tasks') }}">Tasks</a></li>
-                <li><a href="{{ url_for('logout') }}">Logout</a></li>
-            </ul>
-        </nav>
     </header>
-    {% endif %}
 
     <main>
         {% block content %}{% endblock %}

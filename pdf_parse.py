@@ -63,7 +63,7 @@ def course_info(pdf_paths: list):
     response = query_openai(prompt)
     with open("response.txt", "w") as file:
         file.write(response)
-    print(parse_course_results(response))
+    return parse_course_results(response)
 
 def parse_course_results(response):
     sections = response.split("### START OF SECTION")[1:]
