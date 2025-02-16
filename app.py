@@ -39,7 +39,7 @@ def load_user(user_id):
     response = supabase_client.from_("users").select("*").eq("id", user_id).single().execute()
     user_data = response.data
     if user_data:
-        return User(user_data["id"], user_data["email"], user_data["password"])
+        return User(user_data["id"], user_data["email"], user_data["password_hash"])
     return None
 
 @app.route("/")
@@ -49,14 +49,14 @@ def home():
 @app.route("/login", methods=["POST"])
 def login():
     username = request.form.get("username")
-    user_obj = User(user["id"], user["email"], user["password_hash"])
-    login_user(user_obj)
+    input_password = request.form.get("password")
 
     response = supabase_client.from_("users").select("*").eq("username", username).single().execute()
     user = response.data
     
-    if user and bcrypt.check_password_hash(user["password_hash"], password):
-        login_user(user)
+    if user and bcrypt.check_password_hash(user["password_hash"], input_password):
+        user_obj = User(user["id"], user["email"], user["password_hash"])
+        login_user(user_obj)
         flash("Login successful!", "success")
         return redirect(url_for("dashboard"))
     

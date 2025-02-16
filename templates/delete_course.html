@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Course{% endblock %}
+
+{% block content %}
+<h2>Delete a Course</h2>
+<form method="post">
+    <label for="course_id">Select Course:</label>
+    <select name="course_id" required>
+        {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Delete Course</button>
+</form>
+{% endblock %}

@@ -4,7 +4,69 @@
 
 {% block content %}
 <div class="dashboard-container">
-    <h2>Welcome to your Dashboard!</h2>
-    <p>You are logged in. Here you can manage your tasks or view your profile.</p>
+    <h2>Welcome to Your Dashboard!</h2>
+    
+    <!-- Edit Profile Section -->
+    <div class="section">
+        <h3>Profile</h3>
+        <p>Manage your personal details.</p>
+        <button onclick="window.location.href='{{ url_for(profile) }}'">Edit Profile</button>
+    </div>
+
+    <!-- Courses Section -->
+    <div class="section">
+        <h3>Your Courses</h3>
+        <ul>
+            {% for course in courses %}
+                <li>{{ course.name }}</li>
+            {% endfor %}
+        </ul>
+        <button onclick="window.location.href='{{ url_for(add_course) }}'">Add Course</button>
+        <button onclick="window.location.href='{{ url_for(delete_course) }}'">Delete Course</button>
+    </div>
+
+    <!-- To-Do List Section -->
+    <div class="section">
+        <h3>To-Do List</h3>
+        <ul id="todo-list">
+            {% for task in tasks %}
+                <li>
+                    <input type="checkbox" {% if task.completed %}checked{% endif %} onchange="toggleTask('{{ task.id }}')">
+                    {{ task.task }}
+                    <button onclick="deleteTask('{{ task.id }}')">Delete</button>
+                </li>
+            {% endfor %}
+        </ul>
+        <input type="text" id="new-task" placeholder="Add new task">
+        <button onclick="addTask()">Add Task</button>
+    </div>
 </div>
+
+<script>
+    function addTask() {
+        const taskText = document.getElementById('new-task').value;
+        if (taskText.trim() === "") return;
+
+        fetch('/add_task', {
+            method: 'POST',
+            body: JSON.stringify({ task: taskText }),
+            headers: { 'Content-Type': 'application/json' }
+        }).then(response => response.json()).then(data => {
+            location.reload(); // Reload page to see updated tasks
+        });
+    }
+
+    function toggleTask(taskId) {
+        fetch('/toggle_task/' + taskId, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => { location.reload(); });
+    }
+
+    function deleteTask(taskId) {
+        fetch('/delete_task/' + taskId, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => { location.reload(); });
+    }
+</script>
+
 {% endblock %}

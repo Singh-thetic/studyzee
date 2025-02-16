@@ -3,3 +3,5 @@ flask-cors
 supabase
 pyjwt
 python-dotenv
+flask_login
+flask_bcrypt
