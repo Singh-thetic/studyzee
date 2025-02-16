@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 55,
+            "activePatchIndex": 56,
             "patches": [
                 {
                     "date": 1739647115782,
@@ -228,6 +228,10 @@
                 {
                     "date": 1739686606647,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -62,9 +62,9 @@\n     \n     response = query_openai(prompt)\n     with open(\"response.txt\", \"w\") as file:\n         file.write(response)\n-    print(parse_course_results(response))\n+    return parse_course_results(response)\n \n def parse_course_results(response):\n     sections = response.split(\"### START OF SECTION\")[1:]\n     course_info = {}\n"
+                },
+                {
+                    "date": 1739732998207,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,8 +4,9 @@\n \n openai.api_key = os.getenv('OPENAI_API_KEY')\n \n def extract_text_from_pdf(pdf_path):\n+\n     pdf_text = \"\"\n     with open(pdf_path, 'rb') as file:\n         reader = PyPDF2.PdfReader(file)\n         for page_num in range(len(reader.pages)):\n"
                 }
             ],
             "date": 1739647115782,

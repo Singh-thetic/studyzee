@@ -200,5 +200,29 @@ def edit_course():
     
     return jsonify(course_data)
 
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    user_data = supabase_client.from_("users").select("*").eq("id", current_user.id).maybe_single().execute().data
+    courses_name = supabase_client.from_("courses").select("*").eq("user_id", current_user.id).execute().data
+
+    courses = []
+    for course in courses_name:
+        subject_id = course.get("subject_id")
+        course_code = course.get("course_code")
+        courses.append(f"{subject_id} {course_code}")
+    
+    task = supabase_client.from_("tasks").select("*").eq("user_id", current_user.id).execute().data
+    assigned_work = supabase_client.from_("assigned_work").select("*, work_template(name)").eq("user_id", current_user.id).eq("done", False).execute().data
+    tasks = []
+    for t in task:
+        tasks.append([t.get("task_name"), t.get("due_date"), t.get("done")])
+    for a in assigned_work:
+        tasks.append([a.get("work_template").get("name"), a.get("due_date"), a.get("done")])
+
+    return render_template("dashboard.html", user_data=user_data, courses=courses, tasks=tasks)
+
+
 if __name__ == "__main__":
     app.run(debug=True)

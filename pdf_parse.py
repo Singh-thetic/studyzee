@@ -5,6 +5,7 @@ import os
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
 def extract_text_from_pdf(pdf_path):
+
     pdf_text = ""
     with open(pdf_path, 'rb') as file:
         reader = PyPDF2.PdfReader(file)
