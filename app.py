@@ -61,16 +61,12 @@ def login():
         user_obj = User(user["id"], user["email"], user["password_hash"])
         login_user(user_obj)
         flash("Login successful!", "success")
-        return redirect(url_for("add_course"))
+        return redirect(url_for("dashboard"))
     
     else:
         flash("Invalid email or password", "error")
         return redirect(url_for("home"))
 
-@app.route("/dashboard")
-@login_required
-def dashboard():
-    return render_template("dashboard.html")
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -105,7 +101,7 @@ def logout():
     flash("Logged out successfully!", "success")
     return redirect(url_for("home"))
 
-@app.route("/edit-profile", methods=["POST", "GET"])
+@app.route("/edit_profile", methods=["POST", "GET"])
 @login_required
 def edit_profile():
     if request.method == "POST":
@@ -129,7 +125,7 @@ def edit_profile():
         user = response.data
         return render_template("profile.html", user=user)
     
-@app.route("/add-course", methods=["GET", "POST"])
+@app.route("/add_course", methods=["GET", "POST"])
 @login_required
 def add_course():
     if request.method == "POST":
@@ -143,7 +139,7 @@ def add_course():
     return render_template("add_course.html", stage=1)
 
 
-@app.route("/upload-course", methods=["POST"])
+@app.route("/upload_course", methods=["POST"])
 @login_required
 def upload_course():
     if "files" not in request.files:
@@ -189,7 +185,7 @@ def upload_course():
     global course_data
     return redirect(url_for("edit_course", course_data=course_data, uploaded_files=uploaded_files))
 
-@app.route("/edit-course", methods=["GET", "POST"])
+@app.route("/edit_course", methods=["GET", "POST"])
 @login_required
 def edit_course():
     
@@ -205,13 +201,14 @@ def edit_course():
 @login_required
 def dashboard():
     user_data = supabase_client.from_("users").select("*").eq("id", current_user.id).maybe_single().execute().data
-    courses_name = supabase_client.from_("courses").select("*").eq("user_id", current_user.id).execute().data
-
-    courses = []
-    for course in courses_name:
-        subject_id = course.get("subject_id")
-        course_code = course.get("course_code")
-        courses.append(f"{subject_id} {course_code}")
+    user_courses = supabase_client.from_("user_courses").select("course_id").eq("user_id", current_user.id).execute().data
+    course_ids = [course["course_id"] for course in user_courses]
+    if course_ids:
+        course_d = supabase_client.from_("course").select("subject_id, course_code").in_("course_id", course_ids).execute().data
+    else:
+        course_d = []
+    
+    courses = [f"{d.get("subject_id")} {d.get("course_code")}" for d in course_d]
     
     task = supabase_client.from_("tasks").select("*").eq("user_id", current_user.id).execute().data
     assigned_work = supabase_client.from_("assigned_work").select("*, work_template(name)").eq("user_id", current_user.id).eq("done", False).execute().data
@@ -223,6 +220,10 @@ def dashboard():
 
     return render_template("dashboard.html", user_data=user_data, courses=courses, tasks=tasks)
 
+@app.route("/delete_course")
+@login_required
+def delete_course():
+    return render_template("delete_course.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
