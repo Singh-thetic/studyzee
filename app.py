@@ -210,13 +210,13 @@ def dashboard():
     
     courses = [f"{d.get("subject_id")} {d.get("course_code")}" for d in course_d]
     
-    task = supabase_client.from_("tasks").select("*").eq("user_id", current_user.id).execute().data
+    task = supabase_client.from_("tasks").select("*").eq("user_id", current_user.id).eq("done", False).execute().data
     assigned_work = supabase_client.from_("assigned_work").select("*, work_template(name)").eq("user_id", current_user.id).eq("done", False).execute().data
     tasks = []
     for t in task:
-        tasks.append([t.get("task_name"), t.get("due_date"), t.get("done")])
+        tasks.append([t.get("task_name"), t.get("due_date"), t.get("done"), t.get("task_id"), "task"])
     for a in assigned_work:
-        tasks.append([a.get("work_template").get("name"), a.get("due_date"), a.get("done")])
+        tasks.append([a.get("work_template").get("name"), a.get("due_date"), a.get("done"), a.get("id"), "work"])
 
     return render_template("dashboard.html", user_data=user_data, courses=courses, tasks=tasks)
 
@@ -224,6 +224,23 @@ def dashboard():
 @login_required
 def delete_course():
     return render_template("delete_course.html")
+
+
+@app.route("/complete_task", methods=["GET", "POST"])
+@login_required
+def complete_task():
+    task_id = request.args.get("task_id")  # Use args for GET requests
+    task_type = request.args.get("type")   # Get type from URL parameters
+
+    if not task_id or not task_type:
+        return redirect(url_for("dashboard"))  # Handle missing data safely
+
+    if task_type == "task":
+        supabase_client.from_("tasks").update({"done": True}).eq("task_id", task_id).execute()
+    elif task_type == "work":
+        supabase_client.from_("assigned_work").update({"done": True}).eq("id", task_id).execute()
+
+    return redirect(url_for("dashboard"))
 
 if __name__ == "__main__":
     app.run(debug=True)

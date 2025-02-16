@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="dashboard-container">
-    <h1 class="title">StudyZee</h1>
+    <h1 class="title">Dashboard - StudyZee</h1>
 
     <div class="main-content">
         <!-- Sidebar (User Profile) -->
@@ -28,35 +28,37 @@
         <!-- Courses Section -->
         <div class="courses-section">
             <div class="courses-header">
-                <h3>Courses</h3>
-                <button class="add-btn" onclick="window.location.href='{{ url_for('add_course') }}'">Add</button>
+            <h3>Courses</h3>
+            <a href="{{ url_for('add_course') }}" class="add-btn" style="background: #F8AFAF; color: white;">Add</a>
             </div>
             <ul class="courses-list">
-                {% for course in courses %}
-                    <li class="course-item">{{ course }}</li>
-                {% endfor %}
+            {% for course in courses %}
+                <li class="course-item">{{ course }}</li>
+            {% endfor %}
             </ul>
         </div>
 
-
-        <!-- Assignments Section -->
-        <div class="assignments-section">
-            <h3>Assignments</h3>
-            <ul class="assignments-list">
-                {% for task in tasks %}
-                    <li class="assignment-item">{{ task[0] }}: {{ task[1] if task[1] else 'No due date' }}</li>
-                {% endfor %}
-            </ul>
+        <!--TBD Section -->
+        <div class="notes-section">
+            <div class="notes-header">
+            <h3 style="text-align: center;">To be decided</h3>
+            <a href="{{ url_for('add_course') }}" class="add-btn" style="background: #d8eb5f; color: white; padding: 10px 15px; width: auto;">Add</a>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Courses Section -->
-<div class="notes-section">
-    <div class="notes-header">
-        <h3 style="text-align: center;">Notes</h3>
-        <button class="add-btn" onclick="window.location.href='{{ url_for('add_course') }}'">Add</button>
-    </div>
+<!-- Assignments Section -->
+<div class="assignments-section">
+    <h3>Assignments</h3>
+    <ul class="assignments-list">
+        {% for task in tasks %}
+        <li class="assignment-item" id="task-{{ loop.index0 }}">
+            <input type="checkbox" {% if task[2] %}checked{% endif %} onclick="window.location.href='{{ url_for('complete_task', task_id=task[3], type=task[4]) }}'">
+            {{ task[0] }} - Due: {{ task[1] if task[1] else 'No due date' }}
+        </li>
+        {% endfor %}
+    </ul>
 </div>
 
 <style>
@@ -67,9 +69,11 @@
         margin: 20px;
     }
     .title {
-        font-size: 24px;
+        font-size: 32px;
         font-weight: bold;
         margin-bottom: 20px;
+        color: #4A90E2;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     }
     .main-content {
         display: grid;
@@ -147,6 +151,8 @@
     .courses-list {
         list-style: none;
         padding: 0;
+        max-height: 180px;
+        overflow-y: auto;
     }
     .course-item {
         background: #F8AFAF;
@@ -154,7 +160,7 @@
         border-radius: 10px;
         margin: 5px 0;
     }
-
+    
     /* Notes Section */
     .notes-section {
         background: #FFF9C4;
@@ -167,17 +173,35 @@
         background: #D0E1F9;
         padding: 15px;
         border-radius: 15px;
+        margin-top: 20px;
+        max-width: 95vw;
+        margin-left: auto;
+        margin-right: auto;
+        max-height: 250px;
+        overflow-y: auto;
     }
     .assignments-list {
         list-style: none;
         padding: 0;
+        max-height: 180px;
+        overflow-y: auto;
     }
     .assignment-item {
         background: #B0C4F0;
-        padding: 8px;
+        padding: 12px;
         border-radius: 10px;
-        margin: 5px 0;
+        margin: 6px 0;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .assignment-item input {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
     }
 </style>
+
 
 {% endblock %}
