@@ -158,9 +158,9 @@ form button {
     width: 50%;
     margin-top: 30px;
     padding: 12px;
-    background: #ebf5ff;
+    background: #414141;
     border: none;
-    color: #414141;
+    color: #ffffff;
     font-size: 1rem;
     font-weight: bold;
     border-radius: 25px;
@@ -169,10 +169,10 @@ form button {
     transition: all 0.3s;
 }
 
-form button:hover {
+/* form button:hover {
     background: linear-gradient(to bottom, #66b2ff, #007BFF);
     color: white;
-}
+} */
 
 /* Text Styling */
 .toggle-text {
