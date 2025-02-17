@@ -35,6 +35,26 @@ os.makedirs("static/uploads", exist_ok=True)
 supabase_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 course_data = {}
 
+level_dict = {"undergraduate": "Undergraduate", "masters": "Masters", "phd": "PhD"}
+major_dict = {
+    "business-management": "Business & Management",
+    "cs-it-data-science": "Computer Science, IT & Data Science",
+    "engineering-technology": "Engineering & Technology",
+    "mathematics-statistics": "Mathematics & Statistics",
+    "natural-environmental-sciences": "Natural Sciences & Environmental Studies",
+    "health-sciences-medicine": "Health Sciences, Nursing & Medicine",
+    "pharmacy-pharmaceutical-sciences": "Pharmacy & Pharmaceutical Sciences",
+    "education-teaching": "Education & Teaching",
+    "law-legal-studies": "Law & Legal Studies",
+    "social-sciences-humanities": "Social Sciences & Humanities",
+    "economics-finance": "Economics & Finance",
+    "architecture-urban-planning": "Architecture & Urban Planning",
+    "fine-arts-design": "Fine Arts & Design",
+    "communications-media-studies": "Communications & Media Studies",
+    "agriculture-forestry": "Agriculture & Forestry",
+    "hospitality-tourism": "Hospitality & Tourism"
+}
+
 class User(UserMixin):
     def __init__(self, id, email, password):
         self.id = id
@@ -65,8 +85,7 @@ def login():
         return redirect(url_for("dashboard"))
     
     else:
-        flash("Invalid email or password", "error")
-        return redirect(url_for("home"))
+        return render_template(("login.html"), error="Invalid username or password")
 
 
 @app.route("/signup", methods=["POST"])
@@ -74,12 +93,15 @@ def signup():
     username = request.form.get("username")
     email = request.form.get("email")
     password = request.form.get("password")
-    name = request.form.get("name")
+    confirm_password = request.form.get("confirm_password")
+    if password != confirm_password:
+        return render_template("login.html", stage="signup", error="Passwords do not match")
+    name = request.form.get("full_name")
     study_level = request.form.get("study_level")
     year_of_study = request.form.get("year_of_study")
     major = request.form.get("major")
     response = supabase_client.from_("users").select("*").eq("username", username).execute()
-    existing_user = response.data[0] if response else None
+    existing_user = response.data[0] if response and response.data else None
     
     if existing_user:
         flash("User already exists", "error")
@@ -118,8 +140,9 @@ def edit_profile():
 
 
         supabase_client.from_("users").update({"study_level": study_level, "study_year": year_of_study, "major": major, "home_country": home_country, "ethnicity": ethnicity, "gender": gender, "academic_goal": academic_goal}).eq("id", current_user.id).execute()
-        flash("Profile updated successfully!", "success")
-        return redirect(url_for("dashboard"))
+        response = supabase_client.from_("users").select("*").eq("id", current_user.id).maybe_single().execute()
+        user = response.data
+        return render_template("profile.html", user=user)
     
     elif request.method == "GET":
         response = supabase_client.from_("users").select("*").eq("id", current_user.id).maybe_single().execute()
@@ -326,6 +349,8 @@ def edit_course():
 @login_required
 def dashboard():
     user_data = supabase_client.from_("users").select("*").eq("id", current_user.id).maybe_single().execute().data
+    user_data["major"] = major_dict[user_data["major"]]
+    user_data["study_level"] = level_dict[user_data["study_level"]]
     user_courses = supabase_client.from_("user_courses").select("course_id").eq("user_id", current_user.id).execute().data
     course_ids = [course["course_id"] for course in user_courses]
     if course_ids:
@@ -455,7 +480,7 @@ def handle_send_message(data):
 
 @app.route("/")
 def home():
-    return render_template("login.html")
+    return render_template("login.html", stage="login")
 
 @app.route("/chat")
 @login_required

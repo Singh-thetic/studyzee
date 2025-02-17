@@ -6,16 +6,6 @@
 <div class="auth-container">
     <div class="form-box">
         <h2 id="form-title">Login</h2>
-        
-        {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for category, message in messages %}
-                        <p class="{{ category }}">{{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
 
         <!-- Login Form -->
         <form id="login-form" action="{{ url_for('login') }}" method="POST">
@@ -30,12 +20,12 @@
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
             <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-            <input type="text" name="Full Name" placeholder="Full Name" required>
+            <input type="text" name="full_name" placeholder="Full Name" required>
             <label for="study_level">Study Level</label>
             <select name="study_level" id="study_level" required>
                 <option value="undergraduate">Undergraduate</option>
-                <option value="graduate">Graduate</option>
-                <option value="post_graduate">Post Graduate</option>
+                <option value="masters">Masters</option>
+                <option value="phd">PhD</option>
             </select>
             <label for="year_of_study">Year of Study</label>
             <select name="year_of_study" id="year_of_study" required>
@@ -47,7 +37,24 @@
                 <option value="6">6</option>
             </select>
             <label for="major">Major</label>
-            <input type="text" name="major" id="major" placeholder="Major" required>
+            <select name="major" id="major" required>
+                <option value="business-management">Business & Management</option>
+                <option value="cs-it-data-science">Computer Science, IT &amp; Data Science</option>
+                <option value="engineering-technology">Engineering &amp; Technology</option>
+                <option value="mathematics-statistics">Mathematics &amp; Statistics</option>
+                <option value="natural-environmental-sciences">Natural Sciences &amp; Environmental Studies</option>
+                <option value="health-sciences-medicine">Health Sciences, Nursing &amp; Medicine</option>
+                <option value="pharmacy-pharmaceutical-sciences">Pharmacy &amp; Pharmaceutical Sciences</option>
+                <option value="education-teaching">Education &amp; Teaching</option>
+                <option value="law-legal-studies">Law &amp; Legal Studies</option>
+                <option value="social-sciences-humanities">Social Sciences &amp; Humanities</option>
+                <option value="economics-finance">Economics &amp; Finance</option>
+                <option value="architecture-urban-planning">Architecture &amp; Urban Planning</option>
+                <option value="fine-arts-design">Fine Arts &amp; Design</option>
+                <option value="communications-media-studies">Communications &amp; Media Studies</option>
+                <option value="agriculture-forestry">Agriculture &amp; Forestry</option>
+                <option value="hospitality-tourism-management">Hospitality &amp; Tourism Management</option>
+            </select>
             <button type="submit">Sign Up</button>
         </form>
 
