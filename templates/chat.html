@@ -1,57 +1,252 @@
-{% extends "base.html" %}
-
-{% block title %}Chat Room{% endblock %}
+{% block title %}Chat with {{ friend_name }}{% endblock %}
 
 {% block content %}
-<h2>Chat Room: {{ room_code }}</h2>
-<div id="chat-box">
-    <ul id="messages"></ul>
-</div>
+<div class="chat-container">
+    <div class="chat-header">
+        <img src="{{ friend_pfp or url_for('static', filename='images/default-pfp.jpg') }}" alt="Profile Picture" class="profile-pic">
+        <h2>{{ friend_name }}</h2>
+    </div>
 
-<input id="message-input" type="text" placeholder="Type a message..." />
-<button onclick="sendMessage()">Send</button>
+    <div id="chat-box">
+        <ul id="messages"></ul>
+    </div>
+
+    <div class="message-input-container">
+        <input id="message-input" type="text" placeholder="Type a message..." />
+        <button onclick="sendMessage()" class="send-button">Send</button>
+    </div>
+</div>
 
 <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
 <script>
     var socket = io.connect("http://127.0.0.1:5000");
     var room = "{{ room_code }}";
     var userId = "{{ user_id }}";
+    var friendName = "{{ friend_name }}";
+    var friendPfp = "{{ friend_pfp }}";
+    var userPfp = "{{ current_user.profile_picture }}";
 
     socket.emit("join_room", { room: room });
 
-    function appendMessage(message) {
-        let li = document.createElement("li");
-        li.textContent = message;
-        document.getElementById("messages").appendChild(li);
+function appendMessage(message, senderId, messageId) {
+    let chatBox = document.getElementById("messages");
+
+    // Ensure a unique message ID (if one is not provided)
+    messageId = messageId || `${senderId}-${message}`;
+
+    // Check if this message already exists in the UI
+    if (document.getElementById(`msg-${messageId}`)) {
+        console.log("Duplicate message detected, skipping:", message);
+        return;
     }
 
-    // Load previous messages from the database
+    let li = document.createElement("li");
+    li.className = senderId === userId ? "message sent" : "message received";
+    li.id = `msg-${messageId}`; // Assign unique ID to prevent duplicates
+
+    const profilePic = senderId === userId ? userPfp : friendPfp;
+
+
+    li.innerHTML = `
+        <div class="message-content">
+            <div class="message-bubble">
+                <p>${message}</p>
+            </div>
+        </div>
+    `;
+
+    chatBox.appendChild(li);
+    chatBox.parentElement.scrollTop = chatBox.parentElement.scrollHeight;
+}
+
+
+    // Load previous messages
+fetch(`/chat_history/${room}`)
+    .then(response => response.json())
+    .then(data => {
+        console.log("Fetched messages:", data);  // Debugging
+        data.messages.forEach(msg => {
+            appendMessage(msg.message, msg.sender_id);
+        });
+    })
+    .catch(error => console.error("Error fetching chat history:", error));
+
+
+    socket.on("receive_message", function(data) {
+    console.log("Received message:", data);
+
+    // Prevent duplicate messages
+    appendMessage(data.message, data.sender_id, data.message_id);
+});
+
+function sendMessage() {
+    const messageInput = document.getElementById("message-input");
+    const message = messageInput.value.trim();
+
+    if (message) {
+        const messageId = `${userId}-${Date.now()}`; // Unique ID based on timestamp
+        console.log("Sending message:", message, "from user:", userId);
+
+        // Send to server with message ID
+        socket.emit("send_message", { 
+            room: room, 
+            message: message, 
+            sender_id: userId,
+            message_id: messageId
+        });
+
+        messageInput.value = "";
+
+        // Fetch new messages dynamically instead of refreshing
+        setTimeout(fetchChatHistory, 500); // Fetch after 1000ms delay
+    }
+}
+
+function fetchChatHistory() {
     fetch(`/chat_history/${room}`)
         .then(response => response.json())
         .then(data => {
-            data.messages.forEach(msg => appendMessage(msg));
+            console.log("Fetched messages:", data);
+            const chatBox = document.getElementById("messages");
+            chatBox.innerHTML = ""; // Clear existing messages
+
+            data.messages.forEach(msg => {
+                appendMessage(msg.message, msg.sender_id, msg.message_id);
+            });
         })
-        .catch(error => console.error("Error loading messages:", error));
+        .catch(error => console.error("Error fetching chat history:", error));
+}
 
-    socket.on("receive_message", function (data) {
-        appendMessage(data.message);
-    });
 
-    function sendMessage() {
-        let message = document.getElementById("message-input").value;
-        socket.emit("send_message", { room: room, message: message, user_id: userId });
-        document.getElementById("message-input").value = "";
+
+// Ensure the client does not receive its own sent message again
+socket.on("receive_message", function(data) {
+    console.log("Received message:", data);
+
+    // Only append if the message is from another user
+    if (data.sender_id !== userId) {
+        appendMessage(data.message, data.sender_id, data.message_id);
     }
+});
+
+
+
+
+    // Handle Enter key
+    document.getElementById("message-input").addEventListener("keypress", function(e) {
+        if(e.key === "Enter") sendMessage();
+    });
 </script>
 
-
 <style>
+    .chat-container {
+        max-width: 800px;
+        margin: 20px auto;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .chat-header {
+        background: #007bff;
+        color: white;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+    }
+
+    .profile-pic {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+
     #chat-box {
-        border: 1px solid #ccc;
+        height: 500px;
+        background: #f8f9fa;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    #messages {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .message {
+        margin-bottom: 15px;
+    }
+
+    .message-content {
+        display: flex;
+        align-items: start;
+        gap: 10px;
+    }
+
+    .message.sent .message-content {
+        flex-direction: row-reverse;
+    }
+
+    .message-profile-pic {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .message-bubble {
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 15px;
+        background: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .message.sent .message-bubble {
+        background: #007bff;
+        color: white;
+    }
+
+    .sender-name {
+        display: block;
+        font-size: 0.8em;
+        color: #666;
+        margin-bottom: 3px;
+    }
+
+    .message.sent .sender-name {
+        color: rgba(255,255,255,0.8);
+    }
+
+    .message-input-container {
+        display: flex;
+        gap: 10px;
+        padding: 15px;
+        background: white;
+    }
+
+    #message-input {
+        flex: 1;
         padding: 10px;
-        max-height: 300px;
-        overflow-y: scroll;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        outline: none;
+    }
+
+    .send-button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .send-button:hover {
+        background: #0056b3;
     }
 </style>
-
 {% endblock %}

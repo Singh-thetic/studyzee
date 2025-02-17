@@ -5,7 +5,7 @@
 {% block content %}
 <h2>Add a New Course</h2>
 {% if stage == 1 %}
-<form action="/add-course" method="POST">
+<form action="/add_course" method="POST">
     <select id="subject" name="subject" title="SUBJECT CODE">
         <option value="ABROD">ABROD</option>
         <option value="ACCTG">ACCTG</option>
@@ -303,13 +303,93 @@
 </form>
 
 {% elif stage == 2 %}
-
-<form action="/upload-course" method="POST" enctype="multipart/form-data">
+<form action="/upload_course" method="POST" enctype="multipart/form-data">
     <input type="file" name="files" accept="application/pdf" multiple required>
     <button type="submit">Upload</button>
 </form>
 
 {% elif stage == 3 %}
-<p>Course uploaded successfully!</p>
+{% if course_data|length > 1 %}
+<form action="/confirm_course" method="POST">
+    <h3>Select Section</h3>
+    <select id="section" name="section" required>
+        <option value="">Select</option>
+        {% for section in course_data.keys() %}
+        <option value="{{ section }}">{{ section }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Next</button>
+</form>
+{% else %}
+<form action="/confirm_course" method="POST">
+    <h3>Course Information</h3>
+    {% for key, value in course_data.items() %}
+        <div class="form-group">
+            <label for="{{ key }}_subject">Subject:</label>
+            <input type="text" id="{{ key }}_subject" name="{{ key }}_subject" value="{{ value['subject'] }}" required>
+        </div>
+        <div class="form-group">
+            <label for="{{ key }}_code">Course Code:</label>
+            <input type="text" id="{{ key }}_code" name="{{ key }}_code" value="{{ value['course_code'] }}" required>
+        </div>
+        <div class="form-group">
+            <label for="{{ key }}_email">Instructor Email:</label>
+            <input type="email" id="{{ key }}_email" name="{{ key }}_email" value="{{ value['InstructorEmail'] }}" required>
+        </div>
+        <div class="form-group">
+            <label for="{{ key }}_name">Instructor Name:</label>
+            <input type="text" id="{{ key }}_name" name="{{ key }}_name" value="{{ value['InstructorName'] }}" required>
+        </div>
+        <div class="form-group">
+            <label>Lecture Days:</label>
+            <div>
+                <label><input type="checkbox" name="{{ key }}_days" value="Monday" {% if "Monday" in value['LectureDays'] %}checked{% endif %}> Monday</label>
+                <label><input type="checkbox" name="{{ key }}_days" value="Tuesday" {% if "Tuesday" in value['LectureDays'] %}checked{% endif %}> Tuesday</label>
+                <label><input type="checkbox" name="{{ key }}_days" value="Wednesday" {% if "Wednesday" in value['LectureDays'] %}checked{% endif %}> Wednesday</label>
+                <label><input type="checkbox" name="{{ key }}_days" value="Thursday" {% if "Thursday" in value['LectureDays'] %}checked{% endif %}> Thursday</label>
+                <label><input type="checkbox" name="{{ key }}_days" value="Friday" {% if "Friday" in value['LectureDays'] %}checked{% endif %}> Friday</label>
+                <label><input type="checkbox" name="{{ key }}_days" value="Saturday" {% if "Saturday" in value['LectureDays'] %}checked{% endif %}> Saturday</label>
+                <label><input type="checkbox" name="{{ key }}_days" value="Sunday" {% if "Sunday" in value['LectureDays'] %}checked{% endif %}> Sunday</label>
+            </div>
+        </div>
+        <h3>Weightage Table</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Due Date</th>
+                    <th>Due Time</th>
+                    <th>Weight</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for w_key, w_value in value['WeightageTable'].items() %}
+                <tr>
+                    <td>{{ w_key }}</td>
+                    <td>
+                        {% if w_value['DueDate'] == 'TBD' %}
+                        <input type="text" id="{{ key }}_{{ w_key }}_due_date" name="{{ key }}_{{ w_key }}_due_date" value="TBD" onclick="this.type='date'; this.value='';" onblur="if(this.value==''){this.type='text'; this.value='TBD';}">
+                        {% else %}
+                        <input type="date" id="{{ key }}_{{ w_key }}_due_date" name="{{ key }}_{{ w_key }}_due_date" value="{{ w_value['DueDate'] }}" onblur="if(this.value==''){this.type='text'; this.value='TBD';}">
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if w_value['DueTime'] == 'TBD' %}
+                        <input type="text" id="{{ key }}_{{ w_key }}_due_time" name="{{ key }}_{{ w_key }}_due_time" value="TBD" onclick="this.type='time'; this.value='';" required>
+                        {% else %}
+                        <input type="time" id="{{ key }}_{{ w_key }}_due_time" name="{{ key }}_{{ w_key }}_due_time" value="{{ w_value['DueTime'] }}" required>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <input type="number" id="{{ key }}_{{ w_key }}_weight" name="{{ key }}_{{ w_key }}_weight" value="{{ w_value['Weight'] }}" required>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+    <button type="submit">Confirm</button>
+</form>
+{% endif %}
 {% endif %}
 {% endblock %}
