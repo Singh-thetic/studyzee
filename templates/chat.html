@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Chat Room{% endblock %}
+
+{% block content %}
+<h2>Chat Room: {{ room_code }}</h2>
+<div id="chat-box">
+    <ul id="messages"></ul>
+</div>
+
+<input id="message-input" type="text" placeholder="Type a message..." />
+<button onclick="sendMessage()">Send</button>
+
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<script>
+    var socket = io.connect("http://127.0.0.1:5000");
+    var room = "{{ room_code }}";
+    var userId = "{{ user_id }}";
+
+    socket.emit("join_room", { room: room });
+
+    function appendMessage(message) {
+        let li = document.createElement("li");
+        li.textContent = message;
+        document.getElementById("messages").appendChild(li);
+    }
+
+    // Load previous messages from the database
+    fetch(`/chat_history/${room}`)
+        .then(response => response.json())
+        .then(data => {
+            data.messages.forEach(msg => appendMessage(msg));
+        })
+        .catch(error => console.error("Error loading messages:", error));
+
+    socket.on("receive_message", function (data) {
+        appendMessage(data.message);
+    });
+
+    function sendMessage() {
+        let message = document.getElementById("message-input").value;
+        socket.emit("send_message", { room: room, message: message, user_id: userId });
+        document.getElementById("message-input").value = "";
+    }
+</script>
+
+
+<style>
+    #chat-box {
+        border: 1px solid #ccc;
+        padding: 10px;
+        max-height: 300px;
+        overflow-y: scroll;
+    }
+</style>
+
+{% endblock %}
