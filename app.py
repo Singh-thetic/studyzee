@@ -106,7 +106,6 @@ def logout():
 @login_required
 def edit_profile():
     if request.method == "POST":
-        name = request.form.get("name")
         study_level = request.form.get("study_level")
         year_of_study = request.form.get("year_of_study")
         major = request.form.get("major")
@@ -118,7 +117,7 @@ def edit_profile():
         academic_goal = request.form.get("academic_goal")
 
 
-        supabase_client.from_("users").update({"full_name": name, "study_level": study_level, "study_year": year_of_study, "major": major, "home_country": home_country, "ethnicity": ethnicity, "gender": gender, "academic_goal": academic_goal}).eq("id", current_user.id).execute()
+        supabase_client.from_("users").update({"study_level": study_level, "study_year": year_of_study, "major": major, "home_country": home_country, "ethnicity": ethnicity, "gender": gender, "academic_goal": academic_goal}).eq("id", current_user.id).execute()
         flash("Profile updated successfully!", "success")
         return redirect(url_for("dashboard"))
     
@@ -127,6 +126,13 @@ def edit_profile():
         user = response.data
         return render_template("profile.html", user=user)
     
+@app.route("/change_name", methods=["POST"])
+@login_required
+def change_name():
+    new_name = request.form.get("new_name")
+    supabase_client.from_("users").update({"full_name": new_name}).eq("id", current_user.id).execute()
+    return redirect(url_for("edit_profile"))
+
 @app.route("/add_course", methods=["GET", "POST"])
 @login_required
 def add_course():

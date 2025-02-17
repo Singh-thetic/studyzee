@@ -4,40 +4,102 @@
 
 {% block content %}
 <div class="profile-container">
-    <h1 class="title">StudyZee</h1>
-
+    
     <div class="profile-content">
         <!-- Profile Picture Section -->
         <div class="profile-left">
-            <img src="{{ user.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}" alt="Profile Picture" class="profile-img">
+            <img src="{{ user.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}" alt="Profile Picture" class="profile-img" id="profile-pic">
             <h3 class="username">{{ user.full_name }}</h3>
             <p class="user-handle">@{{ user.username }}</p>
+            <br>
+            <button id="edit-name-btn" class="update-pic-btn">Edit Name</button>
+            <div id="edit-name-popup" class="popup">
+                <div class="popup-content">
+                    <span class="close-btn">&times;</span>
+                    <h3>Change Name</h3>
+                    <form method="POST" action="/change_name">
+                        <input type="text" name="new_name" value="{{ user.full_name }}" required>
+                        <button type="submit">Save</button>
+                    </form>
+                </div>
+            </div>
+            <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const editNameBtn = document.getElementById("edit-name-btn");
+                const editNamePopup = document.getElementById("edit-name-popup");
+                const closeNameBtn = document.querySelector(".close-btn");
 
+                editNameBtn.addEventListener("click", function() {
+                    editNamePopup.style.display = "block";
+                });
+
+                closeNameBtn.addEventListener("click", function() {
+                    editNamePopup.style.display = "none";
+                });
+
+                window.addEventListener("click", function(event) {
+                    if (event.target === editNamePopup) {
+                        editNamePopup.style.display = "none";
+                    }
+                });
+            });
+            </script>
+            
+            
+            <!-- Update Picture Button -->
+            <button id="update-pic-btn" class="update-pic-btn">Update Picture</button>
+        
+            <!-- Profile Picture Upload Popup -->
             <div id="profile-pic-popup" class="popup">
                 <div class="popup-content">
                     <span class="close-btn">&times;</span>
                     <h3>Update Profile Picture</h3>
                     <form id="update-pic-form" method="POST" action="/update_pic" enctype="multipart/form-data">
                         <input type="file" name="profile_pic" accept="image/*" required>
-                        <button type="submit">Update Picture</button>
+                        <button type="submit">Upload</button>
                     </form>
                 </div>
             </div>
         </div>
+        
+        <!-- JavaScript for Popup -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const updatePicBtn = document.getElementById("update-pic-btn");
+                const profilePicPopup = document.getElementById("profile-pic-popup");
+                const closeBtn = document.querySelector(".close-btn");
+        
+                updatePicBtn.addEventListener("click", function() {
+                    profilePicPopup.style.display = "block";
+                });
+        
+                closeBtn.addEventListener("click", function() {
+                    profilePicPopup.style.display = "none";
+                });
+        
+                window.addEventListener("click", function(event) {
+                    if (event.target === profilePicPopup) {
+                        profilePicPopup.style.display = "none";
+                    }
+                });
+            });
+        </script>
 
         <!-- Profile Form -->
         <form method="POST" class="profile-form">
             <div class="form-grid">
                 <!-- Left Column (Blue Fields) -->
                 <div class="form-column blue-column">
-                    <label>Email</label>
-                    <input type="text" value="{{ user.email }}" disabled class="info-box blue">
-
-                    <label>Study Year</label>
-                    <input type="number" name="year_of_study" value="{{ user.study_year or '' }}" min="1" max="10" class="info-box blue">
-
                     <div class="dropdown-container2">
-                        <label for="study_level">Study Level</label>
+                        <label>Email</label>
+                        <input type="text" value="{{ user.email }}" disabled class="info-box blue">
+                    </div>
+                    <div class="dropdown-container2">
+                        <label>Study Year</label>
+                        <input type="number" name="year_of_study" value="{{ user.study_year or '' }}" min="1" max="10" class="info-box blue">
+                    </div>
+                    <div class="dropdown-container2">
+                        <label for="ethnicity">Ethnicity</label>
                         <select name="ethnicity" class="dropdown blue">
                             <option value="" disabled selected>Select</option>
                             <option value="Asian" {% if user.ethnicity == 'Asian' %}selected{% endif %}>Asian</option>
@@ -47,18 +109,19 @@
                             <option value="Other" {% if user.ethnicity == 'Other' %}selected{% endif %}>Other</option>
                         </select>
                     </div>
-
-                    <label>Major</label>
-                    <select name="major" class="dropdown blue">
-                        <option value="" disabled selected>Select</option>
-                        <option value="Computer Science" {% if user.major == 'Computer Science' %}selected{% endif %}>Computer Science</option>
-                        <option value="Mathematics" {% if user.major == 'Mathematics' %}selected{% endif %}>Mathematics</option>
-                        <option value="Physics" {% if user.major == 'Physics' %}selected{% endif %}>Physics</option>
-                        <option value="Engineering" {% if user.major == 'Engineering' %}selected{% endif %}>Engineering</option>
-                        <option value="Other" {% if user.major == 'Other' %}selected{% endif %}>Other</option>
-                    </select>
+                    <div class="dropdown-container2">
+                        <label for="major">Major</label>
+                        <select name="major" class="dropdown blue">
+                            <option value="" disabled selected>Select</option>
+                            <option value="Computer Science" {% if user.major == 'Computer Science' %}selected{% endif %}>Computer Science</option>
+                            <option value="Mathematics" {% if user.major == 'Mathematics' %}selected{% endif %}>Mathematics</option>
+                            <option value="Physics" {% if user.major == 'Physics' %}selected{% endif %}>Physics</option>
+                            <option value="Engineering" {% if user.major == 'Engineering' %}selected{% endif %}>Engineering</option>
+                            <option value="Other" {% if user.major == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
                 </div>
-
+                
                 <!-- Right Column (Red Fields) -->
                 <div class="form-column red-column">
                     <div class="dropdown-container">
@@ -92,15 +155,16 @@
                             <option value="Prefer not to say" {% if user.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
                         </select>
                     </div>
-
-                    <label>Academic Goal</label>
-                    <select name="academic_goal" class="dropdown red">
-                        <option value="" disabled selected>Select</option>
-                        <option value="Graduate with honors" {% if user.academic_goal == 'Graduate with honors' %}selected{% endif %}>Graduate with honors</option>
-                        <option value="Get a research position" {% if user.academic_goal == 'Get a research position' %}selected{% endif %}>Get a research position</option>
-                        <option value="Start a business" {% if user.academic_goal == 'Start a business' %}selected{% endif %}>Start a business</option>
-                        <option value="Other" {% if user.academic_goal == 'Other' %}selected{% endif %}>Other</option>
-                    </select>
+                    <div class="dropdown-container">
+                        <label>Academic Goal</label>
+                        <select name="academic_goal" class="dropdown red">
+                            <option value="" disabled selected>Select</option>
+                            <option value="Graduate with honors" {% if user.academic_goal == 'Graduate with honors' %}selected{% endif %}>Graduate with honors</option>
+                            <option value="Get a research position" {% if user.academic_goal == 'Get a research position' %}selected{% endif %}>Get a research position</option>
+                            <option value="Start a business" {% if user.academic_goal == 'Start a business' %}selected{% endif %}>Start a business</option>
+                            <option value="Other" {% if user.academic_goal == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -115,6 +179,16 @@
 
 <!-- CSS Styling -->
 <style>
+    header {
+        width: 100%;
+        padding: 0px 0;
+        top: 0%;
+        background: #ffffff;
+        text-align: center;
+        /* box-shadow: 0px 4px 6px rgba(0, 0, 0, 1); */
+        z-index: 1000;
+        /* position: fixed; */
+      }
     .profile-container {
         font-family: Arial, sans-serif;
         text-align: center;
@@ -128,6 +202,7 @@
     }
     .profile-left {
         text-align: center;
+        margin-top: 100px;
     }
     .profile-img {
         width: 100px;
@@ -142,10 +217,17 @@
         display: flex;
         gap: 40px;
     }
-    .form-column {
+    /* .form-column {
         width: 50%;
-    }
+        background: #F7F7F7;   
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+    } */
+    
     .info-box, .dropdown {
+        box-shadow: none !important;
+        /* border: 1px solid #ccc; */
         width: 100%;
         padding: 10px;
         border-radius: 10px;
@@ -155,26 +237,33 @@
         text-align: center;
         font-family: Inter;
         font-size: 1em;
-        font-style: normal;
+        /* font-style: normal; */
         font-weight: 400;
         line-height: normal;
     }
-    .blue-column { margin-right: 20px; }
-    .blue { background: #D0E1F9; }
+    .blue-column { margin-right: 20px; 
+    margin-left: 200px;}
+    /* .blue { background: #D0E1F9; } */
     .red { background: #F9C6C6; }
+
     .button-container {
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-    }
-    .cancel-btn, .save-btn {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Aligns items in the center */
+    gap: 20px; /* Space between buttons */
+    width: 100%; /* Ensures full width */
+    text-align: center;
+    margin-left: 160px;
+}
+
+    /* .cancel-btn, .save-btn {
         padding: 10px 20px;
         border: none;
         border-radius: 15px;
         font-size: 16px;
         color: white;
-    }
+    } */
     .dropdown-container {
         display: flex;
         flex-direction: column;
@@ -195,11 +284,18 @@
         border-radius: 15px;
         width: 230px;
         font-family: Arial, sans-serif;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        /* box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); */
         margin-bottom: 20px;
     }
 
     .dropdown-container label {
+        font-size: 18px;
+        font-weight: bold;
+        color: black;
+        margin-bottom: 5px;
+    }
+
+    .dropdown-container2 label {
         font-size: 18px;
         font-weight: bold;
         color: black;
@@ -213,7 +309,20 @@
         padding: 10px;
         border-radius: 10px;
         font-size: 16px;
-        font-weight: bold;
+        /* font-weight: bold; */
+        color: black;
+        text-align: center;
+        cursor: pointer;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    .dropdown-container2 select {
+        appearance: none;
+        background: white;
+        border: none;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 16px;
+        /* font-weight: bold; */
         color: black;
         text-align: center;
         cursor: pointer;
@@ -227,12 +336,73 @@
     .dropdown-container select::-ms-expand {
         display: none;
     }
+    .cancel-btn, .save-btn {
+    padding: 12px 24px;  /* Ensuring same padding */
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+    width: 150px; /* Ensures both buttons have the same width */
+    height: 50px;
+    text-align: center;
+    justify-content: center;
+    align-items: center; 
+    cursor: pointer;
+}
 
-    .cancel-btn { background: #F76C6C; }
-    .save-btn { background: #A3D9A5; }
+
+    .cancel-btn { background: #F76C6C; 
+        text-decoration: none; }
+    .save-btn { background: #A3D9A5;
+        position: relative;
+        top: -15px; }
     .dropdown {
         background: white;
         padding: 15px;
+    }
+    .update-pic-btn {
+        margin-top: 15px;
+        padding: 10px 20px;
+        background: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .update-pic-btn:hover {
+        background: #0056b3;
+    }
+
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    .popup-content {
+        text-align: center;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .close-btn:hover {
+        color: red;
     }
 </style>
 

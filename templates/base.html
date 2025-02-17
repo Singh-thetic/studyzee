@@ -1,40 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}StudyZee{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    {% block styles %}{% endblock %}
-
-    {% if session.get('user') %}  <!-- Include MathJax only when logged in -->
-    <script type="text/javascript" async
-        src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script type="text/javascript" async
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    {% block styles %}{% endblock %} {% if session.get('user') %}
+    <!-- Include MathJax only when logged in -->
+    <script
+      type="text/javascript"
+      async
+      src="https://polyfill.io/v3/polyfill.min.js?features=es6"
+    ></script>
+    <script
+      type="text/javascript"
+      async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"
+    ></script>
     {% endif %}
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <h1>Welcome to StudyZee</h1>
+      <h1>StudyZee</h1>
+      <a href="{{ url_for('flashcards') }}">STUDY</a>
+      {% if session.get('user') %}
+      <!-- Show navbar only when logged in -->
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('profile') }}">Profile</a></li>
+          <li><a href="{{ url_for('courses') }}">Courses</a></li>
+          <li><a href="{{ url_for('tasks') }}">Tasks</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+      </nav>
     </header>
+    {% endif %}
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+    <main>{% block content %}{% endblock %}</main>
 
     <footer>
-        <p>&copy; 2025 StudyZee. All rights reserved.</p>
+      <p>&copy; 2025 StudyZee. All rights reserved.</p>
     </footer>
 
-    {% if session.get('user') %}  <!-- Reprocess MathJax only for logged-in pages -->
+    {% if session.get('user') %}
+    <!-- Reprocess MathJax only for logged-in pages -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            if (window.MathJax) {
-                MathJax.typeset();
-            }
-        });
+      document.addEventListener("DOMContentLoaded", function () {
+        if (window.MathJax) {
+          MathJax.typeset();
+        }
+      });
     </script>
     {% endif %}
-</body>
+  </body>
 </html>

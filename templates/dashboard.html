@@ -1,189 +1,377 @@
-{% extends "base.html" %}
-
-{% block title %}Dashboard - StudyZee{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Dashboard - StudyZee{% endblock %} {%
+block content %}
 <div class="dashboard-container">
-    <h1 class="title">Dashboard - StudyZee</h1>
+  <h2 class="title">Dashboard</h2>
 
-    <div class="main-content">
-        <!-- Sidebar (User Profile) -->
-        <div class="sidebar">
-            <a href="{{ url_for('edit_profile') }}">
-                <img src="{{ user_data.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}" alt="Profile Picture" class="profile-img">
-            </a>
-            <h3 class="username">{{ user_data.full_name }}</h3>
-            <p class="user-handle">@{{ user_data.username }}</p>
-            
-            <div class="info-box major">
-                <p class="label">Major</p>
-                <p class="value">{{ user_data.major }}</p>
-            </div>
-            <div class="info-box study-level">
-                <p class="label">Study Level</p>
-                <p class="value">{{ user_data.study_level }}</p>
-            </div>
+  <div class="main-content">
+    <!-- Sidebar (User Profile) -->
+    <div class="sidebar">
+      <a href="{{ url_for('edit_profile') }}">
+        <img
+          src="{{ user_data.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}"
+          alt="Profile Picture"
+          class="profile-img"
+        />
+      </a>
+      <h3 class="username">{{ user_data.full_name }}</h3>
+      <p class="user-handle">@{{ user_data.username }}</p>
 
-            <button onclick="openFriendRequests()">Friend Requests</button>
+      <div class="info-box major">
+        <p class="label">Major</p>
+        <p class="value">{{ user_data.major }}</p>
+      </div>
+      <div class="info-box study-level">
+        <p class="label">Study Level</p>
+        <p class="value">{{ user_data.study_level }}</p>
+      </div>
 
-            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
-        </div>
+      <!-- <button onclick="openFriendRequests()">Friend Requests</button> -->
 
-        <!-- Courses Section -->
-        <div class="courses-section">
-            <div class="courses-header">
-                <h3>Courses</h3>
-                <a href="{{ url_for('add_course') }}" class="add-btn" style="background: #F8AFAF; color: white;">Add</a>
-            </div>
-            <ul class="courses-list">
-                {% for course in courses %}
-                    <li class="course-item">{{ course }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <!-- Friends & Chat Section -->
-        <div class="friends-section">
-            <h3>Your Friends</h3>
-            <ul id="friends-list"></ul>
-        </div>
-        
-        <script>
-        fetch('/friends_list')
-            .then(response => response.json())
-            .then(data => {
-                let list = document.getElementById('friends-list');
-                data.friends.forEach(friend => {
-                    let li = document.createElement("li");
-                    li.innerHTML = `${friend.email} 
-                        <button onclick="startPrivateChat('${friend.room_code}')">Message</button>`;
-                    list.appendChild(li);
-                });
-            });
-        
-        function startPrivateChat(roomCode) {
-            window.location.href = `/chat?room=${roomCode}`;
-        }
-        </script>
-        
+      <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
     </div>
+
+    <!-- Courses Section -->
+    <div class="courses-section">
+      <div class="courses-header">
+        <h3>Courses</h3>
+        <a
+          href="{{ url_for('add_course') }}"
+          class="add-btn"
+          style="background: #f8afaf; color: white"
+          >Add</a
+        >
+      </div>
+      <ul class="courses-list">
+        {% for course in courses %}
+        <li class="course-item">{{ course }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="friends-section">
+      <div class="friends-header">
+        <h3>Your Friends</h3>
+        <button onclick="openFriendRequests()" class="friend-requests-btn">
+          Friend Requests
+        </button>
+      </div>
+      <ul id="friends-list"></ul>
+    </div>
+
+    <script>
+      fetch("/friends_list")
+        .then((response) => response.json())
+        .then((data) => {
+          let list = document.getElementById("friends-list");
+          data.friends.forEach((friend) => {
+            let li = document.createElement("li");
+            li.innerHTML = `${friend.email} 
+                          <button onclick="startPrivateChat('${friend.room_code}')">Message</button>`;
+            list.appendChild(li);
+          });
+        });
+
+      function startPrivateChat(roomCode) {
+        window.location.href = `/chat?room=${roomCode}`;
+      }
+    </script>
+  </div>
 </div>
 
 <!-- Assignments Section -->
 <div class="assignments-section">
-    <h3>Assignments</h3>
-    <ul class="assignments-list">
-        {% for task in tasks %}
-        <li class="assignment-item" id="task-{{ loop.index0 }}">
-            <input type="checkbox" {% if task[2] %}checked{% endif %} onclick="window.location.href='{{ url_for('complete_task', task_id=task[3], type=task[4]) }}'">
-            {{ task[0] }} - Due: {{ task[1] if task[1] else 'No due date' }}
-        </li>
-        {% endfor %}
-    </ul>
+  <h3>Assignments</h3>
+  <ul class="assignments-list">
+    {% for task in tasks %}
+    <li class="assignment-item" id="task-{{ loop.index0 }}">
+      <input
+        type="checkbox"
+        {%
+        if
+        task[2]
+        %}checked{%
+        endif
+        %}
+        onclick="window.location.href='{{ url_for('complete_task', task_id=task[3], type=task[4]) }}'"
+      />
+      {{ task[0] }} - Due: {{ task[1] if task[1] else 'No due date' }}
+    </li>
+    {% endfor %}
+  </ul>
 </div>
 
-<!-- Friend Requests Modal -->
 <div id="friendRequestsModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeFriendRequests()">&times;</span>
-        <h3>Friend Requests</h3>
-        <ul id="requests-list"></ul>
-    </div>
+  <div class="modal-content">
+    <span class="close" onclick="closeFriendRequests()">&times;</span>
+    <h3>Friend Requests</h3>
+    <ul id="requests-list"></ul>
+  </div>
 </div>
 
 <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
 <script>
-
-// Fetch and Display Friend Requests in the Modal
-function openFriendRequests() {
-    fetch('/friend_requests')
-        .then(response => response.json())
-        .then(data => {
-            let list = document.getElementById('requests-list');
-            list.innerHTML = "";  // Clear previous requests
-            data.requests.forEach(req => {
-                let li = document.createElement("li");
-                li.innerHTML = `${req.sender_email} - ${req.message} 
-                    <button onclick="respondRequest('${req.id}', 'accepted')">Accept</button>
-                    <button onclick="respondRequest('${req.id}', 'rejected')">Reject</button>`;
-                list.appendChild(li);
-            });
+  // Fetch and Display Friend Requests in the Modal
+  function openFriendRequests() {
+    fetch("/friend_requests")
+      .then((response) => response.json())
+      .then((data) => {
+        let list = document.getElementById("requests-list");
+        list.innerHTML = ""; // Clear previous requests
+        data.requests.forEach((req) => {
+          let li = document.createElement("li");
+          li.innerHTML = `${req.sender_email} - ${req.message} 
+                      <button onclick="respondRequest('${req.id}', 'accepted')">Accept</button>
+                      <button onclick="respondRequest('${req.id}', 'rejected')">Reject</button>`;
+          list.appendChild(li);
         });
+      });
 
     document.getElementById("friendRequestsModal").style.display = "block";
-}
+  }
 
-function closeFriendRequests() {
+  function closeFriendRequests() {
     document.getElementById("friendRequestsModal").style.display = "none";
-}
+  }
 
-function respondRequest(requestId, response) {
-    fetch('/respond_friend_request', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ request_id: requestId, response: response })
+  function respondRequest(requestId, response) {
+    fetch("/respond_friend_request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ request_id: requestId, response: response }),
     }).then(() => {
-        alert("Friend request " + response);
-        closeFriendRequests();
-        location.reload();
+      alert("Friend request " + response);
+      closeFriendRequests();
+      location.reload();
     });
-}
+  }
 </script>
 
 <style>
-/* Modal Styling */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
+  header {
     width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-}
-
-.modal-content {
-    background-color: white;
-    margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 50%;
+    padding: 0px 0;
+    top: 0%;
+    background: #ffffff;
     text-align: center;
-    border-radius: 10px;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
+    /* box-shadow: 0px 4px 6px rgba(0, 0, 0, 1); */
+    z-index: 1000;
+    position: fixed;
+  }
+  /* General Layout */
+  .dashboard-container {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .page-title {
+    font-size: 32px;
     font-weight: bold;
-    cursor: pointer;
-}
+    font-family: "Inter", sans-serif;
+    margin-bottom: 20px;
+    color: #4a90e2;
+  }
+  .title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #4a90e2;
+    /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); */
+  }
+  .main-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr;
+    gap: 20px;
+    max-width: 1000px;
+    margin: auto;
+  }
 
-.close:hover {
+  /* Sidebar (Profile Section) */
+  .sidebar {
+    background: #eaf8e6;
+    padding: 50px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .profile-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+  .username {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  .user-handle {
+    font-size: 14px;
+    color: gray;
+  }
+  .info-box {
+    background: #a3d9a5;
+    padding: 5px 20px;
+    border-radius: 10px;
+    margin: 5px 0;
+    text-align: center;
+    width: 100%;
+  }
+  .label {
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .value {
+    font-size: 14px;
+    text-align: center;
+  }
+  .logout-btn {
+    margin-top: 15px;
+    text-decoration: none;
     color: black;
-}
+    font-weight: bold;
+  }
 
-/* Friends Section */
-.friends-section {
-    background: #D0F0C0;
+  /* Courses Section */
+  .courses-section {
+    background: #f9c6c6;
     padding: 15px;
     border-radius: 15px;
     text-align: left;
-}
-
-.friends-section ul {
+  }
+  .courses-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .add-btn {
+    background: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .courses-list {
     list-style: none;
     padding: 0;
-}
-
-.friends-section li {
-    background: #A3D9A5;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .course-item {
+    background: #f8afaf;
     padding: 8px;
     border-radius: 10px;
     margin: 5px 0;
-}
+  }
+
+  /* Notes Section */
+  .notes-section {
+    background: #fff9c4;
+    border-radius: 15px;
+    min-height: 150px;
+  }
+
+  /* Assignments Section */
+  .assignments-section {
+    background: #d0e1f9;
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 20px;
+    max-width: 95vw;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  .assignments-list {
+    list-style: none;
+    padding: 0;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .assignment-item {
+    background: #b0c4f0;
+    padding: 12px;
+    border-radius: 10px;
+    margin: 6px 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .assignment-item input {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+  }
+  footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    background: #ffffff;
+    text-align: center;
+    padding: 100px;
+  }
+  .friends-section {
+    background: #f1ef7d;
+    padding: 15px;
+    border-radius: 15px;
+    text-align: left;
+    position: relative;
+  }
+
+  /* Friends Header (Align title & button properly) */
+  .friends-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+
+  /* Styled Friend Requests Button to Match Add Button */
+  .friend-requests-btn {
+    background: #dfc936; /* Same as Add button in courses */
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-decoration: underline;
+  }
+  .friends-section ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .friends-section li {
+    background: #a3d9a5;
+    padding: 8px;
+    border-radius: 10px;
+    margin: 5px 0;
+  }
+  #friendRequestsModal {
+    display: none; /* Ensures it's hidden initially */
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    background: #ffffff;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .close {
+    cursor: pointer;
+    font-size: 20px;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+  }
 </style>
 
 {% endblock %}
