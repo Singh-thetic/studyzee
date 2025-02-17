@@ -1,19 +1,16 @@
-{% extends "base.html" %}
-
-{% block title %}Auth - StudyZee{% endblock %}
-
-{% block content %}
-<div class="auth-container">
-    <div class="form-box">
+{% extends "base.html" %} {% block title %}Auth - StudyZee{% endblock %} {%
+    block content %}
+    <div class="auth-container">
+      <div class="form-box">
         <h2 id="form-title">Login</h2>
 
         <!-- Login Form -->
         <form id="login-form" action="{{ url_for('login') }}" method="POST">
-            <input type="name" name="username" placeholder="username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
+          <input type="name" name="username" placeholder="username" required />
+          <input type="password" name="password" placeholder="Password" required />
+          <button type="submit">Login</button>
         </form>
-
+    
         <!-- Signup Form (Initially Hidden) -->
         <form id="signup-form" action="{{ url_for('signup') }}" method="POST" style="display: none;">
             <input type="name" name="username" placeholder="username" required>
@@ -57,34 +54,35 @@
             </select>
             <button type="submit">Sign Up</button>
         </form>
-
+    
         <p class="toggle-text">
-            <a href="#" id="toggle-link">First time user? Sign up</a>
+          <a href="#" id="toggle-link">First time user? Sign up</a>
         </p>
+      </div>
     </div>
-</div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
+    
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
         const loginForm = document.getElementById("login-form");
         const signupForm = document.getElementById("signup-form");
         const formTitle = document.getElementById("form-title");
         const toggleLink = document.getElementById("toggle-link");
-
+    
         toggleLink.addEventListener("click", function (event) {
-            event.preventDefault();
-            if (loginForm.style.display !== "none") {
-                loginForm.style.display = "none";
-                signupForm.style.display = "block";
-                formTitle.textContent = "Sign Up";
-                toggleLink.textContent = "Already have an account? Log in";
-            } else {
-                loginForm.style.display = "block";
-                signupForm.style.display = "none";
-                formTitle.textContent = "Login";
-                toggleLink.textContent = "First time user? Sign up";
-            }
+          event.preventDefault();
+          if (loginForm.style.display !== "none") {
+            loginForm.style.display = "none";
+            signupForm.style.display = "block";
+            formTitle.textContent = "Sign Up";
+            toggleLink.textContent = "Already have an account? Log in";
+          } else {
+            loginForm.style.display = "block";
+            signupForm.style.display = "none";
+            formTitle.textContent = "Login";
+            toggleLink.textContent = "First time user? Sign up";
+          }
         });
-    });
-</script>
-{% endblock %}
+      });
+    </script>
+    
+    {% endblock %}
