@@ -11,17 +11,17 @@
 
 /* Body Styling */
 body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: auto;
     background: #f8f8f8;
-    overflow-y: auto;
+    overflow-x: hidden; /* Prevents unwanted horizontal scrolling */
+    overflow-y: auto; /* Allows vertical scrolling */
     position: relative;
-    /* padding-bottom: 60px; */
-    /* padding-top: 100px; */
+    display: block;
 }
+
 
 /* Header Styling */
 header {
