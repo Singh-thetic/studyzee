@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}
+Course Details
+{% endblock %}
+
+{% block content %}
+<h2 class="course-title">{{ course.subject_id }} {{ course.course_code }}</h2>
+<form id="courseForm" method="POST" action="{{ url_for('course_page', subject_id=course.subject_id, course_code=course.course_code) }}">
+    <fieldset id="courseFields" disabled>
+        <div class="form-group">
+            <label for="section">Section:</label>
+            <input type="text" id="section" name="section" value="{{ course.section }}">
+        </div>
+
+        <div class="form-group">
+            <label for="professor_name">Professor Name:</label>
+            <input type="text" id="professor_name" name="professor_name" value="{{ course.professor.name }}">
+        </div>
+
+        <div class="form-group">
+            <label for="professor_email">Professor Email:</label>
+            <input type="email" id="professor_email" name="professor_email" value="{{ course.professor.email }}">
+        </div>
+
+        <div class="form-group">
+            <label for="class_schedule">Class Schedule:</label>
+            <div class="schedule-options">
+                {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
+                <label>
+                    <input type="checkbox" name="class_schedule" value="{{ day }}" {% if day in course.class_schedule %}checked{% endif %}>
+                    {{ day }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <h3>Assignments</h3>
+        <table class="assignments-table">
+            <thead>
+                <tr>
+                    <th>Assignment Name</th>
+                    <th>Weightage</th>
+                    <th>Marks Obtained</th>
+                    <th>Due Date</th>
+                    <th>Due Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for assignment in course.assigned_work %}
+                <tr>
+                    <td>
+                        <input type="text" id="work_{{ assignment.work_id }}_name" name="work_{{ assignment.work_id }}_name" value="{{ assignment.name }}">
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" id="work_{{ assignment.work_id }}_weightage" name="work_{{ assignment.work_id }}_weightage" value="{{ assignment.weightage }}">
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" id="work_{{ assignment.work_id }}_marks_obtained" name="work_{{ assignment.work_id }}_marks_obtained" value="{{ assignment.marks_obtained }}">
+                    </td>
+                    <td>
+                        <input type="date" id="work_{{ assignment.work_id }}_due_date" name="work_{{ assignment.work_id }}_due_date" value="{{ assignment.due_date }}">
+                    </td>
+                    <td>
+                        <input type="time" id="work_{{ assignment.work_id }}_due_time" name="work_{{ assignment.work_id }}_due_time" value="{{ assignment.due_time }}">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </fieldset>
+
+    <div class="button-group">
+        <button type="button" id="editButton" class="btn-edit">Edit</button>
+        <button type="submit" id="saveButton" class="btn-save" hidden>Save</button>
+        <button type="button" id="cancelButton" class="btn-cancel" hidden>Cancel</button>
+    </div>
+</form>
+
+<script>
+document.getElementById("editButton").addEventListener("click", function() {
+    // Enable the form fields
+    document.getElementById("courseFields").removeAttribute("disabled");
+
+    // Show save and cancel buttons
+    document.getElementById("saveButton").hidden = false;
+    document.getElementById("cancelButton").hidden = false;
+
+    // Hide the edit button
+    document.getElementById("editButton").hidden = true;
+});
+
+document.getElementById("cancelButton").addEventListener("click", function() {
+    // Disable the form fields again
+    document.getElementById("courseFields").setAttribute("disabled", "true");
+
+    // Show the edit button
+    document.getElementById("editButton").hidden = false;
+
+    // Hide save and cancel buttons
+    document.getElementById("saveButton").hidden = true;
+    document.getElementById("cancelButton").hidden = true;
+});
+</script>
+
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f7f7f7;
+        color: #333;
+    }
+
+    h2.course-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #ff6b6b;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    form {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: 0.3s ease-in-out;
+    }
+
+    input:focus, textarea:focus {
+        border-color: #3498db;
+        box-shadow: 0px 0px 5px rgba(52, 152, 219, 0.5);
+        outline: none;
+    }
+
+    .btn-edit {
+        background-color: #ff6b6b;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-edit:hover {
+        background-color: #ff4b5c;
+    }
+
+    .btn-save, .btn-cancel {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-save:hover, .btn-cancel:hover {
+        background-color: #2980b9;
+    }
+
+    .button-group {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .assignments-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .assignments-table th, .assignments-table td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    .assignments-table th {
+        background-color: #ff6b6b;
+        color: white;
+    }
+
+    .assignments-table td {
+        background-color: #f9f9f9;
+    }
+
+    .assignments-table td input {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    .schedule-options label {
+        margin-right: 15px;
+        font-weight: 600;
+    }
+
+    .schedule-options input {
+        margin-right: 5px;
+    }
+</style>
+{% endblock %}

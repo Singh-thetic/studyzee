@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+{% block title %}Create New Event{% endblock %}
+
+{% block content %}
+<h1>Create Event</h1>
+
+<form method="POST" action="{{ url_for('create_event') }}" enctype="multipart/form-data" class="event-form">
+    <div class="form-section">
+        <label for="event_name">Event Name</label>
+        <input type="text" id="event_name" name="event_name" required>
+    </div>
+
+    <div class="form-section">
+        <label for="event_description">Description</label>
+        <textarea id="event_description" name="event_description"></textarea>
+    </div>
+
+    <div class="form-section">
+        <label for="event_date">Date</label>
+        <input type="date" id="event_date" name="event_date" required>
+    </div>
+
+    <div class="form-section">
+        <label for="event_image">Upload Image (optional)</label>
+        <input type="file" id="event_image" name="event_image" accept="image/*">
+    </div> 
+
+    <div class="form-section">
+        <label for="event_link">Event Link (optional)</label>
+        <input type="url" id="event_link" name="event_link">
+    </div>
+
+    <div class="form-section accordion">
+        <h3>Target Filters (Optional):</h3>
+        
+        <!-- Majors -->
+        <div class="accordion-item">
+            <p>Majors:</p>
+            <button type="button" class="accordion-toggle">Select Majors</button>
+            <div class="accordion-content">
+                {% for code, major in possible_majors.items() %}
+                    <label>
+                        <input type="checkbox" name="target_majors" value="{{ code }}"> {{ major }}
+                    </label><br>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Ethnicities -->
+        <div class="accordion-item">
+            <p>Ethnicities:</p>
+            <button type="button" class="accordion-toggle">Select Ethnicities</button>
+            <div class="accordion-content">
+                {% for eth in possible_ethnicities %}
+                    <label>
+                        <input type="checkbox" name="target_ethnicities" value="{{ eth }}"> {{ eth }}
+                    </label><br>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Countries -->
+        <div class="accordion-item">
+            <p>Countries (Search and Select):</p>
+            <input type="hidden" id="selected_countries_input" name="target_countries">
+            <input type="text" id="country_search" placeholder="Search for a country..." oninput="filterCountries()">
+            <ul id="country_suggestions" class="country-suggestions">
+                {% for country in possible_countries %}
+                    <li class="country-item" onclick="selectCountry('{{ country }}')">{{ country }}</li>
+                {% endfor %}
+            </ul>
+
+            <div id="selected_countries">
+                <!-- Selected countries will appear here -->
+            </div>
+        </div>
+
+        <!-- Academic Years -->
+        <div class="accordion-item">
+            <p>Academic Years:</p>
+            <button type="button" class="accordion-toggle">Select Academic Years</button>
+            <div class="accordion-content">
+                {% for y in possible_years %}
+                    <label>
+                        <input type="checkbox" name="target_years" value="{{ y }}"> Year {{ y }}
+                    </label><br>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Study Level -->
+        <div class="accordion-item">
+            <p>Study Level:</p>
+            <button type="button" class="accordion-toggle">Select Study Levels</button>
+            <div class="accordion-content">
+                <label>
+                    <input type="checkbox" name="target_study_levels" value="undergraduate"> Undergraduate
+                </label><br>
+                <label>
+                    <input type="checkbox" name="target_study_levels" value="masters"> Masters
+                </label><br>
+                <label>
+                    <input type="checkbox" name="target_study_levels" value="phd"> PhD
+                </label><br>
+            </div>
+        </div>
+
+        <!-- Academic Goals -->
+        <div class="accordion-item">
+            <p>Academic Goal:</p>
+            <button type="button" class="accordion-toggle">Select Academic Goals</button>
+            <div class="accordion-content">
+                {% for goal in possible_goals %}
+                    <label>
+                        <input type="checkbox" name="target_goals" value="{{ goal }}"> {{ goal }}
+                    </label><br>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn-submit">Create Event</button>
+</form>
+
+<script>
+    // Filter country suggestions as user types
+    function filterCountries() {
+        var input = document.getElementById('country_search').value.toUpperCase();
+        var list = document.getElementById('country_suggestions');
+        var items = list.getElementsByTagName('li');
+
+        // Loop through all country items and hide those that don't match the search
+        for (var i = 0; i < items.length; i++) {
+            var country = items[i].textContent || items[i].innerText;
+            if (country.toUpperCase().indexOf(input) > -1) {
+                items[i].style.display = "";
+            } else {
+                items[i].style.display = "none";
+            }
+        }
+    }
+
+    function selectCountry(country) {
+    var selectedCountriesDiv = document.getElementById('selected_countries');
+    var selectedCountriesInput = document.getElementById('selected_countries_input');
+
+    // Check if country is already selected
+    if (!selectedCountriesDiv.querySelector('.selected-country[data-country="' + country + '"]')) {
+        var newCountryElement = document.createElement('span');
+        newCountryElement.classList.add('selected-country');
+        newCountryElement.setAttribute('data-country', country);
+        newCountryElement.textContent = country;
+
+        var removeButton = document.createElement('button');
+        removeButton.textContent = "×";
+        removeButton.classList.add('remove-country');
+        removeButton.onclick = function() {
+            selectedCountriesDiv.removeChild(newCountryElement);
+            updateSelectedCountriesInput();  // Update hidden input when country is removed
+        };
+
+        newCountryElement.appendChild(removeButton);
+        selectedCountriesDiv.appendChild(newCountryElement);
+    }
+
+    // Update the hidden input field to include the selected countries
+    updateSelectedCountriesInput();
+
+    // Clear the search input after selection
+    document.getElementById('country_search').value = '';
+    filterCountries();
+}
+
+function updateSelectedCountriesInput() {
+    var selectedCountriesDiv = document.getElementById('selected_countries');
+    var selectedCountriesInput = document.getElementById('selected_countries_input');
+    
+    // Collect all selected countries from the UI
+    var selectedCountries = [];
+    var countryElements = selectedCountriesDiv.getElementsByClassName('selected-country');
+    for (var i = 0; i < countryElements.length; i++) {
+        selectedCountries.push(countryElements[i].getAttribute('data-country'));
+    }
+    
+    // Update the hidden input field with the selected countries
+    selectedCountriesInput.value = selectedCountries.join(',');
+}
+
+
+    // Accordion Toggle
+    var acc = document.getElementsByClassName("accordion-toggle");
+    for (var i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function() {
+            var content = this.nextElementSibling;
+            // Toggle visibility of content
+            if (content.style.display === "block") {
+                content.style.display = "none";
+            } else {
+                content.style.display = "block";
+            }
+        });
+    }
+</script>
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f4f7fc;
+        color: #333;
+    }
+
+    .event-form {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #34495e;
+        margin-bottom: 20px;
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+    }
+
+    .form-section label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-section input, .form-section textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border 0.3s;
+    }
+
+    .form-section input:focus, .form-section textarea:focus {
+        border-color: #3498db;
+        outline: none;
+    }
+
+    .accordion {
+        margin-top: 30px;
+    }
+
+    .accordion-item {
+        margin-bottom: 15px;
+    }
+
+    .accordion-toggle {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px;
+        width: 100%;
+        text-align: left;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .accordion-toggle:hover {
+        background-color: #2980b9;
+    }
+
+    .accordion-content {
+        display: none;
+        margin-top: 10px;
+        padding-left: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .btn-submit {
+        display: inline-block;
+        background: #2ecc71;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        width: 100%;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .btn-submit:hover {
+        background: #27ae60;
+    }
+
+    input[type="file"] {
+        padding: 10px;
+    }
+
+    input[type="text"], input[type="date"], input[type="url"], textarea {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+    }
+
+    /* Mobile-Friendly */
+    @media (max-width: 768px) {
+        .event-form {
+            padding: 15px;
+        }
+    }
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f4f7fc;
+        color: #333;
+    }
+
+    .event-form {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #34495e;
+        margin-bottom: 20px;
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+    }
+
+    .form-section label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-section input, .form-section textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border 0.3s;
+    }
+
+    .form-section input:focus, .form-section textarea:focus {
+        border-color: #3498db;
+        outline: none;
+    }
+
+    .country-suggestions {
+        list-style: none;
+        padding: 0;
+        margin-top: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .country-item {
+        background-color: #f1f1f1;
+        padding: 8px;
+        cursor: pointer;
+        margin-bottom: 5px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+
+    .country-item:hover {
+        background-color: #3498db;
+        color: white;
+    }
+
+    #selected_countries {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .selected-country {
+        background-color: #2ecc71;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+    }
+
+    .remove-country {
+    background: none; /* No background */
+    border: none; /* No border */
+    color: #e74c3c; /* Red color for the × symbol */
+    font-size: 20px; /* Adjust the size */
+    cursor: pointer;
+    padding: 0;
+    margin-left: 10px; /* Space between the country name and the × button */
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.remove-country:hover {
+    color: #c0392b; /* Darker red on hover */
+}
+
+    .selected-country button {
+        background: transparent;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        margin-left: 5px;
+    }
+
+    .btn-submit {
+        display: inline-block;
+        background: #2ecc71;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        width: 100%;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .btn-submit:hover {
+        background: #27ae60;
+    }
+
+    input[type="file"] {
+        padding: 10px;
+    }
+
+    input[type="text"], input[type="date"], input[type="url"], textarea {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+    }
+
+    /* Mobile-Friendly */
+    @media (max-width: 768px) {
+        .event-form {
+            padding: 15px;
+        }
+    }
+</style>
+
+{% endblock %}

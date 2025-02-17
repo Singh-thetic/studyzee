@@ -31,7 +31,9 @@
     {% endif %}
 
     <header>
-      <h1>StudyZee</h1>
+      <a href="{{ url_for('dashboard') }}">
+        <h1>StudyZee</h1>
+      </a>
       {% if session.get('user') %}
       <!-- Show navbar only when logged in -->
       <nav>
