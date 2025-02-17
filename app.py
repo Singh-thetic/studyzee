@@ -1768,8 +1768,43 @@ def course_page(subject_id, course_code):
             "assigned_work": combined_work_data,
         }
 
+        response = supabase_client.from_('course_links').select('*').eq('course_id', course_id).execute()
+
+        if response.status_code == 200:
+            course_links = response.data
+        else:
+            course_links = []
         # Render the course.html template
-        return render_template("course.html", course=course_info)
+        return render_template("course.html", course=course_info, course_links=course_links)
+    
+@app.route('/add_course_link', methods=['POST'])
+def add_course_link():
+    data = request.get_json()
+    link_name = data.get('link_name')
+    link_url = data.get('link_url')
+
+    if link_name and link_url:
+        # Assuming you have the course_id available, e.g., from session or URL
+        course_id = 1  # Replace with actual course_id from context
+
+        # Insert the new link into Supabase
+        response = supabase_client.from_('course_links').insert({
+            'course_id': course_id,
+            'link_name': link_name,
+            'link_url': link_url
+        }).execute()
+
+        if response.status_code == 201:  # Successfully inserted
+            return jsonify({
+                'success': True,
+                'link_name': link_name,
+                'link_url': link_url
+            })
+        else:
+            return jsonify({'success': False, 'message': 'Failed to add link'})
+
+    return jsonify({'success': False, 'message': 'Invalid data'})
+
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)

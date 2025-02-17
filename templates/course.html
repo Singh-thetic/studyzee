@@ -5,6 +5,155 @@ Course Details
 
 {% block content %}
 <h2 class="course-title">{{ course.subject_id }} {{ course.course_code }}</h2>
+<!-- Course Links Section -->
+<div id="courseLinksContainer" style="position: absolute; top: 10px; right: 20px; max-width: 300px;">
+    <h3>Course Links</h3>
+    <ul id="courseLinksList">
+        {% for link in course.links %}
+        <li><a href="{{ link.url }}" target="_blank">{{ link.name }}</a></li>
+        {% endfor %}
+    </ul>
+    <button id="addLinkButton" class="btn-save">Add Link</button>
+</div>
+
+<!-- Modal for adding new course link -->
+<div id="linkModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3>Add New Link</h3>
+        <label for="linkName">Link Name:</label>
+        <input type="text" id="linkName" name="linkName">
+        
+        <label for="linkURL">Link URL:</label>
+        <input type="url" id="linkURL" name="linkURL">
+        
+        <div class="button-group">
+            <button type="button" id="saveLinkButton" class="btn-save">Save</button>
+            <button type="button" id="closeLinkModal" class="btn-cancel">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Form and other content here -->
+
+<script>
+    // Show the modal
+    document.getElementById("addLinkButton").addEventListener("click", function() {
+        document.getElementById("linkModal").style.display = "block";
+    });
+
+    // Close the modal
+    document.getElementById("closeLinkModal").addEventListener("click", function() {
+        document.getElementById("linkModal").style.display = "none";
+    });
+
+    // Save the link
+    document.getElementById("saveLinkButton").addEventListener("click", function() {
+        const linkName = document.getElementById("linkName").value;
+        const linkURL = document.getElementById("linkURL").value;
+
+        if (linkName && linkURL) {
+            fetch("/add_course_link", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ link_name: linkName, link_url: linkURL })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const newLink = document.createElement("li");
+                    const linkElement = document.createElement("a");
+                    linkElement.href = data.link_url;
+                    linkElement.target = "_blank";
+                    linkElement.textContent = data.link_name;
+                    newLink.appendChild(linkElement);
+                    document.getElementById("courseLinksList").appendChild(newLink);
+                    document.getElementById("linkModal").style.display = "none";
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 20px;
+        width: 300px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-content input {
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+    }
+
+    .btn-save, .btn-cancel {
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-save {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-save:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-cancel {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+    .btn-cancel:hover {
+        background-color: #c0392b;
+    }
+
+    #courseLinksContainer {
+        background-color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #courseLinksList {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    #courseLinksList li {
+        margin-bottom: 10px;
+    }
+
+    #courseLinksList a {
+        color: #3498db;
+        text-decoration: none;
+    }
+
+    #courseLinksList a:hover {
+        text-decoration: underline;
+    }
+</style>
 <form id="courseForm" method="POST" action="{{ url_for('course_page', subject_id=course.subject_id, course_code=course.course_code) }}">
     <fieldset id="courseFields" disabled>
         <div class="form-group">
