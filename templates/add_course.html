@@ -307,9 +307,7 @@
     <input type="file" name="files" accept="application/pdf" multiple required>
     <button type="submit">Upload</button>
 </form>
-
 {% elif stage == 3 %}
-{% if course_data|length > 1 %}
 <form action="{{ url_for('confirm_course') }}" method="POST">
     <h3>Select Section</h3>
     <select id="section" name="section" required>
@@ -320,7 +318,8 @@
     </select>
     <button type="submit">Next</button>
 </form>
-{% else %}
+
+{% elif stage == 4 %}
 <form action="{{ url_for('confirm_course') }}" method="POST">
     <h3>Course Information</h3>
     {% for key, value in course_data.items() %}
@@ -390,6 +389,5 @@
     {% endfor %}
     <button type="submit">Confirm</button>
 </form>
-{% endif %}
 {% endif %}
 {% endblock %}

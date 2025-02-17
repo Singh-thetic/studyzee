@@ -224,8 +224,8 @@ def confirm_course():
         section = request.form.get("section")
         if section:
             course_data = {section: course_data[section]}
+            return render_template("add_course.html", course_data=course_data, stage=4)
         else:
-            # Create a dictionary to store the incoming data
             for key, value in course_data.items():
                 course_data[key]['subject_id'] = request.form.get(f"{key}_subject")
                 course_data[key]['course_code'] = request.form.get(f"{key}_code")
@@ -242,9 +242,7 @@ def confirm_course():
 
             print(course_data)  # Debugging print statement
             
-            # Insert course data dynamically with validation
             for details in course_data.values():
-                # Check if the course already exists
                 existing_course = supabase_client.table("course").select("course_id") \
                                 .ilike("section", f"%{details.get('section', '')}%") \
                                 .ilike("course_code", f"%{details.get('course_code', '')}%") \
@@ -252,21 +250,19 @@ def confirm_course():
                                 .ilike("professor", f"%{details.get('professor', '')}%") \
                                 .maybe_single().execute()
 
-                # Ensure `execute()` properly returns a result
                 if existing_course and existing_course.data:
-                    course_id = existing_course.data["course_id"]  # Fetch existing course_id
+                    course_id = existing_course.data["course_id"]
                 else:
-                    # Insert new course if it doesn't exist
                     course_insert = {
-                        "subject_id": details.get("subject_id", "Unknown")[:10],  # Truncate if needed
-                        "course_code": details.get("course_code", "Unknown")[:10],  # Truncate to 10 chars
-                        "term": details.get("term", "Unknown Term")[:10],  # If term has a length limit
+                        "subject_id": details.get("subject_id", "Unknown")[:10],
+                        "course_code": details.get("course_code", "Unknown")[:10],
+                        "term": details.get("term", "Unknown Term")[:10],
                         "year": details.get("year", 2025),
-                        "section": key,  # Truncate section if needed
-                        "course_name": details.get("course_name", "Unknown Course"),  # No need to truncate unless known limit
-                        "professor": details.get("professor", "Unknown"),  
-                        "class_schedule": ",".join(details.get("class_schedule", []))[:100],  # Truncate long schedules
-                        "professor_email": details.get("professor_email", "Unknown")[:100],  # Avoid long emails
+                        "section": key,
+                        "course_name": details.get("course_name", "Unknown Course"),
+                        "professor": details.get("professor", "Unknown"),
+                        "class_schedule": ",".join(details.get("class_schedule", []))[:100],
+                        "professor_email": details.get("professor_email", "Unknown")[:100],
                     }
                     try:
                         response = supabase_client.table("course").insert(course_insert).execute()
@@ -274,7 +270,6 @@ def confirm_course():
                             course_id = response.data[0]["course_id"]
                     except Exception as e:
                         if 'duplicate key value violates unique constraint' in str(e):
-                            
                             existing_course = supabase_client.table("course").select("course_id") \
                                 .ilike("course_code", f"%{details.get('course_code', '')}%") \
                                 .ilike("subject_id", f"%{details.get('subject_id', '')}%") \
@@ -289,21 +284,16 @@ def confirm_course():
                             raise e
 
                     if response and response.data:
-                        course_id = response.data[0]["course_id"]  # Get the generated `course_id`
+                        course_id = response.data[0]["course_id"]
 
-                # Ensure the user is linked to the course in `user_courses`
                 supabase_client.table("user_courses").insert({"user_id": current_user.id, "course_id": course_id}).execute()
 
-                # Insert assignments into `work_template` and `assigned_work`
                 for work_name, work_data in details["WeightageTable"].items():
-                    # Check if work already exists
                     existing_work = supabase_client.table("work_template").select("work_id").eq("course_id", course_id).eq("name", work_name).execute()
                     
                     if existing_work.data:
                         work_id = existing_work.data[0]["work_id"]
                     else:
-                        # Insert new work into `work_template`
-
                         work_date = work_data.get("due_date")
                         if work_date in ["TBD", ""]:
                             work_date = None
@@ -313,7 +303,7 @@ def confirm_course():
                         work_insert = {
                             "course_id": course_id,
                             "name": work_name,
-                            "weightage": float(work_data.get("weightage", 0)),  
+                            "weightage": float(work_data.get("weightage", 0)),
                             "due_date": work_date,
                             "due_time": work_time,
                         }
@@ -321,12 +311,11 @@ def confirm_course():
                         if work_response.data:
                             work_id = work_response.data[0]["work_id"]
 
-                        # Insert assignment into `assigned_work`
                         assigned_work = {
                             "user_id": current_user.id,
                             "work_id": work_id,
                             "course_id": course_id,
-                            "weightage": float(work_data.get("weightage", 0)),  
+                            "weightage": float(work_data.get("weightage", 0)),
                             "due_date": work_date,
                             "due_time": work_time,
                             "done": False,
@@ -337,13 +326,12 @@ def confirm_course():
     else:
         course_data = request.args.get("course_data")
         if course_data:
-            course_data = eval(course_data)  # Convert string representation of dict back to dict
+            course_data = eval(course_data)
         else:
             flash("Course data is missing", "error")
             return redirect(url_for("add_course"))
 
         uploaded_files = request.args.getlist("uploaded_files")
-        # Process the uploaded files to extract course information
         course_information = course_info(uploaded_files)
         for course in course_information:
             course_information[course] = {
@@ -354,8 +342,10 @@ def confirm_course():
         course_data = course_information
         print(course_data)
     
-    # Render the template with the extracted course data
-    return render_template("add_course.html", course_data=course_data, stage=3)
+    if len(course_data) > 1:
+        return render_template("add_course.html", course_data=course_data, stage=3)
+    else:
+        return render_template("add_course.html", course_data=course_data, stage=4)
 
 
 @app.route("/dashboard")
@@ -539,7 +529,7 @@ def send_friend_request():
     existing_request = supabase_client.from_("friend_requests") \
         .select("*").eq("sender_id", current_user.id).eq("receiver_id", receiver_id).maybe_single().execute()
 
-    if existing_request.data:
+    if existing_request:
         return jsonify({"error": "Friend request already sent"}), 400
 
     # Store friend request
@@ -591,10 +581,10 @@ def respond_friend_request():
             "chat_room_code": room_code
         }).execute()
 
-        # Check if a room already exists to avoid duplicates
+        # Check if a room with the same room code already exists to avoid duplicates
         existing_room = supabase_client.from_("private_chat_rooms").select("room_code") \
-        .or_(f"user1_id.eq.{current_user.id},user2_id.eq.{sender_id},user1_id.eq.{sender_id},user2_id.eq.{current_user.id}") \
-        .maybe_single().execute()
+            .eq("room_code", room_code) \
+            .maybe_single().execute()
 
         if not existing_room:
             print("DEBUG: Creating new chat room in private_chat_rooms")
@@ -604,7 +594,7 @@ def respond_friend_request():
                 "room_code": room_code
             }).execute()
         else:
-            print(f"DEBUG: Chat room already exists for {room_code}")
+            print(f"DEBUG: kk Chat room already exists for {room_code}")
 
         # Notify sender
         supabase_client.from_("notifications").insert({
@@ -619,6 +609,48 @@ def respond_friend_request():
     print(f"DEBUG: Update response for friend_requests: {update_response}")
 
     return jsonify({"message": f"Friend request {response}!"}), 200
+
+
+@app.route("/suggested_friends", methods=["GET"])
+@login_required
+def suggested_friends():
+    # Get the current user's enrolled courses
+    user_courses_response = supabase_client.from_("user_courses").select("course_id") \
+        .eq("user_id", current_user.id).execute()
+
+    user_course_ids = {uc["course_id"] for uc in user_courses_response.data} if user_courses_response.data else set()
+
+    if not user_course_ids:
+        return jsonify({"suggestions": []})
+
+    # Find users in the same courses
+    same_course_users_response = supabase_client.from_("user_courses").select("user_id") \
+        .in_("course_id", list(user_course_ids)).execute()
+
+    same_course_user_ids = {user["user_id"] for user in same_course_users_response.data} if same_course_users_response.data else set()
+
+    # Remove already friends and pending requests
+    existing_friends = supabase_client.from_("friends").select("user2_id") \
+        .eq("user1_id", current_user.id).execute()
+    friend_ids = {friend["user2_id"] for friend in existing_friends.data} if existing_friends.data else set()
+
+    pending_requests = supabase_client.from_("friend_requests").select("receiver_id") \
+        .eq("sender_id", current_user.id).execute()
+    pending_ids = {req["receiver_id"] for req in pending_requests.data} if pending_requests.data else set()
+
+    exclude_ids = friend_ids | pending_ids | {current_user.id}
+
+    # Filter out users who are already friends, pending, or themselves
+    potential_friends = same_course_user_ids - exclude_ids
+
+    if not potential_friends:
+        return jsonify({"suggestions": []})
+
+    # Get user details for potential friends
+    response = supabase_client.from_("users").select("id, email, full_name") \
+        .in_("id", list(potential_friends)).limit(5).execute()
+
+    return jsonify({"suggestions": response.data if response.data else []})
 
 
 @app.route("/friend_requests", methods=["GET"])

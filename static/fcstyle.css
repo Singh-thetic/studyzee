@@ -4,7 +4,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(135deg, #f5a623, #f29d77);
+    background: linear-gradient(135deg, #86d7d5, #3ed2ed);
     margin: 0;
     overflow: hidden;
 }
@@ -54,7 +54,7 @@ button {
     padding: 12px 25px;
     border: none;
     border-radius: 25px;
-    background-color: #ff5722;
+    background-color: #3ed2ed;
     color: white;
     font-size: 1.1rem;
     cursor:pointer;
@@ -62,7 +62,7 @@ button {
 }
 
 button:hover {
-    background-color: #e64a19;
+    background-color: #86d7d5;
 }
 
 button:active {

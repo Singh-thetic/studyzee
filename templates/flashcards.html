@@ -28,7 +28,20 @@
         document.addEventListener("DOMContentLoaded", function () {
             const flashcardSetsContainer = document.getElementById("flashcard-sets");
             const uploadForm = document.getElementById("upload-form");
-            const loadingDiv = document.getElementById("loading");
+            const fileInput = document.getElementById("notes-file");
+            const uploadText = document.querySelector(".upload-box p");
+            const loadingDiv = document.createElement("div");
+            loadingDiv.id = "loading";
+            loadingDiv.style.display = "none";
+            document.body.appendChild(loadingDiv);
+
+            fileInput.addEventListener("change", function () {
+                if (fileInput.files.length > 0) {
+                    uploadText.textContent = fileInput.files[0].name;
+                } else {
+                    uploadText.textContent = "Click to upload notes";
+                }
+            });
 
             function loadFlashcardSets() {
                 fetch("/flashcard-sets")
@@ -66,7 +79,7 @@
                 .then(response => response.json())
                 .then(data => {
                     loadingDiv.style.display = "none"; // Hide spinner
-                    alert(data.message); // Show success message
+                    alert("File upload complete! " + data.message); // Show success popup
                     loadFlashcardSets(); // Reload the flashcard sets
                 })
                 .catch(error => {
@@ -78,7 +91,6 @@
             loadFlashcardSets();
         });
     </script>
-
     <style>
         body {
             font-family: Arial, sans-serif;
