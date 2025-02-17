@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Flashcards{% endblock %}
+
+{% block content %}
+    <h1>Flashcard Practice</h1>
+
+    <!-- Existing Flashcard Sets -->
+    <h2>Choose a Flashcard Set</h2>
+    <ul id="flashcard-sets">
+        <!-- Flashcard sets will be dynamically loaded here -->
+    </ul>
+
+    <!-- Upload Form for AI-Generated Flashcards -->
+    <h2>Upload Notes to Generate Flashcards</h2>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" name="notes_file" id="notes-file" accept=".txt,.pdf,.docx" required>
+        <input type="text" name="set_name" placeholder="Set Name" required>
+        <button type="submit">Upload & Generate</button>
+    </form>
+
+    <!-- Loading Spinner -->
+    <div id="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Generating flashcards...</p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const flashcardSetsContainer = document.getElementById("flashcard-sets");
+            const uploadForm = document.getElementById("upload-form");
+            const loadingDiv = document.getElementById("loading");
+
+            // Fetch and display existing flashcard sets
+            function loadFlashcardSets() {
+                fetch("/flashcard-sets")
+                    .then(response => response.json())
+                    .then(data => {
+                        flashcardSetsContainer.innerHTML = ""; // Clear previous list
+                        if (data.sets.length === 0) {
+                            flashcardSetsContainer.innerHTML = "<p>No flashcard sets available.</p>";
+                        } else {
+                            data.sets.forEach(set => {
+                                const li = document.createElement("li");
+                                const link = document.createElement("a");
+                                link.href = `/practice/${set.set_id}`; // Navigates to practice page
+                                link.textContent = set.name;
+                                li.appendChild(link);
+                                flashcardSetsContainer.appendChild(li);
+                            });
+                        }
+                    })
+                    .catch(error => console.error("Error fetching flashcard sets:", error));
+            }
+
+            // Handle file upload
+            uploadForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                const formData = new FormData(uploadForm);
+                
+                // Show loading spinner
+                loadingDiv.style.display = "block";
+
+                fetch("/upload-notes", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadingDiv.style.display = "none"; // Hide spinner
+                    alert(data.message); // Show success message
+                    loadFlashcardSets(); // Reload the flashcard sets
+                })
+                .catch(error => {
+                    loadingDiv.style.display = "none"; // Hide spinner
+                    alert("Error uploading notes: " + error);
+                });
+            });
+
+            // Load flashcard sets on page load
+            loadFlashcardSets();
+        });
+    </script>
+
+    <style>
+        /* Spinner styles */
+        .spinner {
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading {
+            text-align: center;
+            display: none;
+        }
+    </style>
+{% endblock %}

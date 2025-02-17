@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 from pdf_parse import *
 import shutil
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
-
+from study_assist import *
 # Load environment variables
 load_dotenv()
 
@@ -516,6 +516,84 @@ def handle_private_message(data):
     }).execute()
 
     emit("receive_message", {"message": message}, room=room)
+
+
+@app.route("/practice/<set_id>")
+def practice_flashcards(set_id):
+    print(f"Received set_id: {set_id}")  # Debugging output
+
+    # Ensure set_id is a valid UUID
+    if not set_id or set_id == "undefined":
+        return jsonify({"error": "Invalid set_id"}), 400
+
+    try:
+        response = supabase_client.table('flashcards').select('question', 'answer').eq('set_id', set_id).execute()
+        flashcards = response.data if response.data else []
+        flashcards = [{"question": card["question"], "answer": card["answer"]} for card in flashcards]
+
+        return render_template('practice.html', flashcards=flashcards)
+    
+    except Exception as e:
+        print(f"Database query error: {e}") 
+
+@app.route("/flashcards")
+def flashcards():
+    return render_template("flashcards.html")
+
+
+@app.route('/flashcard-sets')
+def get_flashcard_sets():
+    user_id = current_user.id
+    response = supabase_client.table('flashcard_sets').select('*').eq('user_id', user_id).execute()
+    sets = response.data if response.data else []
+    return jsonify({"sets": sets})
+
+@app.route('/flashcards/<set_id>')
+def get_flashcards(set_id):
+    response = supabase_client.table('flashcards').select('*').eq('set_id', set_id).execute()
+    flashcards = response.data if response.data else []
+    return jsonify({"flashcards": flashcards})
+
+@app.route('/upload-notes', methods=['POST'])
+def upload_notes():
+    if 'notes_file' not in request.files:
+        return jsonify({"message": "No file uploaded"}), 400
+
+    os.makedirs("uploads", exist_ok=True)
+    notes_file = request.files['notes_file']
+    filename = secure_filename(notes_file.filename)
+    file_path = os.path.join("uploads", filename)
+    notes_file.save(file_path)
+
+    # Upload the file to the Supabase bucket
+    with open(file_path, "rb") as f:
+        response = supabase_client.storage.from_("course").upload(filename, f)
+
+    res_dict = response.model_dump() if hasattr(response, 'model_dump') else response
+    if isinstance(res_dict, dict) and "error" in res_dict and res_dict["error"]:
+        return jsonify({"error": "Upload failed", "details": res_dict["error"]}), 500
+
+    # AI model generates flashcards from the notes
+    flashcards = generate_flashcards(file_path)
+
+    # Store flashcards in Supabase
+    response = supabase_client.table('flashcard_sets').insert({
+        "user_id": current_user.id,  # Use the actual user ID from the current session
+        "name": request.form.get("set_name", "Untitled Set")
+    }).execute()
+
+    set_id = response.data[0]['set_id']  # Get the auto-generated set_id from the response
+
+    for i, card in enumerate(flashcards):
+        supabase_client.table('flashcards').insert({
+            "set_id": set_id,
+            "question_no": i + 1,
+            "question": card[0],
+            "answer": card[1]
+        }).execute()
+
+
+    return jsonify({"message": "Flashcards generated and saved!"})
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)
