@@ -4,7 +4,7 @@ import os
 from pdf_parse import extract_text_from_pdf
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
-def flashcards(file_path):
+def generate_flashcards(file_path):
     pdf_text = extract_text_from_pdf(file_path)
     query = """Here are notes from a topic. Can you create flashcards for me? I need you to identify the following information:
     1. Definitions
@@ -59,4 +59,3 @@ def flashcards(file_path):
 
 if __name__ == "__main__":
     file_path = "mdps.pdf"
-    print(flashcards(file_path))

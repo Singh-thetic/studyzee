@@ -58,3 +58,6 @@ yarl==1.18.3
 zipp==3.21.0
 zope.interface==7.2
 PyPDF2
+flask_socketio
+flask_login
+flask_bcrypt
