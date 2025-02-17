@@ -214,11 +214,11 @@ def upload_course():
         else:
             return jsonify({"error": "Invalid file format"}), 400
     global course_data
-    return redirect(url_for("edit_course", course_data=course_data, uploaded_files=uploaded_files))
+    return redirect(url_for("confirm_course", course_data=course_data, uploaded_files=uploaded_files))
 
 @app.route("/confirm_course", methods=["GET", "POST"])
 @login_required
-def edit_course():
+def confirm_course():
     global course_data
     if request.method == "POST":
         section = request.form.get("section")
@@ -246,9 +246,9 @@ def edit_course():
             for details in course_data.values():
                 # Check if the course already exists
                 existing_course = supabase_client.table("course").select("course_id") \
+                                .ilike("section", f"%{details.get('section', '')}%") \
                                 .ilike("course_code", f"%{details.get('course_code', '')}%") \
                                 .ilike("subject_id", f"%{details.get('subject_id', '')}%") \
-                                .ilike("section", f"%{details.get('section', '')}%") \
                                 .ilike("professor", f"%{details.get('professor', '')}%") \
                                 .maybe_single().execute()
 
@@ -262,7 +262,7 @@ def edit_course():
                         "course_code": details.get("course_code", "Unknown")[:10],  # Truncate to 10 chars
                         "term": details.get("term", "Unknown Term")[:10],  # If term has a length limit
                         "year": details.get("year", 2025),
-                        "section": details.get("section", "A")[:10],  # Truncate section if needed
+                        "section": key,  # Truncate section if needed
                         "course_name": details.get("course_name", "Unknown Course"),  # No need to truncate unless known limit
                         "professor": details.get("professor", "Unknown"),  
                         "class_schedule": ",".join(details.get("class_schedule", []))[:100],  # Truncate long schedules
@@ -290,10 +290,6 @@ def edit_course():
 
                     if response and response.data:
                         course_id = response.data[0]["course_id"]  # Get the generated `course_id`
-
-                    
-                        
-    
 
                 # Ensure the user is linked to the course in `user_courses`
                 supabase_client.table("user_courses").insert({"user_id": current_user.id, "course_id": course_id}).execute()
@@ -326,8 +322,6 @@ def edit_course():
                             work_id = work_response.data[0]["work_id"]
 
                         # Insert assignment into `assigned_work`
-                        
-                        
                         assigned_work = {
                             "user_id": current_user.id,
                             "work_id": work_id,
@@ -339,10 +333,7 @@ def edit_course():
                         }
                         supabase_client.table("assigned_work").insert(assigned_work).execute()
 
-    
         return redirect(url_for("dashboard"))
-        
-
     else:
         course_data = request.args.get("course_data")
         if course_data:
@@ -365,7 +356,6 @@ def edit_course():
     
     # Render the template with the extracted course data
     return render_template("add_course.html", course_data=course_data, stage=3)
-
 
 
 @app.route("/dashboard")

@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 56,
+            "activePatchIndex": 58,
             "patches": [
                 {
                     "date": 1739647115782,
@@ -232,6 +232,14 @@
                 {
                     "date": 1739732998207,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,8 +4,9 @@\n \n openai.api_key = os.getenv('OPENAI_API_KEY')\n \n def extract_text_from_pdf(pdf_path):\n+\n     pdf_text = \"\"\n     with open(pdf_path, 'rb') as file:\n         reader = PyPDF2.PdfReader(file)\n         for page_num in range(len(reader.pages)):\n"
+                },
+                {
+                    "date": 1739779661886,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,9 +37,9 @@\n     # If there are multiple assignments (like 5 assignment for total 40%, you should write each sepearately like assignment 1 = 8%)\n     # \n \n      The format should be like this:\n-     111-LectureDays: [MTWRF] -111    ## Keep the format in single alphabet for each day, use R for Thursday\n+     111-LectureDays: [MTWRF] -111    ## Keep the format in single alphabet for each day, use M FOR 'MONDAY', T FOR 'TUESDAY' AND 'TU', W FOR 'WEDNESDAY', R FOR 'THURSDAY' AND 'Th', F FOR 'FRIDAY'\n      111-LectureTime: [HH:MM-HH:MM] -111\n      111-LectureLocation: [Building, Room] -111\n      222-InstructorName: [First Last] -222\n      222-InstructorEmail: [email] -222\n@@ -79,12 +79,12 @@\n         dayname = {\"M\":\"Monday\", \"T\":\"Tuesday\", \"W\":\"Wednesday\", \"R\":\"Thursday\", \"F\":\"Friday\"}\n         course_info[section_name][\"LectureDays\"] = []\n         for d in lecture_date:\n             course_info[section_name][\"LectureDays\"].append(dayname[d])\n-        lecture_time = section.split(\"111-LectureTime: [\")[1].split(\"] -111\")[0].strip()\n-        course_info[section_name][\"LectureTime\"] = lecture_time\n-        lecture_location = section.split(\"111-LectureLocation: [\")[1].split(\"] -111\")[0].strip()\n-        course_info[section_name][\"LectureLocation\"] = lecture_location\n+        # lecture_time = section.split(\"111-LectureTime: [\")[1].split(\"] -111\")[0].strip()\n+        # # course_info[section_name][\"LectureTime\"] = lecture_time\n+        # # lecture_location = section.split(\"111-LectureLocation: [\")[1].split(\"] -111\")[0].strip()\n+        # course_info[section_name][\"LectureLocation\"] = lecture_location\n         instructor_name = section.split(\"222-InstructorName: [\")[1].split(\"] -222\")[0].strip()\n         course_info[section_name][\"InstructorName\"] = instructor_name\n         instructor_email = section.split(\"222-InstructorEmail: [\")[1].split(\"] -222\")[0].strip()\n         course_info[section_name][\"InstructorEmail\"] = instructor_email\n"
+                },
+                {
+                    "date": 1739779775430,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -75,12 +75,18 @@\n             continue\n         section_name = section.split(\"###\")[0].replace(\" \", \"\").replace(\"*\", \"\").replace(\"[\", \"\").replace(\"]\", \"\").strip()\n         course_info[section_name] = {}\n         lecture_date= section.split(\"111-LectureDays: [\")[1].split(\"] -111\")[0].strip()\n-        dayname = {\"M\":\"Monday\", \"T\":\"Tuesday\", \"W\":\"Wednesday\", \"R\":\"Thursday\", \"F\":\"Friday\"}\n+        dayname = {\"M\": \"Monday\", \"T\": \"Tuesday\", \"W\": \"Wednesday\", \"R\": \"Thursday\", \"F\": \"Friday\", \"Th\": \"Thursday\", \"Tu\": \"Tuesday\"}\n         course_info[section_name][\"LectureDays\"] = []\n-        for d in lecture_date:\n-            course_info[section_name][\"LectureDays\"].append(dayname[d])\n+        i = 0\n+        while i < len(lecture_date):\n+            if lecture_date[i:i+2] in dayname:\n+                course_info[section_name][\"LectureDays\"].append(dayname[lecture_date[i:i+2]])\n+                i += 2\n+            else:\n+                course_info[section_name][\"LectureDays\"].append(dayname[lecture_date[i]])\n+                i += 1\n         # lecture_time = section.split(\"111-LectureTime: [\")[1].split(\"] -111\")[0].strip()\n         # # course_info[section_name][\"LectureTime\"] = lecture_time\n         # # lecture_location = section.split(\"111-LectureLocation: [\")[1].split(\"] -111\")[0].strip()\n         # course_info[section_name][\"LectureLocation\"] = lecture_location\n"
                 }
             ],
             "date": 1739647115782,

@@ -310,7 +310,7 @@
 
 {% elif stage == 3 %}
 {% if course_data|length > 1 %}
-<form action="/confirm_course" method="POST">
+<form action="{{ url_for('confirm_course') }}" method="POST">
     <h3>Select Section</h3>
     <select id="section" name="section" required>
         <option value="">Select</option>
@@ -321,7 +321,7 @@
     <button type="submit">Next</button>
 </form>
 {% else %}
-<form action="/confirm_course" method="POST">
+<form action="{{ url_for('confirm_course') }}" method="POST">
     <h3>Course Information</h3>
     {% for key, value in course_data.items() %}
         <div class="form-group">

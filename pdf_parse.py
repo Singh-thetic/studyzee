@@ -38,7 +38,7 @@ def course_info(pdf_paths: list):
     # 
 
      The format should be like this:
-     111-LectureDays: [MTWRF] -111    ## Keep the format in single alphabet for each day, use R for Thursday
+     111-LectureDays: [MTWRF] -111    ## Keep the format in single alphabet for each day, use M FOR 'MONDAY', T FOR 'TUESDAY' AND 'TU', W FOR 'WEDNESDAY', R FOR 'THURSDAY' AND 'Th', F FOR 'FRIDAY'
      111-LectureTime: [HH:MM-HH:MM] -111
      111-LectureLocation: [Building, Room] -111
      222-InstructorName: [First Last] -222
@@ -76,14 +76,20 @@ def parse_course_results(response):
         section_name = section.split("###")[0].replace(" ", "").replace("*", "").replace("[", "").replace("]", "").strip()
         course_info[section_name] = {}
         lecture_date= section.split("111-LectureDays: [")[1].split("] -111")[0].strip()
-        dayname = {"M":"Monday", "T":"Tuesday", "W":"Wednesday", "R":"Thursday", "F":"Friday"}
+        dayname = {"M": "Monday", "T": "Tuesday", "W": "Wednesday", "R": "Thursday", "F": "Friday", "Th": "Thursday", "Tu": "Tuesday"}
         course_info[section_name]["LectureDays"] = []
-        for d in lecture_date:
-            course_info[section_name]["LectureDays"].append(dayname[d])
-        lecture_time = section.split("111-LectureTime: [")[1].split("] -111")[0].strip()
-        course_info[section_name]["LectureTime"] = lecture_time
-        lecture_location = section.split("111-LectureLocation: [")[1].split("] -111")[0].strip()
-        course_info[section_name]["LectureLocation"] = lecture_location
+        i = 0
+        while i < len(lecture_date):
+            if lecture_date[i:i+2] in dayname:
+                course_info[section_name]["LectureDays"].append(dayname[lecture_date[i:i+2]])
+                i += 2
+            else:
+                course_info[section_name]["LectureDays"].append(dayname[lecture_date[i]])
+                i += 1
+        # lecture_time = section.split("111-LectureTime: [")[1].split("] -111")[0].strip()
+        # # course_info[section_name]["LectureTime"] = lecture_time
+        # # lecture_location = section.split("111-LectureLocation: [")[1].split("] -111")[0].strip()
+        # course_info[section_name]["LectureLocation"] = lecture_location
         instructor_name = section.split("222-InstructorName: [")[1].split("] -222")[0].strip()
         course_info[section_name]["InstructorName"] = instructor_name
         instructor_email = section.split("222-InstructorEmail: [")[1].split("] -222")[0].strip()
