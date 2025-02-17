@@ -1,393 +1,477 @@
-{% extends "base.html" %}
-
-{% block title %}Add Course{% endblock %}
-
-{% block content %}
-<h2>Add a New Course</h2>
-{% if stage == 1 %}
-<form action="/add_course" method="POST">
-    <select id="subject" name="subject" title="SUBJECT CODE">
-        <option value="ABROD">ABROD</option>
-        <option value="ACCTG">ACCTG</option>
-        <option value="ADMI">ADMI</option>
-        <option value="ADRAM">ADRAM</option>
-        <option value="AFNS">AFNS</option>
-        <option value="AGRMT">AGRMT</option>
-        <option value="ALES">ALES</option>
-        <option value="ALS">ALS</option>
-        <option value="AN SC">AN SC</option>
-        <option value="ANAT">ANAT</option>
-        <option value="ANATE">ANATE</option>
-        <option value="ANGL">ANGL</option>
-        <option value="ANTHE">ANTHE</option>
-        <option value="ANTHR">ANTHR</option>
-        <option value="ARAB">ARAB</option>
-        <option value="AREC">AREC</option>
-        <option value="ART">ART</option>
-        <option value="ARTE">ARTE</option>
-        <option value="ASL">ASL</option>
-        <option value="ASTRO">ASTRO</option>
-        <option value="AUACC">AUACC</option>
-        <option value="AUART">AUART</option>
-        <option value="AUBIO">AUBIO</option>
-        <option value="AUCHE">AUCHE</option>
-        <option value="AUCLA">AUCLA</option>
-        <option value="AUCRI">AUCRI</option>
-        <option value="AUCSC">AUCSC</option>
-        <option value="AUCSL">AUCSL</option>
-        <option value="AUDRA">AUDRA</option>
-        <option value="AUECO">AUECO</option>
-        <option value="AUEDC">AUEDC</option>
-        <option value="AUEFX">AUEFX</option>
-        <option value="AUENG">AUENG</option>
-        <option value="AUENV">AUENV</option>
-        <option value="AUEPS">AUEPS</option>
-        <option value="AUFAR">AUFAR</option>
-        <option value="AUFRE">AUFRE</option>
-        <option value="AUGDS">AUGDS</option>
-        <option value="AUGEO">AUGEO</option>
-        <option value="AUGER">AUGER</option>
-        <option value="AUHIS">AUHIS</option>
-        <option value="AUHUM">AUHUM</option>
-        <option value="AUIDS">AUIDS</option>
-        <option value="AUIND">AUIND</option>
-        <option value="AULAN">AULAN</option>
-        <option value="AULAT">AULAT</option>
-        <option value="AUMAT">AUMAT</option>
-        <option value="AUMGT">AUMGT</option>
-        <option value="AUMUS">AUMUS</option>
-        <option value="AUPAC">AUPAC</option>
-        <option value="AUPED">AUPED</option>
-        <option value="AUPHI">AUPHI</option>
-        <option value="AUPHY">AUPHY</option>
-        <option value="AUPOL">AUPOL</option>
-        <option value="AUPSY">AUPSY</option>
-        <option value="AUREL">AUREL</option>
-        <option value="AUSCA">AUSCA</option>
-        <option value="AUSCI">AUSCI</option>
-        <option value="AUSOC">AUSOC</option>
-        <option value="AUSPA">AUSPA</option>
-        <option value="AUSSC">AUSSC</option>
-        <option value="AUSTA">AUSTA</option>
-        <option value="B LAW">B LAW</option>
-        <option value="BIOCH">BIOCH</option>
-        <option value="BIOCM">BIOCM</option>
-        <option value="BIOEN">BIOEN</option>
-        <option value="BIOIN">BIOIN</option>
-        <option value="BIOL">BIOL</option>
-        <option value="BIOLE">BIOLE</option>
-        <option value="BIOPH">BIOPH</option>
-        <option value="BME">BME</option>
-        <option value="BOT">BOT</option>
-        <option value="BTM">BTM</option>
-        <option value="BUEC">BUEC</option>
-        <option value="BUS">BUS</option>
-        <option value="C LIT">C LIT</option>
-        <option value="CATS">CATS</option>
-        <option value="CCALS">CCALS</option>
-        <option value="CEDUL">CEDUL</option>
-        <option value="CELL">CELL</option>
-        <option value="CH E">CH E</option>
-        <option value="CHEM">CHEM</option>
-        <option value="CHIM">CHIM</option>
-        <option value="CHINA">CHINA</option>
-        <option value="CHRTC">CHRTC</option>
-        <option value="CHRTP">CHRTP</option>
-        <option value="CIV E">CIV E</option>
-        <option value="CLASS">CLASS</option>
-        <option value="CME">CME</option>
-        <option value="CMPUT">CMPUT</option>
-        <option value="COMM">COMM</option>
-        <option value="CSD">CSD</option>
-        <option value="CSL">CSL</option>
-        <option value="D HYG">D HYG</option>
-        <option value="DA">DA</option>
-        <option value="DAC">DAC</option>
-        <option value="DANCE">DANCE</option>
-        <option value="DDS">DDS</option>
-        <option value="DENT">DENT</option>
-        <option value="DES">DES</option>
-        <option value="DET">DET</option>
-        <option value="DEVDU">DEVDU</option>
-        <option value="DH">DH</option>
-        <option value="DRAMA">DRAMA</option>
-        <option value="EAP">EAP</option>
-        <option value="EAS">EAS</option>
-        <option value="EASIA">EASIA</option>
-        <option value="ECE">ECE</option>
-        <option value="ECON">ECON</option>
-        <option value="ECONE">ECONE</option>
-        <option value="EDCT">EDCT</option>
-        <option value="EDEL">EDEL</option>
-        <option value="EDES">EDES</option>
-        <option value="EDFX">EDFX</option>
-        <option value="EDHS">EDHS</option>
-        <option value="EDIT">EDIT</option>
-        <option value="EDPS">EDPS</option>
-        <option value="EDPY">EDPY</option>
-        <option value="EDSE">EDSE</option>
-        <option value="EDU">EDU</option>
-        <option value="EDU F">EDU F</option>
-        <option value="EDU M">EDU M</option>
-        <option value="EDU P">EDU P</option>
-        <option value="EDU S">EDU S</option>
-        <option value="EN PH">EN PH</option>
-        <option value="ENCMP">ENCMP</option>
-        <option value="ENCS">ENCS</option>
-        <option value="ENG M">ENG M</option>
-        <option value="ENGG">ENGG</option>
-        <option value="ENGL">ENGL</option>
-        <option value="ENT">ENT</option>
-        <option value="ENV E">ENV E</option>
-        <option value="EPE">EPE</option>
-        <option value="ET RE">ET RE</option>
-        <option value="ETCAN">ETCAN</option>
-        <option value="ETIN">ETIN</option>
-        <option value="EXCH">EXCH</option>
-        <option value="EXT">EXT</option>
-        <option value="F MED">F MED</option>
-        <option value="FIN">FIN</option>
-        <option value="FOLK">FOLK</option>
-        <option value="FOREC">FOREC</option>
-        <option value="FRANC">FRANC</option>
-        <option value="FREN">FREN</option>
-        <option value="FS">FS</option>
-        <option value="GENEQ">GENEQ</option>
-        <option value="GENET">GENET</option>
-        <option value="GEOPH">GEOPH</option>
-        <option value="GERM">GERM</option>
-        <option value="GREEK">GREEK</option>
-        <option value="GSJ">GSJ</option>
-        <option value="GTOTC">GTOTC</option>
-        <option value="HADVC">HADVC</option>
-        <option value="HE ED">HE ED</option>
-        <option value="HEBR">HEBR</option>
-        <option value="HECOL">HECOL</option>
-        <option value="HGEO">HGEO</option>
-        <option value="HINDI">HINDI</option>
-        <option value="HIST">HIST</option>
-        <option value="HISTE">HISTE</option>
-        <option value="HUME">HUME</option>
-        <option value="IMIN">IMIN</option>
-        <option value="IMINE">IMINE</option>
-        <option value="INFOR">INFOR</option>
-        <option value="INT D">INT D</option>
-        <option value="IPG">IPG</option>
-        <option value="IRISH">IRISH</option>
-        <option value="ITAL">ITAL</option>
-        <option value="JAPAN">JAPAN</option>
-        <option value="KIN">KIN</option>
-        <option value="KOREA">KOREA</option>
-        <option value="KRLS">KRLS</option>
-        <option value="KSR">KSR</option>
-        <option value="LA ST">LA ST</option>
-        <option value="LABMP">LABMP</option>
-        <option value="LATIN">LATIN</option>
-        <option value="LAW">LAW</option>
-        <option value="LING">LING</option>
-        <option value="LINGQ">LINGQ</option>
-        <option value="LIS">LIS</option>
-        <option value="LITT">LITT</option>
-        <option value="M EDU">M EDU</option>
-        <option value="M REG">M REG</option>
-        <option value="MA PH">MA PH</option>
-        <option value="MA SC">MA SC</option>
-        <option value="MACE">MACE</option>
-        <option value="MAFSJ">MAFSJ</option>
-        <option value="MARK">MARK</option>
-        <option value="MAT E">MAT E</option>
-        <option value="MATH">MATH</option>
-        <option value="MATHQ">MATHQ</option>
-        <option value="MDGEN">MDGEN</option>
-        <option value="MEC E">MEC E</option>
-        <option value="MED">MED</option>
-        <option value="MGTSC">MGTSC</option>
-        <option value="MICRB">MICRB</option>
-        <option value="MICRE">MICRE</option>
-        <option value="MIN E">MIN E</option>
-        <option value="MINT">MINT</option>
-        <option value="MLCS">MLCS</option>
-        <option value="MLSCI">MLSCI</option>
-        <option value="MM">MM</option>
-        <option value="MMA">MMA</option>
-        <option value="MMI">MMI</option>
-        <option value="MSFSJ">MSFSJ</option>
-        <option value="MST">MST</option>
-        <option value="MUSIC">MUSIC</option>
-        <option value="MUSIQ">MUSIQ</option>
-        <option value="NEURO">NEURO</option>
-        <option value="NORSE">NORSE</option>
-        <option value="NORW">NORW</option>
-        <option value="NS">NS</option>
-        <option value="NU FS">NU FS</option>
-        <option value="NURS">NURS</option>
-        <option value="NUTR">NUTR</option>
-        <option value="OB GY">OB GY</option>
-        <option value="OBIOL">OBIOL</option>
-        <option value="OCCTH">OCCTH</option>
-        <option value="OM">OM</option>
-        <option value="ONCOL">ONCOL</option>
-        <option value="OPHTH">OPHTH</option>
-        <option value="PAED">PAED</option>
-        <option value="PALEO">PALEO</option>
-        <option value="PET E">PET E</option>
-        <option value="PGDE">PGDE</option>
-        <option value="PGME">PGME</option>
-        <option value="PHARM">PHARM</option>
-        <option value="PHIL">PHIL</option>
-        <option value="PHILE">PHILE</option>
-        <option value="PHYS">PHYS</option>
-        <option value="PHYSE">PHYSE</option>
-        <option value="PHYSL">PHYSL</option>
-        <option value="PHYSQ">PHYSQ</option>
-        <option value="PL SC">PL SC</option>
-        <option value="PLAN">PLAN</option>
-        <option value="PMCOL">PMCOL</option>
-        <option value="POL S">POL S</option>
-        <option value="POLSH">POLSH</option>
-        <option value="PORT">PORT</option>
-        <option value="PSSTC">PSSTC</option>
-        <option value="PSYCE">PSYCE</option>
-        <option value="PSYCH">PSYCH</option>
-        <option value="PSYCI">PSYCI</option>
-        <option value="PTHER">PTHER</option>
-        <option value="PUNJ">PUNJ</option>
-        <option value="R SOC">R SOC</option>
-        <option value="RADDI">RADDI</option>
-        <option value="RADTH">RADTH</option>
-        <option value="REHAB">REHAB</option>
-        <option value="RELIG">RELIG</option>
-        <option value="REN R">REN R</option>
-        <option value="RLS">RLS</option>
-        <option value="RSCH">RSCH</option>
-        <option value="RUSS">RUSS</option>
-        <option value="SANSK">SANSK</option>
-        <option value="SC INF">SC INF</option>
-        <option value="SC PO">SC PO</option>
-        <option value="SCAND">SCAND</option>
-        <option value="SCI">SCI</option>
-        <option value="SCSOC">SCSOC</option>
-        <option value="SCSP">SCSP</option>
-        <option value="SEM">SEM</option>
-        <option value="SLAV">SLAV</option>
-        <option value="SOC">SOC</option>
-        <option value="SOCIE">SOCIE</option>
-        <option value="SPAN">SPAN</option>
-        <option value="SPH">SPH</option>
-        <option value="SPRIT">SPRIT</option>
-        <option value="STAT">STAT</option>
-        <option value="STATQ">STATQ</option>
-        <option value="STS">STS</option>
-        <option value="SURG">SURG</option>
-        <option value="SUST">SUST</option>
-        <option value="SWED">SWED</option>
-        <option value="T DES">T DES</option>
-        <option value="TAACO">TAACO</option>
-        <option value="TAAFI">TAAFI</option>
-        <option value="TAAMG">TAAMG</option>
-        <option value="TAAMK">TAAMK</option>
-        <option value="TAARH">TAARH</option>
-        <option value="TAATC">TAATC</option>
-        <option value="THES">THES</option>
-        <option value="UKR">UKR</option>
-        <option value="UNIV">UNIV</option>
-        <option value="WGS">WGS</option>
-        <option value="WKEXP">WKEXP</option>
-        <option value="WRITE">WRITE</option>
-        <option value="WRS">WRS</option>
-        <option value="ZOOL">ZOOL</option>
-        <option value="ZOOLE">ZOOLE</option>
-    </select>
-    <input type="text" name="course_code" placeholder="Course Number" required>
-    <button type="submit">Next</button>
-</form>
-
-{% elif stage == 2 %}
-<form action="/upload_course" method="POST" enctype="multipart/form-data">
-    <input type="file" name="files" accept="application/pdf" multiple required>
-    <button type="submit">Upload</button>
-</form>
-{% elif stage == 3 %}
-<form action="{{ url_for('confirm_course') }}" method="POST">
-    <h3>Select Section</h3>
-    <select id="section" name="section" required>
+{% extends "base.html" %} {% block title %}Add Course{% endblock %} {% block
+    content %}
+    <h2 class="title" style="font-size: 36px; font-weight: bold; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Add new courses - StudyZee</h2>
+    <div class="auth-container">
+      <div class="form-box">
+        <h2>Add a New Course</h2>
+        {% if stage == 1 %}
+        <form action="/add_course" method="POST">
+          <select id="subject" name="subject" title="SUBJECT CODE">
+            <option value="ABROD">ABROD</option>
+            <option value="ACCTG">ACCTG</option>
+            <option value="ADMI">ADMI</option>
+            <option value="ADRAM">ADRAM</option>
+            <option value="AFNS">AFNS</option>
+            <option value="AGRMT">AGRMT</option>
+            <option value="ALES">ALES</option>
+            <option value="ALS">ALS</option>
+            <option value="AN SC">AN SC</option>
+            <option value="ANAT">ANAT</option>
+            <option value="ANATE">ANATE</option>
+            <option value="ANGL">ANGL</option>
+            <option value="ANTHE">ANTHE</option>
+            <option value="ANTHR">ANTHR</option>
+            <option value="ARAB">ARAB</option>
+            <option value="AREC">AREC</option>
+            <option value="ART">ART</option>
+            <option value="ARTE">ARTE</option>
+            <option value="ASL">ASL</option>
+            <option value="ASTRO">ASTRO</option>
+            <option value="AUACC">AUACC</option>
+            <option value="AUART">AUART</option>
+            <option value="AUBIO">AUBIO</option>
+            <option value="AUCHE">AUCHE</option>
+            <option value="AUCLA">AUCLA</option>
+            <option value="AUCRI">AUCRI</option>
+            <option value="AUCSC">AUCSC</option>
+            <option value="AUCSL">AUCSL</option>
+            <option value="AUDRA">AUDRA</option>
+            <option value="AUECO">AUECO</option>
+            <option value="AUEDC">AUEDC</option>
+            <option value="AUEFX">AUEFX</option>
+            <option value="AUENG">AUENG</option>
+            <option value="AUENV">AUENV</option>
+            <option value="AUEPS">AUEPS</option>
+            <option value="AUFAR">AUFAR</option>
+            <option value="AUFRE">AUFRE</option>
+            <option value="AUGDS">AUGDS</option>
+            <option value="AUGEO">AUGEO</option>
+            <option value="AUGER">AUGER</option>
+            <option value="AUHIS">AUHIS</option>
+            <option value="AUHUM">AUHUM</option>
+            <option value="AUIDS">AUIDS</option>
+            <option value="AUIND">AUIND</option>
+            <option value="AULAN">AULAN</option>
+            <option value="AULAT">AULAT</option>
+            <option value="AUMAT">AUMAT</option>
+            <option value="AUMGT">AUMGT</option>
+            <option value="AUMUS">AUMUS</option>
+            <option value="AUPAC">AUPAC</option>
+            <option value="AUPED">AUPED</option>
+            <option value="AUPHI">AUPHI</option>
+            <option value="AUPHY">AUPHY</option>
+            <option value="AUPOL">AUPOL</option>
+            <option value="AUPSY">AUPSY</option>
+            <option value="AUREL">AUREL</option>
+            <option value="AUSCA">AUSCA</option>
+            <option value="AUSCI">AUSCI</option>
+            <option value="AUSOC">AUSOC</option>
+            <option value="AUSPA">AUSPA</option>
+            <option value="AUSSC">AUSSC</option>
+            <option value="AUSTA">AUSTA</option>
+            <option value="B LAW">B LAW</option>
+            <option value="BIOCH">BIOCH</option>
+            <option value="BIOCM">BIOCM</option>
+            <option value="BIOEN">BIOEN</option>
+            <option value="BIOIN">BIOIN</option>
+            <option value="BIOL">BIOL</option>
+            <option value="BIOLE">BIOLE</option>
+            <option value="BIOPH">BIOPH</option>
+            <option value="BME">BME</option>
+            <option value="BOT">BOT</option>
+            <option value="BTM">BTM</option>
+            <option value="BUEC">BUEC</option>
+            <option value="BUS">BUS</option>
+            <option value="C LIT">C LIT</option>
+            <option value="CATS">CATS</option>
+            <option value="CCALS">CCALS</option>
+            <option value="CEDUL">CEDUL</option>
+            <option value="CELL">CELL</option>
+            <option value="CH E">CH E</option>
+            <option value="CHEM">CHEM</option>
+            <option value="CHIM">CHIM</option>
+            <option value="CHINA">CHINA</option>
+            <option value="CHRTC">CHRTC</option>
+            <option value="CHRTP">CHRTP</option>
+            <option value="CIV E">CIV E</option>
+            <option value="CLASS">CLASS</option>
+            <option value="CME">CME</option>
+            <option value="CMPUT">CMPUT</option>
+            <option value="COMM">COMM</option>
+            <option value="CSD">CSD</option>
+            <option value="CSL">CSL</option>
+            <option value="D HYG">D HYG</option>
+            <option value="DA">DA</option>
+            <option value="DAC">DAC</option>
+            <option value="DANCE">DANCE</option>
+            <option value="DDS">DDS</option>
+            <option value="DENT">DENT</option>
+            <option value="DES">DES</option>
+            <option value="DET">DET</option>
+            <option value="DEVDU">DEVDU</option>
+            <option value="DH">DH</option>
+            <option value="DRAMA">DRAMA</option>
+            <option value="EAP">EAP</option>
+            <option value="EAS">EAS</option>
+            <option value="EASIA">EASIA</option>
+            <option value="ECE">ECE</option>
+            <option value="ECON">ECON</option>
+            <option value="ECONE">ECONE</option>
+            <option value="EDCT">EDCT</option>
+            <option value="EDEL">EDEL</option>
+            <option value="EDES">EDES</option>
+            <option value="EDFX">EDFX</option>
+            <option value="EDHS">EDHS</option>
+            <option value="EDIT">EDIT</option>
+            <option value="EDPS">EDPS</option>
+            <option value="EDPY">EDPY</option>
+            <option value="EDSE">EDSE</option>
+            <option value="EDU">EDU</option>
+            <option value="EDU F">EDU F</option>
+            <option value="EDU M">EDU M</option>
+            <option value="EDU P">EDU P</option>
+            <option value="EDU S">EDU S</option>
+            <option value="EN PH">EN PH</option>
+            <option value="ENCMP">ENCMP</option>
+            <option value="ENCS">ENCS</option>
+            <option value="ENG M">ENG M</option>
+            <option value="ENGG">ENGG</option>
+            <option value="ENGL">ENGL</option>
+            <option value="ENT">ENT</option>
+            <option value="ENV E">ENV E</option>
+            <option value="EPE">EPE</option>
+            <option value="ET RE">ET RE</option>
+            <option value="ETCAN">ETCAN</option>
+            <option value="ETIN">ETIN</option>
+            <option value="EXCH">EXCH</option>
+            <option value="EXT">EXT</option>
+            <option value="F MED">F MED</option>
+            <option value="FIN">FIN</option>
+            <option value="FOLK">FOLK</option>
+            <option value="FOREC">FOREC</option>
+            <option value="FRANC">FRANC</option>
+            <option value="FREN">FREN</option>
+            <option value="FS">FS</option>
+            <option value="GENEQ">GENEQ</option>
+            <option value="GENET">GENET</option>
+            <option value="GEOPH">GEOPH</option>
+            <option value="GERM">GERM</option>
+            <option value="GREEK">GREEK</option>
+            <option value="GSJ">GSJ</option>
+            <option value="GTOTC">GTOTC</option>
+            <option value="HADVC">HADVC</option>
+            <option value="HE ED">HE ED</option>
+            <option value="HEBR">HEBR</option>
+            <option value="HECOL">HECOL</option>
+            <option value="HGEO">HGEO</option>
+            <option value="HINDI">HINDI</option>
+            <option value="HIST">HIST</option>
+            <option value="HISTE">HISTE</option>
+            <option value="HUME">HUME</option>
+            <option value="IMIN">IMIN</option>
+            <option value="IMINE">IMINE</option>
+            <option value="INFOR">INFOR</option>
+            <option value="INT D">INT D</option>
+            <option value="IPG">IPG</option>
+            <option value="IRISH">IRISH</option>
+            <option value="ITAL">ITAL</option>
+            <option value="JAPAN">JAPAN</option>
+            <option value="KIN">KIN</option>
+            <option value="KOREA">KOREA</option>
+            <option value="KRLS">KRLS</option>
+            <option value="KSR">KSR</option>
+            <option value="LA ST">LA ST</option>
+            <option value="LABMP">LABMP</option>
+            <option value="LATIN">LATIN</option>
+            <option value="LAW">LAW</option>
+            <option value="LING">LING</option>
+            <option value="LINGQ">LINGQ</option>
+            <option value="LIS">LIS</option>
+            <option value="LITT">LITT</option>
+            <option value="M EDU">M EDU</option>
+            <option value="M REG">M REG</option>
+            <option value="MA PH">MA PH</option>
+            <option value="MA SC">MA SC</option>
+            <option value="MACE">MACE</option>
+            <option value="MAFSJ">MAFSJ</option>
+            <option value="MARK">MARK</option>
+            <option value="MAT E">MAT E</option>
+            <option value="MATH">MATH</option>
+            <option value="MATHQ">MATHQ</option>
+            <option value="MDGEN">MDGEN</option>
+            <option value="MEC E">MEC E</option>
+            <option value="MED">MED</option>
+            <option value="MGTSC">MGTSC</option>
+            <option value="MICRB">MICRB</option>
+            <option value="MICRE">MICRE</option>
+            <option value="MIN E">MIN E</option>
+            <option value="MINT">MINT</option>
+            <option value="MLCS">MLCS</option>
+            <option value="MLSCI">MLSCI</option>
+            <option value="MM">MM</option>
+            <option value="MMA">MMA</option>
+            <option value="MMI">MMI</option>
+            <option value="MSFSJ">MSFSJ</option>
+            <option value="MST">MST</option>
+            <option value="MUSIC">MUSIC</option>
+            <option value="MUSIQ">MUSIQ</option>
+            <option value="NEURO">NEURO</option>
+            <option value="NORSE">NORSE</option>
+            <option value="NORW">NORW</option>
+            <option value="NS">NS</option>
+            <option value="NU FS">NU FS</option>
+            <option value="NURS">NURS</option>
+            <option value="NUTR">NUTR</option>
+            <option value="OB GY">OB GY</option>
+            <option value="OBIOL">OBIOL</option>
+            <option value="OCCTH">OCCTH</option>
+            <option value="OM">OM</option>
+            <option value="ONCOL">ONCOL</option>
+            <option value="OPHTH">OPHTH</option>
+            <option value="PAED">PAED</option>
+            <option value="PALEO">PALEO</option>
+            <option value="PET E">PET E</option>
+            <option value="PGDE">PGDE</option>
+            <option value="PGME">PGME</option>
+            <option value="PHARM">PHARM</option>
+            <option value="PHIL">PHIL</option>
+            <option value="PHILE">PHILE</option>
+            <option value="PHYS">PHYS</option>
+            <option value="PHYSE">PHYSE</option>
+            <option value="PHYSL">PHYSL</option>
+            <option value="PHYSQ">PHYSQ</option>
+            <option value="PL SC">PL SC</option>
+            <option value="PLAN">PLAN</option>
+            <option value="PMCOL">PMCOL</option>
+            <option value="POL S">POL S</option>
+            <option value="POLSH">POLSH</option>
+            <option value="PORT">PORT</option>
+            <option value="PSSTC">PSSTC</option>
+            <option value="PSYCE">PSYCE</option>
+            <option value="PSYCH">PSYCH</option>
+            <option value="PSYCI">PSYCI</option>
+            <option value="PTHER">PTHER</option>
+            <option value="PUNJ">PUNJ</option>
+            <option value="R SOC">R SOC</option>
+            <option value="RADDI">RADDI</option>
+            <option value="RADTH">RADTH</option>
+            <option value="REHAB">REHAB</option>
+            <option value="RELIG">RELIG</option>
+            <option value="REN R">REN R</option>
+            <option value="RLS">RLS</option>
+            <option value="RSCH">RSCH</option>
+            <option value="RUSS">RUSS</option>
+            <option value="SANSK">SANSK</option>
+            <option value="SC INF">SC INF</option>
+            <option value="SC PO">SC PO</option>
+            <option value="SCAND">SCAND</option>
+            <option value="SCI">SCI</option>
+            <option value="SCSOC">SCSOC</option>
+            <option value="SCSP">SCSP</option>
+            <option value="SEM">SEM</option>
+            <option value="SLAV">SLAV</option>
+            <option value="SOC">SOC</option>
+            <option value="SOCIE">SOCIE</option>
+            <option value="SPAN">SPAN</option>
+            <option value="SPH">SPH</option>
+            <option value="SPRIT">SPRIT</option>
+            <option value="STAT">STAT</option>
+            <option value="STATQ">STATQ</option>
+            <option value="STS">STS</option>
+            <option value="SURG">SURG</option>
+            <option value="SUST">SUST</option>
+            <option value="SWED">SWED</option>
+            <option value="T DES">T DES</option>
+            <option value="TAACO">TAACO</option>
+            <option value="TAAFI">TAAFI</option>
+            <option value="TAAMG">TAAMG</option>
+            <option value="TAAMK">TAAMK</option>
+            <option value="TAARH">TAARH</option>
+            <option value="TAATC">TAATC</option>
+            <option value="THES">THES</option>
+            <option value="UKR">UKR</option>
+            <option value="UNIV">UNIV</option>
+            <option value="WGS">WGS</option>
+            <option value="WKEXP">WKEXP</option>
+            <option value="WRITE">WRITE</option>
+            <option value="WRS">WRS</option>
+            <option value="ZOOL">ZOOL</option>
+            <option value="ZOOLE">ZOOLE</option>
+          </select>
+          <input
+            type="text"
+            name="course_code"
+            placeholder="Course Number"
+            required
+          />
+          <button type="submit">Next</button>
+        </form>
+      </div>
+    </div>
+    
+    {% elif stage == 2 %}
+    <form action="/upload_course" method="POST" enctype="multipart/form-data">
+      <input type="file" name="files" accept="application/pdf" multiple required />
+      <button type="submit">Upload</button>
+    </form>
+    {% elif stage == 3 %}
+    <form action="{{ url_for('confirm_course') }}" method="POST">
+      <h3>Select Section</h3>
+      <select id="section" name="section" required>
         <option value="">Select</option>
         {% for section in course_data.keys() %}
         <option value="{{ section }}">{{ section }}</option>
         {% endfor %}
-    </select>
-    <button type="submit">Next</button>
-</form>
-
-{% elif stage == 4 %}
-<form action="{{ url_for('confirm_course') }}" method="POST">
-    <h3>Course Information</h3>
-    {% for key, value in course_data.items() %}
-        <div class="form-group">
-            <label for="{{ key }}_subject">Subject:</label>
-            <input type="text" id="{{ key }}_subject" name="{{ key }}_subject" value="{{ value['subject'] }}" required>
+      </select>
+      <button type="submit">Next</button>
+    </form>
+    
+    {% elif stage == 4 %}
+    <form action="{{ url_for('confirm_course') }}" method="POST">
+      <h3>Course Information</h3>
+      {% for key, value in course_data.items() %}
+      <div class="form-group">
+        <label for="{{ key }}_subject">Subject:</label>
+        <input
+          type="text"
+          id="{{ key }}_subject"
+          name="{{ key }}_subject"
+          value="{{ value['subject'] }}"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="{{ key }}_code">Course Code:</label>
+        <input
+          type="text"
+          id="{{ key }}_code"
+          name="{{ key }}_code"
+          value="{{ value['course_code'] }}"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="{{ key }}_email">Instructor Email:</label>
+        <input
+          type="email"
+          id="{{ key }}_email"
+          name="{{ key }}_email"
+          value="{{ value['InstructorEmail'] }}"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="{{ key }}_name">Instructor Name:</label>
+        <input
+          type="text"
+          id="{{ key }}_name"
+          name="{{ key }}_name"
+          value="{{ value['InstructorName'] }}"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label>Lecture Days:</label>
+        <div>
+          <label
+            ><input type="checkbox" name="{{ key }}_days" value="Monday" {% if
+            "Monday" in value['LectureDays'] %}checked{% endif %}> Monday</label
+          >
+          <label
+            ><input type="checkbox" name="{{ key }}_days" value="Tuesday" {% if
+            "Tuesday" in value['LectureDays'] %}checked{% endif %}> Tuesday</label
+          >
+          <label
+            ><input type="checkbox" name="{{ key }}_days" value="Wednesday" {% if
+            "Wednesday" in value['LectureDays'] %}checked{% endif %}>
+            Wednesday</label
+          >
+          <label
+            ><input type="checkbox" name="{{ key }}_days" value="Thursday" {% if
+            "Thursday" in value['LectureDays'] %}checked{% endif %}> Thursday</label
+          >
+          <label
+            ><input type="checkbox" name="{{ key }}_days" value="Friday" {% if
+            "Friday" in value['LectureDays'] %}checked{% endif %}> Friday</label
+          >
+          <label
+            ><input type="checkbox" name="{{ key }}_days" value="Saturday" {% if
+            "Saturday" in value['LectureDays'] %}checked{% endif %}> Saturday</label
+          >
+          <label
+            ><input type="checkbox" name="{{ key }}_days" value="Sunday" {% if
+            "Sunday" in value['LectureDays'] %}checked{% endif %}> Sunday</label
+          >
         </div>
-        <div class="form-group">
-            <label for="{{ key }}_code">Course Code:</label>
-            <input type="text" id="{{ key }}_code" name="{{ key }}_code" value="{{ value['course_code'] }}" required>
-        </div>
-        <div class="form-group">
-            <label for="{{ key }}_email">Instructor Email:</label>
-            <input type="email" id="{{ key }}_email" name="{{ key }}_email" value="{{ value['InstructorEmail'] }}" required>
-        </div>
-        <div class="form-group">
-            <label for="{{ key }}_name">Instructor Name:</label>
-            <input type="text" id="{{ key }}_name" name="{{ key }}_name" value="{{ value['InstructorName'] }}" required>
-        </div>
-        <div class="form-group">
-            <label>Lecture Days:</label>
-            <div>
-                <label><input type="checkbox" name="{{ key }}_days" value="Monday" {% if "Monday" in value['LectureDays'] %}checked{% endif %}> Monday</label>
-                <label><input type="checkbox" name="{{ key }}_days" value="Tuesday" {% if "Tuesday" in value['LectureDays'] %}checked{% endif %}> Tuesday</label>
-                <label><input type="checkbox" name="{{ key }}_days" value="Wednesday" {% if "Wednesday" in value['LectureDays'] %}checked{% endif %}> Wednesday</label>
-                <label><input type="checkbox" name="{{ key }}_days" value="Thursday" {% if "Thursday" in value['LectureDays'] %}checked{% endif %}> Thursday</label>
-                <label><input type="checkbox" name="{{ key }}_days" value="Friday" {% if "Friday" in value['LectureDays'] %}checked{% endif %}> Friday</label>
-                <label><input type="checkbox" name="{{ key }}_days" value="Saturday" {% if "Saturday" in value['LectureDays'] %}checked{% endif %}> Saturday</label>
-                <label><input type="checkbox" name="{{ key }}_days" value="Sunday" {% if "Sunday" in value['LectureDays'] %}checked{% endif %}> Sunday</label>
-            </div>
-        </div>
-        <h3>Weightage Table</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Component</th>
-                    <th>Due Date</th>
-                    <th>Due Time</th>
-                    <th>Weight</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for w_key, w_value in value['WeightageTable'].items() %}
-                <tr>
-                    <td>{{ w_key }}</td>
-                    <td>
-                        {% if w_value['DueDate'] == 'TBD' %}
-                        <input type="text" id="{{ key }}_{{ w_key }}_due_date" name="{{ key }}_{{ w_key }}_due_date" value="TBD" onclick="this.type='date'; this.value='';" onblur="if(this.value==''){this.type='text'; this.value='TBD';}">
-                        {% else %}
-                        <input type="date" id="{{ key }}_{{ w_key }}_due_date" name="{{ key }}_{{ w_key }}_due_date" value="{{ w_value['DueDate'] }}" onblur="if(this.value==''){this.type='text'; this.value='TBD';}">
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if w_value['DueTime'] == 'TBD' %}
-                        <input type="text" id="{{ key }}_{{ w_key }}_due_time" name="{{ key }}_{{ w_key }}_due_time" value="TBD" onclick="this.type='time'; this.value='';" required>
-                        {% else %}
-                        <input type="time" id="{{ key }}_{{ w_key }}_due_time" name="{{ key }}_{{ w_key }}_due_time" value="{{ w_value['DueTime'] }}" required>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <input type="number" id="{{ key }}_{{ w_key }}_weight" name="{{ key }}_{{ w_key }}_weight" value="{{ w_value['Weight'] }}" required>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endfor %}
-    <button type="submit">Confirm</button>
-</form>
-{% endif %}
-{% endblock %}
+      </div>
+      <h3>Weightage Table</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Due Date</th>
+            <th>Due Time</th>
+            <th>Weight</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for w_key, w_value in value['WeightageTable'].items() %}
+          <tr>
+            <td>{{ w_key }}</td>
+            <td>
+              {% if w_value['DueDate'] == 'TBD' %}
+              <input
+                type="text"
+                id="{{ key }}_{{ w_key }}_due_date"
+                name="{{ key }}_{{ w_key }}_due_date"
+                value="TBD"
+                onclick="this.type='date'; this.value='';"
+                onblur="if(this.value==''){this.type='text'; this.value='TBD';}"
+              />
+              {% else %}
+              <input
+                type="date"
+                id="{{ key }}_{{ w_key }}_due_date"
+                name="{{ key }}_{{ w_key }}_due_date"
+                value="{{ w_value['DueDate'] }}"
+                onblur="if(this.value==''){this.type='text'; this.value='TBD';}"
+              />
+              {% endif %}
+            </td>
+            <td>
+              {% if w_value['DueTime'] == 'TBD' %}
+              <input
+                type="text"
+                id="{{ key }}_{{ w_key }}_due_time"
+                name="{{ key }}_{{ w_key }}_due_time"
+                value="TBD"
+                onclick="this.type='time'; this.value='';"
+                required
+              />
+              {% else %}
+              <input
+                type="time"
+                id="{{ key }}_{{ w_key }}_due_time"
+                name="{{ key }}_{{ w_key }}_due_time"
+                value="{{ w_value['DueTime'] }}"
+                required
+              />
+              {% endif %}
+            </td>
+            <td>
+              <input
+                type="number"
+                id="{{ key }}_{{ w_key }}_weight"
+                name="{{ key }}_{{ w_key }}_weight"
+                value="{{ w_value['Weight'] }}"
+                required
+              />
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endfor %}
+      <button type="submit">Confirm</button>
+    </form>
+    {% endif %} {% endblock %}

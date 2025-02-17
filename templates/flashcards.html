@@ -2,6 +2,7 @@
 {% block title %}Flashcards{% endblock %}
 
 {% block content %}
+<h2 class="title" style="font-size: 36px; font-weight: bold; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Study with Flashcards - StudyZee</h2>
     <div class="flashcards-container">
         <!-- Make Flashcards Section -->
         <div class="make-flashcards">
@@ -15,6 +16,10 @@
                 <input type="text" name="set_name" id="set-name" placeholder="Enter flashcard set name" required class="input-field">
                 <button type="submit" class="submit-button">Create Flashcards</button>
             </form>
+            <div id="loading" style="display: none;"> <!-- Added loading spinner -->
+                <div class="spinner"></div>
+                <p>Generating flashcards...</p>
+            </div>
         </div>
         
         <!-- Saved Flashcards Section -->
@@ -30,10 +35,7 @@
             const uploadForm = document.getElementById("upload-form");
             const fileInput = document.getElementById("notes-file");
             const uploadText = document.querySelector(".upload-box p");
-            const loadingDiv = document.createElement("div");
-            loadingDiv.id = "loading";
-            loadingDiv.style.display = "none";
-            document.body.appendChild(loadingDiv);
+            const loadingDiv = document.getElementById("loading"); // Reference loading div
 
             fileInput.addEventListener("change", function () {
                 if (fileInput.files.length > 0) {
@@ -204,6 +206,26 @@
                 width: 100%;
                 margin-bottom: 10px;
             }
+
+        /* Spinner styles */
+        .spinner {
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading {
+            text-align: center;
+            display: none;
         }
         }
     </style>

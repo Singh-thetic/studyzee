@@ -1,88 +1,100 @@
 {% extends "base.html" %} {% block title %}Auth - StudyZee{% endblock %} {%
-    block content %}
-    <div class="auth-container">
-      <div class="form-box">
-        <h2 id="form-title">Login</h2>
-
-        <!-- Login Form -->
-        <form id="login-form" action="{{ url_for('login') }}" method="POST">
-          <input type="name" name="username" placeholder="username" required />
-          <input type="password" name="password" placeholder="Password" required />
-          <button type="submit">Login</button>
-        </form>
-    
-        <!-- Signup Form (Initially Hidden) -->
-        <form id="signup-form" action="{{ url_for('signup') }}" method="POST" style="display: none;">
-            <input type="name" name="username" placeholder="username" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-            <input type="text" name="full_name" placeholder="Full Name" required>
-            <label for="study_level">Study Level</label>
-            <select name="study_level" id="study_level" required>
-                <option value="undergraduate">Undergraduate</option>
-                <option value="masters">Masters</option>
-                <option value="phd">PhD</option>
-            </select>
-            <label for="year_of_study">Year of Study</label>
-            <select name="year_of_study" id="year_of_study" required>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-            </select>
-            <label for="major">Major</label>
-            <select name="major" id="major" required>
-                <option value="business-management">Business & Management</option>
-                <option value="cs-it-data-science">Computer Science, IT &amp; Data Science</option>
-                <option value="engineering-technology">Engineering &amp; Technology</option>
-                <option value="mathematics-statistics">Mathematics &amp; Statistics</option>
-                <option value="natural-environmental-sciences">Natural Sciences &amp; Environmental Studies</option>
-                <option value="health-sciences-medicine">Health Sciences, Nursing &amp; Medicine</option>
-                <option value="pharmacy-pharmaceutical-sciences">Pharmacy &amp; Pharmaceutical Sciences</option>
-                <option value="education-teaching">Education &amp; Teaching</option>
-                <option value="law-legal-studies">Law &amp; Legal Studies</option>
-                <option value="social-sciences-humanities">Social Sciences &amp; Humanities</option>
-                <option value="economics-finance">Economics &amp; Finance</option>
-                <option value="architecture-urban-planning">Architecture &amp; Urban Planning</option>
-                <option value="fine-arts-design">Fine Arts &amp; Design</option>
-                <option value="communications-media-studies">Communications &amp; Media Studies</option>
-                <option value="agriculture-forestry">Agriculture &amp; Forestry</option>
-                <option value="hospitality-tourism-management">Hospitality &amp; Tourism Management</option>
-            </select>
-            <button type="submit">Sign Up</button>
-        </form>
-    
-        <p class="toggle-text">
-          <a href="#" id="toggle-link">First time user? Sign up</a>
-        </p>
-      </div>
+  block content %}
+  <div class="auth-container">
+    <div class="form-box">
+      <h2 id="form-title">Login</h2>
+  
+  
+      <!-- Login Form -->
+      <form id="login-form" action="{{ url_for('login') }}" method="POST">
+        <input type="name" name="username" placeholder="Username" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+      </form>
+  
+      <!-- Signup Form (Initially Hidden) -->
+      <form
+        id="signup-form"
+        action="{{ url_for('signup') }}"
+        method="POST"
+        style="display: none"
+      >
+        <input type="name" name="username" placeholder="Username" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <input
+          type="password"
+          name="confirm_password"
+          placeholder="Confirm Password"
+          required
+        />
+        <input type="text" name="Full Name" placeholder="Full Name" required />
+        <!-- <label for="study_level">Study Level</label> -->
+        <select name="study_level" id="study_level" required>
+          <option value="" disabled selected>Study Level</option>
+          <option value="undergraduate">Undergraduate</option>
+          <option value="graduate">Graduate</option>
+          <option value="post_graduate">Post Graduate</option>
+        </select>
+        <!-- <label for="year_of_study">Year of Study</label> -->
+        <select name="year_of_study" id="year_of_study" required>
+          <option value="" disabled selected>Year of Study</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+        <!-- <label for="major">Major</label> -->
+        <select name="major" id="major" required class="input-box">
+          <option value="" disabled selected>Select Major</option>
+          <option value="computer_science">Computer Science</option>
+          <option value="business">Business</option>
+          <option value="engineering">Engineering</option>
+          <option value="biology">Biology</option>
+          <option value="psychology">Psychology</option>
+          <option value="mathematics">Mathematics</option>
+          <option value="physics">Physics</option>
+          <option value="chemistry">Chemistry</option>
+          <option value="literature">Literature</option>
+          <option value="history">History</option>
+          <option value="law">Law</option>
+          <option value="medicine">Medicine</option>
+          <option value="economics">Economics</option>
+          <option value="political_science">Political Science</option>
+          <option value="others">Others</option>
+        </select>
+        <button type="submit">Sign Up</button>
+      </form>
+  
+      <p class="toggle-text">
+        <a href="#" id="toggle-link">First time user? Sign up</a>
+      </p>
     </div>
-    
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const loginForm = document.getElementById("login-form");
-        const signupForm = document.getElementById("signup-form");
-        const formTitle = document.getElementById("form-title");
-        const toggleLink = document.getElementById("toggle-link");
-    
-        toggleLink.addEventListener("click", function (event) {
-          event.preventDefault();
-          if (loginForm.style.display !== "none") {
-            loginForm.style.display = "none";
-            signupForm.style.display = "block";
-            formTitle.textContent = "Sign Up";
-            toggleLink.textContent = "Already have an account? Log in";
-          } else {
-            loginForm.style.display = "block";
-            signupForm.style.display = "none";
-            formTitle.textContent = "Login";
-            toggleLink.textContent = "First time user? Sign up";
-          }
-        });
+  </div>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const loginForm = document.getElementById("login-form");
+      const signupForm = document.getElementById("signup-form");
+      const formTitle = document.getElementById("form-title");
+      const toggleLink = document.getElementById("toggle-link");
+  
+      toggleLink.addEventListener("click", function (event) {
+        event.preventDefault();
+        if (loginForm.style.display !== "none") {
+          loginForm.style.display = "none";
+          signupForm.style.display = "block";
+          formTitle.textContent = "Sign Up";
+          toggleLink.textContent = "Already have an account? Log in";
+        } else {
+          loginForm.style.display = "block";
+          signupForm.style.display = "none";
+          formTitle.textContent = "Login";
+          toggleLink.textContent = "First time user? Sign up";
+        }
       });
-    </script>
-    
-    {% endblock %}
+    });
+  </script>
+  {% endblock %}
