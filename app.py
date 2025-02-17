@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from pdf_parse import *
 import shutil
+import time
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 
 # Load environment variables
@@ -186,16 +187,133 @@ def upload_course():
     global course_data
     return redirect(url_for("edit_course", course_data=course_data, uploaded_files=uploaded_files))
 
-@app.route("/edit_course", methods=["GET", "POST"])
+@app.route("/confirm_course", methods=["GET", "POST"])
 @login_required
 def edit_course():
+    global course_data
+    if request.method == "POST":
+        section = request.form.get("section")
+        if section:
+            course_data = {section: course_data[section]}
+        else:
+            # Create a dictionary to store the incoming data
+            for key, value in course_data.items():
+                course_data[key]['subject_id'] = request.form.get(f"{key}_subject")
+                course_data[key]['course_code'] = request.form.get(f"{key}_code")
+                course_data[key]['professor_email'] = request.form.get(f"{key}_email")
+                course_data[key]['professor'] = request.form.get(f"{key}_name")
+                course_data[key]['class_schedule'] = request.form.getlist(f"{key}_days")
+
+                for w_key in value['WeightageTable'].keys():
+                    due_date = request.form.get(f"{key}_{w_key}_due_date")
+                    due_time = request.form.get(f"{key}_{w_key}_due_time")
+                    course_data[key]['WeightageTable'][w_key]['due_date'] = due_date if due_date != "TBD" else None
+                    course_data[key]['WeightageTable'][w_key]['due_time'] = due_time if due_time != "TBD" else None
+                    course_data[key]['WeightageTable'][w_key]['weightage'] = request.form.get(f"{key}_{w_key}_weight")
+
+            print(course_data)  # Debugging print statement
+            
+            # Insert course data dynamically with validation
+            for course_code, details in course_data.items():
+                # Check if the course already exists
+                existing_course = supabase_client.table("course").select("course_id") \
+                    .eq("course_code", details.get("course_code", "")) \
+                    .eq("section", details.get("section", "")) \
+                    .eq("professor", details.get("professor", "")) \
+                    .maybe_single().execute()
+
+                # Ensure `execute()` properly returns a result
+                if existing_course and existing_course.data:
+                    course_id = existing_course.data["course_id"]  # Fetch existing course_id
+                else:
+                    # Insert new course if it doesn't exist
+                    course_insert = {
+                        "subject_id": details.get("subject_id", "Unknown")[:10],  # Truncate if needed
+                        "course_code": details.get("course_code", "Unknown")[:10],  # Truncate to 10 chars
+                        "term": details.get("term", "Unknown Term")[:10],  # If term has a length limit
+                        "year": details.get("year", 2025),
+                        "section": details.get("section", "A")[:10],  # Truncate section if needed
+                        "course_name": details.get("course_name", "Unknown Course"),  # No need to truncate unless known limit
+                        "professor": details.get("professor", "Unknown"),  
+                        "class_schedule": ",".join(details.get("class_schedule", []))[:100],  # Truncate long schedules
+                        "professor_email": details.get("professor_email", "Unknown")[:100],  # Avoid long emails
+                    }
+                    response = supabase_client.table("course").insert(course_insert).execute()
+                    
+                    if response.data:
+                        course_id = response.data[0]["course_id"]  # Get the generated `course_id`
+
+                    # Ensure the user is linked to the course in `user_courses`
+                    supabase_client.table("user_courses").insert({"user_id": current_user.id, "course_id": course_id}).execute()
+
+                    # Insert assignments into `work_template` and `assigned_work`
+                    for work_name, work_data in details["WeightageTable"].items():
+                        # Check if work already exists
+                        existing_work = supabase_client.table("work_template").select("work_id").eq("course_id", course_id).eq("name", work_name).execute()
+                        
+                        if existing_work.data:
+                            work_id = existing_work.data[0]["work_id"]
+                        else:
+                            # Insert new work into `work_template`
+
+                            work_date = work_data.get("due_date")
+                            if work_date in ["TBD", ""]:
+                                work_date = None
+                            work_time = work_data.get("due_time")
+                            if work_time in ["TBD", ""]:
+                                work_time = None
+                            work_insert = {
+                                "course_id": course_id,
+                                "name": work_name,
+                                "weightage": float(work_data.get("weightage", 0)),  
+                                "due_date": work_date,
+                                "due_time": work_time,
+                            }
+                            work_response = supabase_client.table("work_template").insert(work_insert).execute()
+                            if work_response.data:
+                                work_id = work_response.data[0]["work_id"]
+
+                        # Insert assignment into `assigned_work`
+                        
+                        
+                        assigned_work = {
+                            "user_id": current_user.id,
+                            "work_id": work_id,
+                            "course_id": course_id,
+                            "weightage": float(work_data.get("weightage", 0)),  
+                            "due_date": work_date,
+                            "due_time": work_time,
+                            "done": False,
+                        }
+                        supabase_client.table("assigned_work").insert(assigned_work).execute()
+
     
-    course_data = request.args.get("course_data")
-    uploaded_files = request.args.getlist("uploaded_files")
-    print(uploaded_files)
-    course_data = course_info(uploaded_files)
+            return redirect(url_for("dashboard"))
+        
+
+    else:
+        course_data = request.args.get("course_data")
+        if course_data:
+            course_data = eval(course_data)  # Convert string representation of dict back to dict
+        else:
+            flash("Course data is missing", "error")
+            return redirect(url_for("add_course"))
+
+        uploaded_files = request.args.getlist("uploaded_files")
+        # Process the uploaded files to extract course information
+        course_information = course_info(uploaded_files)
+        for course in course_information:
+            course_information[course] = {
+                'course_code': course_data.get('course_code', 'Unknown'),
+                'subject': course_data.get('subject', 'Unknown'),
+                **course_information[course]
+            }
+        course_data = course_information
+        print(course_data)
     
-    return jsonify(course_data)
+    # Render the template with the extracted course data
+    return render_template("add_course.html", course_data=course_data, stage=3)
+
 
 
 @app.route("/dashboard")
@@ -209,7 +327,7 @@ def dashboard():
     else:
         course_d = []
     
-    courses = [f"{d.get("subject_id")} {d.get("course_code")}" for d in course_d]
+    courses = [f"{d.get('subject_id')} {d.get('course_code')}" for d in course_d]
     
     task = supabase_client.from_("tasks").select("*").eq("user_id", current_user.id).eq("done", False).execute().data
     assigned_work = supabase_client.from_("assigned_work").select("*, work_template(name)").eq("user_id", current_user.id).eq("done", False).execute().data
@@ -300,23 +418,33 @@ def handle_join_room(data):
     """Handles users joining a chat room."""
     room = data["room"]
     join_room(room)
-    emit("receive_message", {"message": f"User joined room {room}"}, room=room)
 
 @socketio.on('send_message')
 def handle_send_message(data):
     """Handles sending messages in a room and storing them in Supabase."""
     room = data["room"]
     message = data["message"]
-    user_id = data["user_id"]
+    user_id = data["sender_id"]  # Ensure sender_id is passed correctly
 
     # Store message in Supabase
-    supabase_client.from_("chat_messages").insert({
+    response = supabase_client.from_("chat_messages").insert({
         "room": room,
         "message": message,
         "sender_id": user_id
     }).execute()
 
-    emit("receive_message", {"message": message}, room=room)
+    # Extract message ID if storage was successful
+    if response.data:
+        message_id = response.data[0]["id"]
+    else:
+        message_id = f"{user_id}-{int(time.time())}"  # Fallback in case of error
+
+    # Emit the message to other users in the room, excluding the sender
+    emit("receive_message", {
+        "message": message,
+        "sender_id": user_id,
+        "message_id": message_id
+    }, room=room, include_self=False)
 
 
 @app.route("/")
@@ -346,9 +474,14 @@ def chat():
     if current_user.id not in [chat_room.data["user1_id"], chat_room.data["user2_id"]]:
         flash("You are not authorized to access this chat room!", "error")
         return redirect(url_for("dashboard"))
+    
+    friend_id = chat_room.data["user1_id"] if chat_room.data["user1_id"] != current_user.id else chat_room.data["user2_id"]
+    friend_name_response = supabase_client.from_("users").select("full_name").eq("id", friend_id).maybe_single().execute()
+    friend_name = friend_name_response.data["full_name"] if friend_name_response.data else "Your Friend"
+    friend_profile_pic_response = supabase_client.from_("users").select("profile_picture").eq("id", friend_id).maybe_single().execute()
+    friend_profile_pic = friend_profile_pic_response.data["profile_picture"] if friend_profile_pic_response.data else "https://mmtdthmtsasvthysqwrx.supabase.co/storage/v1/object/public/pictures//default-pfp.jpg"
 
-    return render_template("chat.html", room_code=room_code, user_id=current_user.id)
-
+    return render_template("chat.html", room_code=room_code, user_id=current_user.id, friend_name=friend_name, friend_pfp=friend_profile_pic)
 
 
 @app.route("/send_friend_request", methods=["POST"])
@@ -481,15 +614,17 @@ def friends_list():
         friends.append({"id": friend_data.data["id"], "email": friend_data.data["email"], "room_code": f["chat_room_code"]})
 
     return jsonify({"friends": friends})
+
+# Update the chat_history endpoint to include sender_id
 @app.route("/chat_history/<room_code>")
 @login_required
 def chat_history(room_code):
-    """Fetch all previous messages from the database for a given chat room."""
-    messages_response = supabase_client.from_("chat_messages").select("message") \
+    messages_response = supabase_client.from_("chat_messages").select("message, sender_id, id") \
         .eq("room", room_code).execute()
-
-    messages = [msg["message"] for msg in messages_response.data] if messages_response.data else []
     
+    messages = [{"message": msg["message"], "sender_id": msg["sender_id"], "message_id": msg["id"]} 
+               for msg in messages_response.data] if messages_response.data else []
+
     return jsonify({"messages": messages})
 
 @socketio.on("send_message")
