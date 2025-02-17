@@ -94,6 +94,25 @@ footer {
 }
 
 /* Form Styling */
+
+/* Fix dropdown styling */
+form select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="12" height="12" fill="%23007BFF"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 12px;
+    padding-right: 30px; /* Adjust for arrow spacing */
+    cursor: pointer;
+}
+
+/* Ensure dropdown text color updates */
+form select:valid {
+    color: black;
+}
+
 form input, form select {
     width: 100%;
     padding: 12px;
@@ -123,7 +142,7 @@ form select:valid {
     color: black;
 }
 
-#study_level, #year_of_study, #major {
+#study_level, #year_of_study, #major, #subject {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -158,9 +177,9 @@ form button {
     width: 50%;
     margin-top: 30px;
     padding: 12px;
-    background: #ebf5ff;
+    background: #414141;
     border: none;
-    color: #414141;
+    color: #ffffff;
     font-size: 1rem;
     font-weight: bold;
     border-radius: 25px;
@@ -169,10 +188,10 @@ form button {
     transition: all 0.3s;
 }
 
-form button:hover {
+/* form button:hover {
     background: linear-gradient(to bottom, #66b2ff, #007BFF);
     color: white;
-}
+} */
 
 /* Text Styling */
 .toggle-text {

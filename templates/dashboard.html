@@ -26,26 +26,25 @@ block content %}
       </div>
 
       <!-- <button onclick="openFriendRequests()">Friend Requests</button> -->
-      <a href="{{ url_for('flashcards')}}" class="logout-btn">STUDY</a>
       <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
-
     </div>
 
     <!-- Courses Section -->
     <div class="courses-section">
       <div class="courses-header">
-      <h3>Courses</h3>
-      <a
-        href="{{ url_for('add_course') }}"
-        class="add-btn"
-        style="background: #f8afaf; color: white"
-        >Add</a
-      >
+        <h3>Courses</h3>
+        <a href="{{ url_for('flashcards') }}" class="study-btn">Study</a>
+        <a
+          href="{{ url_for('add_course') }}"
+          class="add-btn"
+          style="background: #f8afaf; color: white"
+          >Add</a
+        >
       </div>
       <ul class="courses-list">
-      {% for course in courses %}
-      <li class="course-item">{{ course }}</li>
-      {% endfor %}
+        {% for course in courses %}
+        <li class="course-item">{{ course }}</li>
+        {% endfor %}
       </ul>
     </div>
 
@@ -57,7 +56,11 @@ block content %}
         </button>
       </div>
       <ul id="friends-list"></ul>
-      <a href="{{ url_for('meet_new_friends') }}" class="friend-requests-btn" style="margin-top: 10px; width: 100%; text-align: center;">
+      <a
+        href="{{ url_for('meet_new_friends') }}"
+        class="friend-requests-btn"
+        style="margin-top: 10px; width: 100%; text-align: center"
+      >
         Meet New Friends
       </a>
     </div>
@@ -70,7 +73,7 @@ block content %}
           data.friends.forEach((friend) => {
             let li = document.createElement("li");
             li.innerHTML = `${friend.email} 
-                          <button onclick="startPrivateChat('${friend.room_code}')">Message</button>`;
+                          <button onclick="startPrivateChat('${friend.room_code}')"class="message-btn">Message</button>`;
             list.appendChild(li);
           });
         });
@@ -230,17 +233,8 @@ block content %}
   .logout-btn {
     margin-top: 15px;
     text-decoration: none;
-    color: white;
+    color: black;
     font-weight: bold;
-    background: #ff6b6b;
-    padding: 10px 20px;
-    border-radius: 10px;
-    display: inline-block;
-    transition: background 0.3s ease;
-  }
-
-  .logout-btn:hover {
-    background: #ff4c4c;
   }
 
   /* Courses Section */
@@ -265,7 +259,7 @@ block content %}
   .courses-list {
     list-style: none;
     padding: 0;
-    max-height: 180px;
+    max-height: 400px;
     overflow-y: auto;
   }
   .course-item {
@@ -324,7 +318,7 @@ block content %}
     padding: 100px;
   }
   .friends-section {
-    background: #f1ef7d;
+    background: #fffd96;
     padding: 15px;
     border-radius: 15px;
     text-align: left;
@@ -341,7 +335,7 @@ block content %}
 
   /* Styled Friend Requests Button to Match Add Button */
   .friend-requests-btn {
-    background: #dfc936; /* Same as Add button in courses */
+    background: #f9cb43; /* Same as Add button in courses */
     color: white;
     border: none;
     padding: 5px 12px;
@@ -358,8 +352,9 @@ block content %}
   }
 
   .friends-section li {
-    background: #a3d9a5;
+    background: #f9cb43;
     padding: 8px;
+    justify-content: space-between;
     border-radius: 10px;
     margin: 5px 0;
   }
@@ -383,6 +378,28 @@ block content %}
     position: absolute;
     top: 10px;
     right: 15px;
+  }
+  .message-btn {
+    margin-right: auto;
+    background: #bea40e; /* Green color */
+    color: white;
+    padding: 6px 12px;
+    font-size: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .study-btn {
+    background: #f8afaf; /* Matching theme color */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    margin-left: 90px;
+    text-decoration: underline;
   }
 </style>
 
