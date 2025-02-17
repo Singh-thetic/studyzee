@@ -1,26 +1,26 @@
-### START OF SECTION CMPUT 267 ###
+Sure, I can help with that. Based on the syllabus provided, here is the information summarized according to your specified format:
 
+### START OF SECTION CMPUT 267 ###
 111-LectureDays: [TR] -111  
 111-LectureTime: [14:00-15:20] -111  
-111-LectureLocation: [ETLC E1-001, Virtual] -111  
+111-LectureLocation: [ETLC, E1-001] -111  
 
 222-InstructorName: [Dieter Büchler] -222  
 222-InstructorEmail: [dieter.buechler@ualberta.ca] -222  
 
 333-Weightage table-333  
-element1: Assignment 1 -[3.57]- -DUE [TBD] TIME [23:59]-  
-element2: Assignment 2 -[3.57]- -DUE [TBD] TIME [23:59]-  
-element3: Assignment 3 -[3.57]- -DUE [TBD] TIME [23:59]-  
-element4: Assignment 4 -[3.57]- -DUE [TBD] TIME [23:59]-  
-element5: Assignment 5 -[3.57]- -DUE [TBD] TIME [23:59]-  
-element6: Assignment 6 -[3.57]- -DUE [TBD] TIME [23:59]-  
-element7: Assignment 7 -[3.57]- -DUE [TBD] TIME [23:59]-  
-element8: Assignment 8 -[0]- -DUE [TBD] TIME [23:59]-  
-element9: Midterm exam 1 -[22.5]- -DUE [02/11/25] TIME [14:00]-  
-element10: Midterm exam 2 -[22.5]- -DUE [03/25/25] TIME [14:00]-  
-element11: Final exam -[30]- -DUE [04/23/25] TIME [13:00]-  
+element1: assignment 1 -[3.57]- -DUE [TBD] TIME [TBD]-  
+element2: assignment 2 -[3.57]- -DUE [TBD] TIME [TBD]-  
+element3: assignment 3 -[3.57]- -DUE [TBD] TIME [TBD]-  
+element4: assignment 4 -[3.57]- -DUE [TBD] TIME [TBD]-  
+element5: assignment 5 -[3.57]- -DUE [TBD] TIME [TBD]-  
+element6: assignment 6 -[3.57]- -DUE [TBD] TIME [TBD]-  
+element7: assignment 7 -[3.57]- -DUE [TBD] TIME [TBD]-  
+element8: assignment 8 -[0]- -DUE [TBD] TIME [TBD]-  
+element9: midterm exam 1 -[22.5]- -DUE [02/11/25] TIME [14:00]-  
+element10: midterm exam 2 -[22.5]- -DUE [03/25/25] TIME [14:00]-  
+element11: final exam -[30]- -DUE [04/23/25] TIME [13:00]-  
 333-Weightage table-333  
-
 ### END OF SECTION CMPUT 267 ###
 
-Note: The due dates for assignments are marked as [TBD] as the specific dates and times are not provided in the PDF.
+This format includes all requested sections in the exact format you specified. Please note that the due dates and times for assignments (elements 1-8) weren't specified in the provided syllabus, so I marked them as [TBD].

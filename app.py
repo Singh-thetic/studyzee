@@ -220,13 +220,14 @@ def edit_course():
             print(course_data)  # Debugging print statement
             
             # Insert course data dynamically with validation
-            for course_code, details in course_data.items():
+            for details in course_data.values():
                 # Check if the course already exists
                 existing_course = supabase_client.table("course").select("course_id") \
-                    .eq("course_code", details.get("course_code", "")) \
-                    .eq("section", details.get("section", "")) \
-                    .eq("professor", details.get("professor", "")) \
-                    .maybe_single().execute()
+                                .ilike("course_code", f"%{details.get('course_code', '')}%") \
+                                .ilike("subject_id", f"%{details.get('subject_id', '')}%") \
+                                .ilike("section", f"%{details.get('section', '')}%") \
+                                .ilike("professor", f"%{details.get('professor', '')}%") \
+                                .maybe_single().execute()
 
                 # Ensure `execute()` properly returns a result
                 if existing_course and existing_course.data:
@@ -244,40 +245,62 @@ def edit_course():
                         "class_schedule": ",".join(details.get("class_schedule", []))[:100],  # Truncate long schedules
                         "professor_email": details.get("professor_email", "Unknown")[:100],  # Avoid long emails
                     }
-                    response = supabase_client.table("course").insert(course_insert).execute()
-                    
-                    if response.data:
+                    try:
+                        response = supabase_client.table("course").insert(course_insert).execute()
+                        if response.data:
+                            course_id = response.data[0]["course_id"]
+                    except Exception as e:
+                        if 'duplicate key value violates unique constraint' in str(e):
+                            
+                            existing_course = supabase_client.table("course").select("course_id") \
+                                .ilike("course_code", f"%{details.get('course_code', '')}%") \
+                                .ilike("subject_id", f"%{details.get('subject_id', '')}%") \
+                                .ilike("section", f"%{details.get('section', '')}%") \
+                                .ilike("professor", f"%{details.get('professor', '')}%") \
+                                .maybe_single().execute()
+                            if existing_course and existing_course.data:
+                                course_id = existing_course.data["course_id"]
+                            else:
+                                raise ValueError("Course exists but could not fetch course_id")
+                        else:
+                            raise e
+
+                    if response and response.data:
                         course_id = response.data[0]["course_id"]  # Get the generated `course_id`
 
-                    # Ensure the user is linked to the course in `user_courses`
-                    supabase_client.table("user_courses").insert({"user_id": current_user.id, "course_id": course_id}).execute()
-
-                    # Insert assignments into `work_template` and `assigned_work`
-                    for work_name, work_data in details["WeightageTable"].items():
-                        # Check if work already exists
-                        existing_work = supabase_client.table("work_template").select("work_id").eq("course_id", course_id).eq("name", work_name).execute()
+                    
                         
-                        if existing_work.data:
-                            work_id = existing_work.data[0]["work_id"]
-                        else:
-                            # Insert new work into `work_template`
+    
 
-                            work_date = work_data.get("due_date")
-                            if work_date in ["TBD", ""]:
-                                work_date = None
-                            work_time = work_data.get("due_time")
-                            if work_time in ["TBD", ""]:
-                                work_time = None
-                            work_insert = {
-                                "course_id": course_id,
-                                "name": work_name,
-                                "weightage": float(work_data.get("weightage", 0)),  
-                                "due_date": work_date,
-                                "due_time": work_time,
-                            }
-                            work_response = supabase_client.table("work_template").insert(work_insert).execute()
-                            if work_response.data:
-                                work_id = work_response.data[0]["work_id"]
+                # Ensure the user is linked to the course in `user_courses`
+                supabase_client.table("user_courses").insert({"user_id": current_user.id, "course_id": course_id}).execute()
+
+                # Insert assignments into `work_template` and `assigned_work`
+                for work_name, work_data in details["WeightageTable"].items():
+                    # Check if work already exists
+                    existing_work = supabase_client.table("work_template").select("work_id").eq("course_id", course_id).eq("name", work_name).execute()
+                    
+                    if existing_work.data:
+                        work_id = existing_work.data[0]["work_id"]
+                    else:
+                        # Insert new work into `work_template`
+
+                        work_date = work_data.get("due_date")
+                        if work_date in ["TBD", ""]:
+                            work_date = None
+                        work_time = work_data.get("due_time")
+                        if work_time in ["TBD", ""]:
+                            work_time = None
+                        work_insert = {
+                            "course_id": course_id,
+                            "name": work_name,
+                            "weightage": float(work_data.get("weightage", 0)),  
+                            "due_date": work_date,
+                            "due_time": work_time,
+                        }
+                        work_response = supabase_client.table("work_template").insert(work_insert).execute()
+                        if work_response.data:
+                            work_id = work_response.data[0]["work_id"]
 
                         # Insert assignment into `assigned_work`
                         
@@ -294,7 +317,7 @@ def edit_course():
                         supabase_client.table("assigned_work").insert(assigned_work).execute()
 
     
-            return redirect(url_for("dashboard"))
+        return redirect(url_for("dashboard"))
         
 
     else:
@@ -735,6 +758,12 @@ def upload_notes():
 
 
     return jsonify({"message": "Flashcards generated and saved!"})
+
+@app.route("/meet_new_friends")
+@login_required
+def meet_new_friends():
+    return render_template('meet_new_friends.html')
+
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)
