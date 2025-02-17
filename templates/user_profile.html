@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - StudyZee{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h1 class="title">StudyZee</h1>
+
+    <div class="profile-content">
+        <!-- Profile Picture Section -->
+        <div class="profile-left">
+            <img src="{{ user.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}" alt="Profile Picture" class="profile-img">
+            <h3 class="username">{{ user.full_name }}</h3>
+            <p class="user-handle">@{{ user.username }}</p>
+
+            <div id="profile-pic-popup" class="popup">
+                <div class="popup-content">
+                    <span class="close-btn">&times;</span>
+                    <h3>Update Profile Picture</h3>
+                    <form id="update-pic-form" method="POST" action="/update_pic" enctype="multipart/form-data">
+                        <input type="file" name="profile_pic" accept="image/*" required>
+                        <button type="submit">Update Picture</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Form -->
+        <form method="POST" class="profile-form">
+            <div class="form-grid">
+                <!-- Left Column (Blue Fields) -->
+                <div class="form-column blue-column">
+                    <label>Email</label>
+                    <input type="text" value="{{ user.email }}" disabled class="info-box blue">
+
+                    <label>Study Year</label>
+                    <input type="number" name="year_of_study" value="{{ user.study_year or '' }}" min="1" max="10" class="info-box blue">
+
+                    <div class="dropdown-container2">
+                        <label for="study_level">Study Level</label>
+                        <select name="ethnicity" class="dropdown blue">
+                            <option value="" disabled selected>Select</option>
+                            <option value="Asian" {% if user.ethnicity == 'Asian' %}selected{% endif %}>Asian</option>
+                            <option value="Black" {% if user.ethnicity == 'Black' %}selected{% endif %}>Black</option>
+                            <option value="Hispanic" {% if user.ethnicity == 'Hispanic' %}selected{% endif %}>Hispanic</option>
+                            <option value="White" {% if user.ethnicity == 'White' %}selected{% endif %}>White</option>
+                            <option value="Other" {% if user.ethnicity == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <label>Major</label>
+                    <select name="major" class="dropdown blue">
+                        <option value="" disabled selected>Select</option>
+                        <option value="Computer Science" {% if user.major == 'Computer Science' %}selected{% endif %}>Computer Science</option>
+                        <option value="Mathematics" {% if user.major == 'Mathematics' %}selected{% endif %}>Mathematics</option>
+                        <option value="Physics" {% if user.major == 'Physics' %}selected{% endif %}>Physics</option>
+                        <option value="Engineering" {% if user.major == 'Engineering' %}selected{% endif %}>Engineering</option>
+                        <option value="Other" {% if user.major == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <!-- Right Column (Red Fields) -->
+                <div class="form-column red-column">
+                    <div class="dropdown-container">
+                        <label for="study_level">Study Level</label>
+                        <select id="study_level" name="study_level" class="dropdown red">
+                            <option value="" disabled selected>Choose your level of study</option>
+                            <option value="Undergraduate" {% if user.study_level == 'Undergraduate' %}selected{% endif %}>Undergraduate</option>
+                            <option value="Postgraduate" {% if user.study_level == 'Postgraduate' %}selected{% endif %}>Postgraduate</option>
+                            <option value="PhD" {% if user.study_level == 'PhD' %}selected{% endif %}>PhD</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-container">
+                        <label for="home-country">Home Country</label>
+                        <select id="home-country" name="home_country" class="dropdown red">
+                            <option value="" disabled selected>Choose your home country</option>
+                            <option value="USA" {% if user.home_country == 'USA' %}selected{% endif %}>USA</option>
+                            <option value="Canada" {% if user.home_country == 'Canada' %}selected{% endif %}>Canada</option>
+                            <option value="UK" {% if user.home_country == 'UK' %}selected{% endif %}>UK</option>
+                            <option value="Australia" {% if user.home_country == 'Australia' %}selected{% endif %}>Australia</option>
+                            <option value="Other" {% if user.home_country == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="dropdown-container">
+                        <label for="gender">Gender</label>
+                        <select name="gender" class="dropdown red">
+                            <option value="" disabled selected>Choose your gender</option>
+                            <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if user.gender == 'Other' %}selected{% endif %}>Other</option>
+                            <option value="Prefer not to say" {% if user.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
+                        </select>
+                    </div>
+
+                    <label>Academic Goal</label>
+                    <select name="academic_goal" class="dropdown red">
+                        <option value="" disabled selected>Select</option>
+                        <option value="Graduate with honors" {% if user.academic_goal == 'Graduate with honors' %}selected{% endif %}>Graduate with honors</option>
+                        <option value="Get a research position" {% if user.academic_goal == 'Get a research position' %}selected{% endif %}>Get a research position</option>
+                        <option value="Start a business" {% if user.academic_goal == 'Start a business' %}selected{% endif %}>Start a business</option>
+                        <option value="Other" {% if user.academic_goal == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-container">
+                <a href="{{ url_for('dashboard') }}" class="cancel-btn">Cancel</a>
+                <button type="submit" class="save-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- CSS Styling -->
+<style>
+    .profile-container {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 20px;
+    }
+    .profile-content {
+        display: flex;
+        gap: 50px;
+        justify-content: center;
+        align-items: flex-start;
+    }
+    .profile-left {
+        text-align: center;
+    }
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    .profile-form {
+        width: 600px;
+    }
+    .form-grid {
+        display: flex;
+        gap: 40px;
+    }
+    .form-column {
+        width: 50%;
+    }
+    .info-box, .dropdown {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 10px 0;
+        color: #000;
+        text-align: center;
+        font-family: Inter;
+        font-size: 1em;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+    .blue-column { margin-right: 20px; }
+    .blue { background: #D0E1F9; }
+    .red { background: #F9C6C6; }
+    .button-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    .cancel-btn, .save-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 15px;
+        font-size: 16px;
+        color: white;
+    }
+    .dropdown-container {
+        display: flex;
+        flex-direction: column;
+        background: #F9C6C6;
+        padding: 10px 15px;
+        border-radius: 15px;
+        width: 230px;
+        font-family: Arial, sans-serif;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .dropdown-container2 {
+        display: flex;
+        flex-direction: column;
+        background: #D0E1F9;
+        padding: 10px 15px;
+        border-radius: 15px;
+        width: 230px;
+        font-family: Arial, sans-serif;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .dropdown-container label {
+        font-size: 18px;
+        font-weight: bold;
+        color: black;
+        margin-bottom: 5px;
+    }
+
+    .dropdown-container select {
+        appearance: none;
+        background: white;
+        border: none;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        color: black;
+        text-align: center;
+        cursor: pointer;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .dropdown-container select:focus {
+        outline: none;
+    }
+
+    .dropdown-container select::-ms-expand {
+        display: none;
+    }
+
+    .cancel-btn { background: #F76C6C; }
+    .save-btn { background: #A3D9A5; }
+    .dropdown {
+        background: white;
+        padding: 15px;
+    }
+</style>
+
+{% endblock %}

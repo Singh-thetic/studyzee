@@ -23,9 +23,15 @@
     {% endif %}
   </head>
   <body>
+    {% if error %}
+    <div class="error" style="padding: 10px;">
+      {{ error }}
+      <span style="cursor: pointer;" onclick="this.parentElement.style.display='none';">&times;</span>
+    </div>
+    {% endif %}
+
     <header>
       <h1>StudyZee</h1>
-      <a href="{{ url_for('flashcards') }}">STUDY</a>
       {% if session.get('user') %}
       <!-- Show navbar only when logged in -->
       <nav>
@@ -46,15 +52,5 @@
       <p>&copy; 2025 StudyZee. All rights reserved.</p>
     </footer>
 
-    {% if session.get('user') %}
-    <!-- Reprocess MathJax only for logged-in pages -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        if (window.MathJax) {
-          MathJax.typeset();
-        }
-      });
-    </script>
-    {% endif %}
   </body>
 </html>
