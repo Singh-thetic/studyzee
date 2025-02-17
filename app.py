@@ -500,7 +500,7 @@ def chat():
         .eq("room_code", room_code) \
         .maybe_single().execute()
 
-    if not chat_room.data:
+    if not chat_room:
         flash("Chat room does not exist!", "error")
         return redirect(url_for("dashboard"))
 
@@ -546,6 +546,8 @@ def send_friend_request():
         "type": "friend_request",
         "message": f"You have a new friend request from {current_user.email}"
     }).execute()
+
+    return jsonify({"message": "Friend request sent!"}), 200
 
 @app.route("/respond_friend_request", methods=["POST"])
 @login_required
@@ -810,6 +812,47 @@ def upload_notes():
 @login_required
 def meet_new_friends():
     return render_template('meet_new_friends.html')
+
+@app.route("/suggested_friends", methods=["GET"])
+@login_required
+def suggested_friends():
+    # Get the current user's enrolled courses
+    user_courses_response = supabase_client.from_("user_courses").select("course_id") \
+        .eq("user_id", current_user.id).execute()
+
+    user_course_ids = {uc["course_id"] for uc in user_courses_response.data} if user_courses_response.data else set()
+
+    if not user_course_ids:
+        return jsonify({"suggestions": []})
+
+    # Find users in the same courses
+    same_course_users_response = supabase_client.from_("user_courses").select("user_id") \
+        .in_("course_id", list(user_course_ids)).execute()
+
+    same_course_user_ids = {user["user_id"] for user in same_course_users_response.data} if same_course_users_response.data else set()
+
+    # Remove already friends and pending requests
+    existing_friends = supabase_client.from_("friends").select("user2_id") \
+        .eq("user1_id", current_user.id).execute()
+    friend_ids = {friend["user2_id"] for friend in existing_friends.data} if existing_friends.data else set()
+
+    pending_requests = supabase_client.from_("friend_requests").select("receiver_id") \
+        .eq("sender_id", current_user.id).execute()
+    pending_ids = {req["receiver_id"] for req in pending_requests.data} if pending_requests.data else set()
+
+    exclude_ids = friend_ids | pending_ids | {current_user.id}
+
+    # Filter out users who are already friends, pending, or themselves
+    potential_friends = same_course_user_ids - exclude_ids
+
+    if not potential_friends:
+        return jsonify({"suggestions": []})
+
+    # Get user details for potential friends
+    response = supabase_client.from_("users").select("id, email, full_name") \
+        .in_("id", list(potential_friends)).limit(5).execute()
+
+    return jsonify({"suggestions": response.data if response.data else []})
 
 
 if __name__ == "__main__":

@@ -1,57 +1,43 @@
-Certainly! Here is the summarized information for the MATH 225 course:
-
-### START OF SECTION Q1 ###
+### START OF SECTION CMPUT_365_WINTER_2025 ###
 
 111-LectureDays: [MWF] -111  
-111-LectureTime: [09:00-09:50] -111  
-111-LectureLocation: [ED, 2-115] -111  
+111-LectureTime: [13:00-13:50] -111  
+111-LectureLocation: [T, LB-002] -111  
 
-222-InstructorName: [Jin-Cheng Guu] -222  
-222-InstructorEmail: [guu@ualberta.ca] -222  
-
-333-Weightage table-333  
-element1: assignment 1 -[1.818]- -DUE [01/20/25] TIME [23:59]-  
-element2: assignment 2 -[1.818]- -DUE [01/24/25] TIME [23:59]-  
-element3: assignment 3 -[1.818]- -DUE [01/31/25] TIME [23:59]-  
-element4: assignment 4 -[1.818]- -DUE [02/07/25] TIME [23:59]-  
-element5: assignment 5 -[1.818]- -DUE [02/14/25] TIME [23:59]-  
-element6: assignment 6 -[1.818]- -DUE [03/04/25] TIME [23:59]-  
-element7: assignment 7 -[1.818]- -DUE [03/11/25] TIME [23:59]-  
-element8: assignment 8 -[1.818]- -DUE [03/18/25] TIME [23:59]-  
-element9: assignment 9 -[1.818]- -DUE [03/25/25] TIME [23:59]-  
-element10: assignment 10 -[1.818]- -DUE [04/01/25] TIME [23:59]-  
-element11: assignment 11 -[1.818]- -DUE [04/06/25] TIME [23:59]-  
-element12: midterm -[30]- -DUE [02/24/25] TIME [09:00]-  
-element13: final exam -[50]- -DUE [TBD] TIME [TBD]-  
-333-Weightage table-333  
-
-### END OF SECTION Q1 ###
-
-### START OF SECTION R1 ###
-
-111-LectureDays: [TuTh] -111  
-111-LectureTime: [09:30-10:50] -111  
-111-LectureLocation: [CCIS, L1-140] -111  
-
-222-InstructorName: [Paul Buckingham] -222  
-222-InstructorEmail: [p.r.buckingham@ualberta.ca] -222  
+222-InstructorName: [Csaba Szepesvári] -222  
+222-InstructorEmail: [TBD] -222  
 
 333-Weightage table-333  
-element1: assignment 1 -[1.818]- -DUE [01/20/25] TIME [23:59]-  
-element2: assignment 2 -[1.818]- -DUE [01/24/25] TIME [23:59]-  
-element3: assignment 3 -[1.818]- -DUE [01/31/25] TIME [23:59]-  
-element4: assignment 4 -[1.818]- -DUE [02/07/25] TIME [23:59]-  
-element5: assignment 5 -[1.818]- -DUE [02/14/25] TIME [23:59]-  
-element6: assignment 6 -[1.818]- -DUE [03/04/25] TIME [23:59]-  
-element7: assignment 7 -[1.818]- -DUE [03/11/25] TIME [23:59]-  
-element8: assignment 8 -[1.818]- -DUE [03/18/25] TIME [23:59]-  
-element9: assignment 9 -[1.818]- -DUE [03/25/25] TIME [23:59]-  
-element10: assignment 10 -[1.818]- -DUE [04/01/25] TIME [23:59]-  
-element11: assignment 11 -[1.818]- -DUE [04/06/25] TIME [23:59]-  
-element12: midterm -[30]- -DUE [02/25/25] TIME [09:30]-  
-element13: final exam -[50]- -DUE [TBD] TIME [TBD]-  
-333-Weightage table-333  
+element1: Coursera Practice Quiz 1 -[0.8]- -DUE [TBD] TIME [23:59]-  
+element2: Coursera Practice Quiz 2 -[0.8]- -DUE [TBD] TIME [23:59]-  
+element3: Coursera Practice Quiz 3 -[0.8]- -DUE [TBD] TIME [23:59]-  
+element4: Coursera Practice Quiz 4 -[0.8]- -DUE [TBD] TIME [23:59]-  
+element5: Coursera Practice Quiz 5 -[0.8]- -DUE [TBD] TIME [23:59]-  
+element6: Coursera Practice Quiz 6 -[0.8]- -DUE [TBD] TIME [23:59]-  
+element7: Coursera Practice Quiz 7 -[0.8]- -DUE [TBD] TIME [23:59]-  
+element8: Coursera Practice Quiz 8 -[0.8]- -DUE [TBD] TIME [23:59]-  
+element9: Coursera Practice Quiz 9 -[0.8]- -DUE [TBD] TIME [23:59]-  
+element10: Coursera Practice Quiz 10 -[0.8]- -DUE [TBD] TIME [23:59]-  
+element11: Coursera Practice Quiz 11 -[0]- -DUE [TBD] TIME [23:59]-
 
-### END OF SECTION R1 ### 
+element12: Coursera Assignment 1 -[2.2]- -DUE [TBD] TIME [23:59]-
+element13: Coursera Assignment 2 -[2.2]- -DUE [TBD] TIME [23:59]-
+element14: Coursera Assignment 3 -[2.2]- -DUE [TBD] TIME [23:59]-
+element15: Coursera Assignment 4 -[2.2]- -DUE [TBD] TIME [23:59]-
+element16: Coursera Assignment 5 -[2.2]- -DUE [TBD] TIME [23:59]-
+element17: Coursera Assignment 6 -[2.2]- -DUE [TBD] TIME [23:59]-
+element18: Coursera Assignment 7 -[2.2]- -DUE [TBD] TIME [23:59]-
+element19: Coursera Assignment 8 -[2.2]- -DUE [TBD] TIME [23:59]-
+element20: Coursera Assignment 9 -[2.2]- -DUE [TBD] TIME [23:59]-
+element21: Coursera Assignment 10 -[0]- -DUE [TBD] TIME [23:59]-
 
-Feel free to ask if you need further information!
+element22: Written Assignment 1 -[5]- -DUE [TBD] TIME [23:59]-
+element23: Written Assignment 2 -[5]- -DUE [TBD] TIME [23:59]-
+
+element24: Midterm 1 -[15]- -DUE [TBD] TIME [TBD]-
+element25: Midterm 2 -[15]- -DUE [TBD] TIME [TBD]-
+element26: Final Exam -[30]- -DUE [TBD] TIME [TBD]-
+
+333-Weightage table-333
+
+### END OF SECTION CMPUT_365_WINTER_2025 ###
