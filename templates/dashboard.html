@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block title %}Dashboard - StudyZee{% endblock %} {%
 block content %}
 <div class="dashboard-container">
-  <h2 class="title" style="font-size: 36px; font-weight: bold; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Dashboard - StudyZee</h2>
+  <h2 class="title" style="font-size: 36px; font-weight: bold; color: var(--primary-color); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Dashboard - StudyZee</h2>
   <div class="action-buttons">
     <a href="{{ url_for('flashcards') }}" class="action-btn">Study</a>
     <a href="{{ url_for('study_groups') }}" class="action-btn">Study Groups</a>
@@ -41,7 +41,7 @@ block content %}
       <a
         href="{{ url_for('add_course') }}"
         class="add-btn"
-        style="background: #f8afaf; color: white"
+        style="background: var(--grey); color: white"
         >Add</a
       >
       </div>
@@ -50,7 +50,7 @@ block content %}
         <li class="course-item">
           <a href="{{ url_for('course_page', subject_id=course['subject_id'], course_code=course['course_code']) }}">
             <div>
-              {{ course['subject_id'] }} {{ course['course_code'] }}
+                <span style="color: white;">{{ course['subject_id'] }} {{ course['course_code'] }}</span>
             </div>
           </a>
         </li>
@@ -65,11 +65,12 @@ block content %}
           Friend Requests
         </button>
       </div>
-      <ul id="friends-list"></ul>
+      <ul id="friends-list" style="color: white;"></ul>
       <a href="{{ url_for('meet_new_friends') }}" class="friend-requests-btn" style="margin-top: 10px; width: 100%; text-align: center;">
         Meet New Friends
       </a>
     </div>
+
 
     <script>
       fetch("/friends_list")
@@ -92,7 +93,8 @@ block content %}
 </div>
 
 <!-- Assignments Section -->
-<div class="assignments-section" style="max-width: 1500px;">
+
+<div class="assignments-section" style="max-width: 2000px;">
   <h3>Assignments</h3>
   <ul class="assignments-list">
     {% for task in tasks %}
@@ -176,6 +178,7 @@ function closeFriendRequests() {
 </script>
 
 <style>
+  
   header {
     position: sticky;
     top: 0;
@@ -187,6 +190,9 @@ function closeFriendRequests() {
 
   /* General Layout */
   .dashboard-container {
+    width: 100vw;
+    height:50vh;
+    background-color: var(--white);
     text-align: center;
     margin-top: 20px;
   }
@@ -214,7 +220,7 @@ function closeFriendRequests() {
 
   /* Sidebar (Profile Section) */
   .sidebar {
-    background: #eaf8e6;
+    background: var(--primary-color);
     padding: 50px;
     border-radius: 15px;
     display: flex;
@@ -234,10 +240,11 @@ function closeFriendRequests() {
   }
   .user-handle {
     font-size: 14px;
-    color: gray;
+    color: var(--black);
   }
   .info-box {
-    background: #a3d9a5;
+    background: var(--grey);
+    color: white;
     padding: 5px 20px;
     border-radius: 10px;
     margin: 5px 0;
@@ -257,7 +264,7 @@ function closeFriendRequests() {
     text-decoration: none;
     color: white;
     font-weight: bold;
-    background: #ff6b6b;
+    background: var(--primary-color);
     padding: 10px 20px;
     border-radius: 10px;
     display: inline-block;
@@ -269,7 +276,7 @@ function closeFriendRequests() {
     text-decoration: none;
     color: white;
     font-weight: bold;
-    background: #ff6b6b;
+    background: var(--primary-color);
     padding: 10px 20px;
     border-radius: 10px;
     display: inline-block;
@@ -282,7 +289,7 @@ function closeFriendRequests() {
 
   /* Courses Section */
   .courses-section {
-    background: #f9c6c6;
+    background: var(--primary-color);
     padding: 15px;
     border-radius: 15px;
     text-align: left;
@@ -306,7 +313,7 @@ function closeFriendRequests() {
     overflow-y: auto;
   }
   .course-item {
-    background: #f8afaf;
+    background: var(--grey);
     padding: 8px;
     border-radius: 10px;
     margin: 5px 0;
@@ -322,10 +329,12 @@ function closeFriendRequests() {
   /* Assignments Section */
   .assignments-section {
     background: #d0e1f9;
+    height: 100vh;
+    width: 100vw;
     padding: 15px;
     border-radius: 15px;
     margin-top: 20px;
-    max-width: 95vw;
+    max-width: 1500px;
     margin-left: auto;
     margin-right: auto;
     max-height: 250px;
@@ -333,12 +342,11 @@ function closeFriendRequests() {
   }
   .assignments-list {
     list-style: none;
-    padding: 0;
-    max-height: 180px;
+    padding: 0;    max-height: 180px;
     overflow-y: auto;
   }
   .assignment-item {
-    background: #b0c4f0;
+    background: var(--primary-color);
     padding: 12px;
     border-radius: 10px;
     margin: 6px 0;
@@ -361,7 +369,7 @@ function closeFriendRequests() {
     padding: 100px;
   }
   .friends-section {
-    background: #f1ef7d;
+    background: var(--primary-color);
     padding: 15px;
     border-radius: 15px;
     text-align: left;
@@ -378,7 +386,7 @@ function closeFriendRequests() {
 
   /* Styled Friend Requests Button to Match Add Button */
   .friend-requests-btn {
-    background: #dfc936; /* Same as Add button in courses */
+    background: var(--grey); /* Same as Add button in courses */
     color: white;
     border: none;
     padding: 5px 12px;
@@ -387,7 +395,6 @@ function closeFriendRequests() {
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
-    text-decoration: underline;
   }
   .friends-section ul {
     list-style: none;
@@ -395,7 +402,7 @@ function closeFriendRequests() {
   }
 
   .friends-section li {
-    background: #a3d9a5;
+    background: var(--grey);
     padding: 8px;
     border-radius: 10px;
     margin: 5px 0;
@@ -423,7 +430,7 @@ function closeFriendRequests() {
   }
   .message-btn {
     margin-right: auto;
-    background: #bea40e; /* Green color */
+    background: var(--primary-color); /* Green color */
     color: white;
     padding: 6px 12px;
     font-size: 12px;

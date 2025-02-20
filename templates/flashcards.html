@@ -2,7 +2,7 @@
 {% block title %}Flashcards{% endblock %}
 
 {% block content %}
-<h2 class="title" style="font-size: 36px; font-weight: bold; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Study with Flashcards - StudyZee</h2>
+<h2 class="title" style="font-size: 36px; font-weight: bold; color: var(--primary-color); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Study with Flashcards - StudyZee</h2>
     <div class="flashcards-container">
         <!-- Make Flashcards Section -->
         <div class="make-flashcards">
@@ -109,14 +109,15 @@
             align-items: flex-start;
         }
         .make-flashcards {
-            background-color: #f8a9a9;
+            background-color: var(--primary-color);
             padding: 20px;
             width: 45%;
             border-radius: 10px;
             flex-shrink: 0;
         }
         .saved-flashcards {
-            background-color: #a4d4a4;
+            background-color: var(--grey);
+            color: white;
             padding: 20px;
             width: 55%;
             border-radius: 10px;
@@ -133,7 +134,7 @@
             text-align: left;
         }
         .flashcard-item {
-            background-color: #b6e6b6;
+            background-color: var(--primary-color);
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
@@ -156,7 +157,8 @@
             justify-content: center;
             padding: 20px;
             cursor: pointer;
-            background-color: #fcdede;
+            background-color: var(--grey);
+            color: white;
             border-radius: 10px;
             border: none;
         }
@@ -167,7 +169,8 @@
             margin-top: 10px;
             border: 1px;
             border-radius: 10px;
-            background-color: #fcdede;
+            background-color: var(--grey);
+            color: white;
             outline: none;
         }
         .input-field:focus {
@@ -180,7 +183,8 @@
             color: black;
             font-size: 16px;
             cursor: pointer;
-            background-color: #fcdede; /* Ensure default background matches upload box */
+            background-color: var(--grey);
+            color: white; /* Ensure default background matches upload box */
             border: none;
             border-radius: 10px;
             transition: background-color 0.3s ease, transform 0.2s ease;

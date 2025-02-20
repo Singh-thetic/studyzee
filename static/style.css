@@ -9,13 +9,22 @@
     font-family: 'Inter', sans-serif;
 }
 
+:root {
+  --white: #ffffff;
+  --primary-color: #3498db; /* You can define other colors too */
+  --black: #000000;
+  --grey: #666;
+  --light-grey: #f8f8f8;
+  --lighter-grey: #f9f9f9;
+}
+
 /* Body Styling */
 body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: auto;
-    background: #f8f8f8;
+    background: black;
     overflow-x: hidden; /* Prevents unwanted horizontal scrolling */
     overflow-y: auto; /* Allows vertical scrolling */
     position: relative;

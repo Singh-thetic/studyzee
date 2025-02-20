@@ -4,7 +4,7 @@
 {% block content %}
 <div class="meet-friends-wrapper">
   <div class="meet-friends-container">
-    <h2 class="title" style="font-size: 36px; font-weight: bold; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Meet New Friends</h2>
+    <h2 class="title" style="font-size: 36px; font-weight: bold; color: var(--primary-color); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Meet New Friends</h2>
 
     <div id="suggested-friends">
       <h3>Suggested Friends</h3>
@@ -30,7 +30,7 @@
           let li = document.createElement("li");
           li.innerHTML = `
             <strong>${user.full_name} (${user.email})</strong> 
-            <p style="color: gray;">Matched because: ${user.match_reason}</p>
+            <p style="color: white;">Matched because: ${user.match_reason}</p>
             <button onclick="sendFriendRequest('${user.id}')">Add Friend</button>`;
           suggestionsList.appendChild(li);
         });
@@ -66,7 +66,7 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background: rgba(240, 240, 240, 0.8);
+    background: var(--white);
   }
 
   .meet-friends-container {
@@ -92,7 +92,8 @@
   }
 
   ul li {
-    background: #eaf8e6;
+    background: var(--grey);
+    color: var(--primary-color);
     padding: 12px;
     margin: 6px 0;
     border-radius: 10px;
@@ -108,7 +109,8 @@
     width: 100%;
     margin-top: 5px;
     padding: 8px;
-    background: #f9c6c6;
+    background: var(--primary-color);
+    color: white;
     border: none;
     cursor: pointer;
     border-radius: 6px;
@@ -116,7 +118,7 @@
 
   .close-btn {
     margin-top: 20px;
-    background: #ff5c5c;
+    background: var(--primary-color);
     color: white;
     padding: 10px 20px;
     border: none;
