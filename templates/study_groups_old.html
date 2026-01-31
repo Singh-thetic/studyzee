@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block title %}My Study Groups{% endblock %}
+
+{% block content %}
+<div class="groups-container">
+    <h1>My Study Groups</h1>
+
+    <div class="groups-layout">
+        <!-- Left Side: Joined Groups -->
+        <section class="user-groups-section card">
+            <h2>Groups You’re In</h2>
+            {% if user_groups %}
+                <ul class="group-list">
+                    {% for g in user_groups %}
+                        <li>
+                            <h3>{{ g.name }}</h3>
+                            <p>{{ g.description }}</p>
+                            <a href="{{ url_for('chat.group_chat', room_key=g.room_key) }}" class="btn-secondary">
+                                Open Chat
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-groups">You have not joined any groups yet.</p>
+            {% endif %}
+        </section>
+
+        <!-- Right Side: Search & Create -->
+        <div class="right-side">
+            <!-- Search Section -->
+            <section class="search-group-section card">
+                <h2>Search for a Group</h2>
+                <form method="GET" action="{{ url_for('study_groups.study_groups') }}">
+                    <input type="text" name="search" placeholder="Enter group name..."
+                           value="{{ request.args.get('search', '') }}">
+                    <button type="submit" class="btn-primary">Search</button>
+                </form>
+            </section>
+
+            <!-- Display Search Results -->
+            {% if search_results %}
+                <section class="search-results-section card">
+                    <h2>Search Results</h2>
+                    {% if search_results|length == 0 %}
+                        <p class="no-results">No groups found.</p>
+                    {% else %}
+                        <ul class="group-list">
+                            {% for result in search_results %}
+                                <li>
+                                    <h3>{{ result.name }}</h3>
+                                    <p>{{ result.description }}</p>
+                                    <form method="POST" action="{{ url_for('study_groups.join_study_group') }}">
+                                        <input type="hidden" name="group_id" value="{{ result.id }}">
+                                        <button type="submit" class="btn-primary">Join Group</button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </section>
+            {% endif %}
+
+            <!-- Create Section -->
+            <section class="create-group-section card">
+                <h2>Create a New Group</h2>
+                <form method="POST" action="{{ url_for('study_groups.create_study_group') }}">
+                    <div class="form-group">
+                        <label for="group_name">Group Name</label>
+                        <input type="text" name="group_name" id="group_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="group_description">Description</label>
+                        <textarea name="group_description" id="group_description"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Create Group</button>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f9f9f9;
+        color: #333;
+    }
+
+    .groups-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #ff6b6b;
+        margin-bottom: 20px;
+        font-size: 36px;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    h2 {
+        color: #34495e;
+        border-bottom: 2px solid #ff6b6b;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+    }
+
+    /* Layout: Left & Right Sections */
+    .groups-layout {
+        display: flex;
+        gap: 20px;
+    }
+
+    .user-groups-section {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .right-side {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        min-width: 300px;
+    }
+
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        transition: 0.3s ease-in-out;
+    }
+
+    .card:hover {
+        box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    input:focus, textarea:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0px 0px 5px rgba(52, 152, 219, 0.5);
+    }
+
+    .btn-primary {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+    }
+
+    .btn-primary:hover {
+        background: #ff4b5c;
+    }
+
+    .btn-secondary {
+        background: #f39c12;
+        color: white;
+        text-decoration: none;
+        padding: 8px 12px;
+        display: inline-block;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: background 0.3s;
+    }
+
+    .btn-secondary:hover {
+        background: #e67e22;
+    }
+
+    .group-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .group-list li {
+        background: #ecf0f1;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        transition: 0.3s;
+    }
+
+    .group-list li:hover {
+        background: #d5dbdb;
+    }
+
+    .no-groups, .no-results {
+        text-align: center;
+        color: #7f8c8d;
+        font-style: italic;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .groups-layout {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

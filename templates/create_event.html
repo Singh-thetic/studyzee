@@ -4,7 +4,7 @@
 {% block content %}
 <h1>Create Event</h1>
 
-<form method="POST" action="{{ url_for('create_event') }}" enctype="multipart/form-data" class="event-form">
+<form method="POST" action="{{ url_for('social.create_event') }}" enctype="multipart/form-data" class="event-form">
     <div class="form-section">
         <label for="event_name">Event Name</label>
         <input type="text" id="event_name" name="event_name" required>

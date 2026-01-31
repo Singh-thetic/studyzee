@@ -1,0 +1,476 @@
+{% extends "base.html" %}
+
+{% block title %}Add Course - StudyZee{% endblock %}
+
+{% block content %}
+<div class="add-course-wizard">
+    <h2>Add New Course</h2>
+    
+    <!-- Step Indicators -->
+    <div class="step-indicators">
+        <div class="step {% if step == 1 %}active{% elif step > 1 %}completed{% endif %}">
+            <div class="step-number">1</div>
+            <div class="step-label">Course Info</div>
+        </div>
+        <div class="step {% if step == 2 %}active{% elif step > 2 %}completed{% endif %}">
+            <div class="step-number">2</div>
+            <div class="step-label">Upload PDFs</div>
+        </div>
+        <div class="step {% if step == 3 %}active{% elif step > 3 %}completed{% endif %}">
+            <div class="step-number">3</div>
+            <div class="step-label">Review & Confirm</div>
+        </div>
+    </div>
+
+    <!-- Step 1: Basic Course Info -->
+    {% if step == 1 %}
+    <div class="step-content">
+        <h3>Enter Basic Course Information</h3>
+        <form method="POST" action="{{ url_for('courses.add_course') }}">
+            <input type="hidden" name="step" value="1">
+            
+            <div class="form-group">
+                <label for="subject_id">Subject Code *</label>
+                <input type="text" id="subject_id" name="subject_id" 
+                       placeholder="e.g., CMPUT" required 
+                       value="{{ course_data.subject_id if course_data else '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="course_code">Course Number *</label>
+                <input type="number" id="course_code" name="course_code" 
+                       placeholder="e.g., 379" required
+                       value="{{ course_data.course_code if course_data else '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="course_name">Course Name *</label>
+                <input type="text" id="course_name" name="course_name" 
+                       placeholder="e.g., Operating Systems Concepts" required
+                       value="{{ course_data.course_name if course_data else '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="section">Section (optional)</label>
+                <input type="text" id="section" name="section" 
+                       placeholder="e.g., A1"
+                       value="{{ course_data.section if course_data else '' }}">
+            </div>
+            
+            <div class="button-group">
+                <a href="{{ url_for('dashboard.dashboard') }}" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">Next: Upload PDFs</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Step 2: Upload PDFs -->
+    {% if step == 2 %}
+    <div class="step-content">
+        <h3>Upload Course Documents (Optional)</h3>
+        <p class="help-text">Upload your course outline and syllabus PDFs. Our AI will extract assignments, deadlines, and grading information automatically.</p>
+        
+        <form method="POST" action="{{ url_for('courses.add_course') }}" enctype="multipart/form-data">
+            <input type="hidden" name="step" value="2">
+            <input type="hidden" name="subject_id" value="{{ course_data.subject_id }}">
+            <input type="hidden" name="course_code" value="{{ course_data.course_code }}">
+            <input type="hidden" name="course_name" value="{{ course_data.course_name }}">
+            <input type="hidden" name="section" value="{{ course_data.section }}">
+            
+            <div class="upload-area">
+                <div class="upload-icon">📄</div>
+                <p>Drag and drop PDF files here or click to browse</p>
+                <input type="file" id="pdf_files" name="pdf_files" 
+                       accept=".pdf" multiple class="file-input">
+                <button type="button" class="btn-upload" onclick="document.getElementById('pdf_files').click()">
+                    Choose Files
+                </button>
+            </div>
+            
+            <div id="file-list" class="file-list"></div>
+            
+            <div class="button-group">
+                <a href="{{ url_for('courses.add_course') }}?step=1" class="btn-secondary">Back</a>
+                <button type="submit" class="btn-secondary">Skip & Add Manually</button>
+                <button type="submit" class="btn-primary">Process with AI</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Step 3: Review & Confirm -->
+    {% if step == 3 %}
+    <div class="step-content">
+        <h3>Review Course Information</h3>
+        <p class="help-text">Review the extracted information below. Edit any field if needed.</p>
+        
+        <form method="POST" action="{{ url_for('courses.add_course') }}">
+            <input type="hidden" name="step" value="3">
+            <input type="hidden" name="course_id_temp" value="{{ course_data.id if course_data else '' }}">
+            
+            <div class="review-section">
+                <h4>Course Details</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Subject & Number</label>
+                        <input type="text" value="{{ course_data.subject_id }} {{ course_data.course_code }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Course Name</label>
+                        <input type="text" name="course_name" value="{{ course_data.course_name }}" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Section</label>
+                        <input type="text" name="section" value="{{ course_data.section or 'N/A' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Professor Name</label>
+                        <input type="text" name="professor" value="{{ course_data.professor or '' }}" placeholder="Not found in PDF">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Professor Email</label>
+                    <input type="email" name="professor_email" value="{{ course_data.professor_email or '' }}" placeholder="Not found in PDF">
+                </div>
+                
+                <div class="form-group">
+                    <label>Class Schedule</label>
+                    <div class="schedule-checkboxes">
+                        {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="class_schedule" value="{{ day }}" 
+                                   {% if course_data.class_schedule and day in course_data.class_schedule %}checked{% endif %}>
+                            {{ day }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if assignments %}
+            <div class="review-section">
+                <h4>Assignments & Grading</h4>
+                <p class="info-text">✨ AI extracted {{ assignments|length }} assignment(s) from your PDFs</p>
+                
+                <table class="assignments-table">
+                    <thead>
+                        <tr>
+                            <th>Assignment Name</th>
+                            <th>Weight (%)</th>
+                            <th>Due Date</th>
+                            <th>Due Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr>
+                            <td>
+                                <input type="text" name="assignment_{{ loop.index0 }}_name" 
+                                       value="{{ assignment.name }}" required>
+                            </td>
+                            <td>
+                                <input type="number" step="0.1" name="assignment_{{ loop.index0 }}_weight" 
+                                       value="{{ assignment.weight }}" min="0" max="100">
+                            </td>
+                            <td>
+                                <input type="date" name="assignment_{{ loop.index0 }}_due_date" 
+                                       value="{{ assignment.due_date or '' }}">
+                            </td>
+                            <td>
+                                <input type="time" name="assignment_{{ loop.index0 }}_due_time" 
+                                       value="{{ assignment.due_time or '' }}">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+            
+            <div class="button-group">
+                <a href="{{ url_for('courses.add_course') }}?step=2" class="btn-secondary">Back</a>
+                <button type="submit" class="btn-primary">Confirm & Add Course</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .add-course-wizard {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    h2 {
+        color: #ff6b6b;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    /* Step Indicators */
+    .step-indicators {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 40px;
+        position: relative;
+    }
+    
+    .step-indicators::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 10%;
+        right: 10%;
+        height: 2px;
+        background: #ddd;
+        z-index: 0;
+    }
+    
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #ddd;
+        color: #666;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+    
+    .step.active .step-number {
+        background: #ff6b6b;
+        color: white;
+    }
+    
+    .step.completed .step-number {
+        background: #4caf50;
+        color: white;
+    }
+    
+    .step-label {
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+    }
+    
+    /* Form Styles */
+    .step-content {
+        margin-top: 30px;
+    }
+    
+    .step-content h3 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+    
+    .help-text {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+    }
+    
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border 0.3s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #ff6b6b;
+        box-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    /* Upload Area */
+    .upload-area {
+        border: 2px dashed #ddd;
+        border-radius: 10px;
+        padding: 40px;
+        text-align: center;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .upload-area:hover {
+        border-color: #ff6b6b;
+        background: #fff8f8;
+    }
+    
+    .upload-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .btn-upload {
+        background: #ff6b6b;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 15px;
+    }
+    
+    .file-list {
+        margin-top: 20px;
+    }
+    
+    .schedule-checkboxes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+    
+    /* Review Section */
+    .review-section {
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .review-section h4 {
+        color: #ff6b6b;
+        margin-bottom: 15px;
+    }
+    
+    .info-text {
+        color: #4caf50;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+    
+    .assignments-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .assignments-table th,
+    .assignments-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .assignments-table th {
+        background: #ff6b6b;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .assignments-table input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    /* Buttons */
+    .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        justify-content: flex-end;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: #ff6b6b;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #ff5252;
+        transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+        background: #ddd;
+        color: #333;
+    }
+    
+    .btn-secondary:hover {
+        background: #ccc;
+    }
+</style>
+
+<script>
+    // File upload preview
+    document.getElementById('pdf_files')?.addEventListener('change', function(e) {
+        const fileList = document.getElementById('file-list');
+        fileList.innerHTML = '';
+        
+        Array.from(this.files).forEach(file => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.style.cssText = 'padding: 10px; background: #f0f0f0; margin: 5px 0; border-radius: 5px;';
+            fileItem.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            fileList.appendChild(fileItem);
+        });
+    });
+</script>
+{% endblock %}

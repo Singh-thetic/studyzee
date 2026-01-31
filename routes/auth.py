@@ -3,33 +3,20 @@ Authentication routes for login, signup, and logout.
 """
 
 import logging
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
-from flask_bcrypt import Bcrypt
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from utils.validators import validate_email, validate_password, validate_username
-from utils.db import DatabaseClient
 from models.user import User
-from config import Config
 
 logger = logging.getLogger(__name__)
 auth_bp = Blueprint("auth", __name__)
-bcrypt = Bcrypt()
-
-# Database client will be initialized in app setup
-db = None
-
-
-def init_auth(database_client: DatabaseClient) -> None:
-    """Initialize auth module with database client."""
-    global db
-    db = database_client
 
 
 @auth_bp.route("/")
 def home():
     """Home/login page."""
     if current_user.is_authenticated:
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("dashboard.dashboard"))
     return render_template("login.html", stage="login")
 
 
@@ -42,12 +29,12 @@ def login():
     if not username or not password:
         return render_template("login.html", stage="login", error="Username and password required")
 
-    user_data = db.select_one("users", "username", username)
+    user_data = current_app.db.select_one("users", "username", username)
     if not user_data:
         logger.warning(f"Login attempt with non-existent username: {username}")
         return render_template("login.html", stage="login", error="Invalid username or password")
 
-    if not bcrypt.check_password_hash(user_data["password_hash"], password):
+    if not current_app.bcrypt.check_password_hash(user_data["password_hash"], password):
         logger.warning(f"Failed login attempt for user: {username}")
         return render_template("login.html", stage="login", error="Invalid username or password")
 
@@ -55,7 +42,7 @@ def login():
     login_user(user_obj)
     logger.info(f"User logged in: {username}")
     flash("Login successful!", "success")
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("dashboard.dashboard"))
 
 
 @auth_bp.route("/signup", methods=["POST"])
@@ -93,18 +80,18 @@ def signup():
         return render_template("login.html", stage="signup", error="Passwords do not match")
 
     # Check if user already exists
-    existing_user = db.select_one("users", "username", username)
+    existing_user = current_app.db.select_one("users", "username", username)
     if existing_user:
         logger.warning(f"Signup attempt with existing username: {username}")
         return render_template("login.html", stage="signup", error="Username already exists")
 
-    existing_email = db.select_one("users", "email", email)
+    existing_email = current_app.db.select_one("users", "email", email)
     if existing_email:
         logger.warning(f"Signup attempt with existing email: {email}")
         return render_template("login.html", stage="signup", error="Email already exists")
 
     # Create new user
-    hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+    hashed_password = current_app.bcrypt.generate_password_hash(password).decode("utf-8")
     user_data = {
         "username": username,
         "email": email,
@@ -112,7 +99,7 @@ def signup():
         "password_hash": hashed_password,
     }
 
-    if not db.insert("users", user_data):
+    if not current_app.db.insert("users", user_data):
         logger.error(f"Failed to create new user: {username}")
         return render_template(
             "login.html",
@@ -143,17 +130,17 @@ def change_name():
 
     if not new_name:
         flash("Name cannot be empty", "error")
-        return redirect(url_for("edit_profile"))
+        return redirect(url_for("social.edit_profile"))
 
     if len(new_name) > 255:
         flash("Name is too long", "error")
-        return redirect(url_for("edit_profile"))
+        return redirect(url_for("social.edit_profile"))
 
-    if db.update("users", "id", current_user.id, {"full_name": new_name}):
+    if current_app.db.update("users", "id", current_user.id, {"full_name": new_name}):
         current_user.full_name = new_name
         logger.info(f"User {current_user.username} changed name to {new_name}")
         flash("Name updated successfully!", "success")
     else:
         flash("Failed to update name", "error")
 
-    return redirect(url_for("edit_profile"))
+    return redirect(url_for("social.edit_profile"))

@@ -1,232 +1,226 @@
 {% extends "base.html" %}
-{% block title %}Flashcards{% endblock %}
+{% block title %}Flashcards - StudyZee{% endblock %}
 
 {% block content %}
-<h2 class="title" style="font-size: 36px; font-weight: bold; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Study with Flashcards - StudyZee</h2>
-    <div class="flashcards-container">
-        <!-- Make Flashcards Section -->
-        <div class="make-flashcards">
-            <h2 class="section-title left-align">Make Flashcards</h2>
-            <form id="upload-form" enctype="multipart/form-data">
-                <label for="notes-file" class="upload-box">
-                    <div class="upload-icon">+</div>
-                    <p>Click to upload notes</p>
-                    <input type="file" name="notes_file" id="notes-file" accept=".txt,.pdf,.docx" required hidden>
-                </label>
-                <input type="text" name="set_name" id="set-name" placeholder="Enter flashcard set name" required class="input-field">
-                <button type="submit" class="submit-button">Create Flashcards</button>
-            </form>
-            <div id="loading" style="display: none;"> <!-- Added loading spinner -->
-                <div class="spinner"></div>
-                <p>Generating flashcards...</p>
-            </div>
+<div class="container">
+  <div style="text-align: center; margin-bottom: 3rem;">
+    <h1 class="page-title">AI-Powered Flashcards</h1>
+    <p style="color: var(--gray-700); font-size: 1.125rem;">Generate smart flashcards from your notes instantly</p>
+  </div>
+
+  <div class="grid grid-2" style="align-items: start;">
+    <!-- Create Flashcards Card -->
+    <div class="card">
+      <h2 class="card-header">Create Flashcards</h2>
+      
+      <form id="upload-form" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="form-group">
+          <label class="form-label">Flashcard Set Name</label>
+          <input type="text" name="set_name" id="set-name" class="form-input" placeholder="e.g., Biology Chapter 5" required>
         </div>
-        
-        <!-- Saved Flashcards Section -->
-        <div class="saved-flashcards">
-            <h2 class="section-title left-align">Saved Flashcards</h2>
-            <div class="flashcard-list" id="flashcard-sets"></div>
+
+        <div class="form-group">
+          <label class="form-label">Upload Notes</label>
+          <label for="notes-file" class="upload-box" style="display: flex; 
+                                                              flex-direction: column; 
+                                                              align-items: center; 
+                                                              justify-content: center; 
+                                                              padding: 3rem 2rem; 
+                                                              background: var(--gray-50); 
+                                                              border: 3px dashed var(--gray-300); 
+                                                              border-radius: var(--radius-lg); 
+                                                              cursor: pointer; 
+                                                              transition: var(--transition);"
+               onmouseover="this.style.borderColor='var(--primary)'; this.style.background='rgba(99, 102, 241, 0.05)'"
+               onmouseout="this.style.borderColor='var(--gray-300)'; this.style.background='var(--gray-50)'">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="margin-bottom: 1rem;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p id="upload-text" style="font-weight: 600; color: var(--gray-700); margin-bottom: 0.25rem;">Click to upload notes</p>
+            <p style="font-size: 0.875rem; color: var(--gray-500);">Supports PDF, TXT, DOCX</p>
+            <input type="file" name="notes_file" id="notes-file" accept=".txt,.pdf,.docx" required hidden>
+          </label>
         </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          Generate Flashcards
+        </button>
+      </form>
+
+      <!-- Loading Indicator -->
+      <div id="loading" style="display: none; text-align: center; padding: 2rem;">
+        <div class="spinner" style="margin: 0 auto 1rem;"></div>
+        <p style="color: var(--primary); font-weight: 600;">Generating flashcards...</p>
+        <p style="color: var(--gray-600); font-size: 0.875rem;">This may take a moment</p>
+      </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const flashcardSetsContainer = document.getElementById("flashcard-sets");
-            const uploadForm = document.getElementById("upload-form");
-            const fileInput = document.getElementById("notes-file");
-            const uploadText = document.querySelector(".upload-box p");
-            const loadingDiv = document.getElementById("loading"); // Reference loading div
+    <!-- Saved Flashcards Card -->
+    <div class="card">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0;">My Flashcard Sets</h2>
+        <span class="badge badge-primary" id="sets-count">0</span>
+      </div>
+      
+      <div id="flashcard-sets" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 500px; overflow-y: auto;"></div>
+    </div>
+  </div>
+</div>
 
-            fileInput.addEventListener("change", function () {
-                if (fileInput.files.length > 0) {
-                    uploadText.textContent = fileInput.files[0].name;
-                } else {
-                    uploadText.textContent = "Click to upload notes";
-                }
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const flashcardSetsContainer = document.getElementById("flashcard-sets");
+    const uploadForm = document.getElementById("upload-form");
+    const fileInput = document.getElementById("notes-file");
+    const uploadText = document.getElementById("upload-text");
+    const loadingDiv = document.getElementById("loading");
+    const setsCount = document.getElementById("sets-count");
+
+    fileInput.addEventListener("change", function () {
+      if (fileInput.files.length > 0) {
+        uploadText.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" style="display: inline; margin-right: 8px; vertical-align: middle;">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>` + fileInput.files[0].name;
+        uploadText.style.color = "var(--success)";
+      } else {
+        uploadText.textContent = "Click to upload notes";
+        uploadText.style.color = "var(--gray-700)";
+      }
+    });
+
+    function loadFlashcardSets() {
+      fetch("/flashcard-sets")
+        .then(response => response.json())
+        .then(data => {
+          flashcardSetsContainer.innerHTML = "";
+          setsCount.textContent = data.sets.length;
+          
+          if (data.sets.length === 0) {
+            flashcardSetsContainer.innerHTML = `
+              <div style="text-align: center; padding: 3rem 1rem; color: var(--gray-500);">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin: 0 auto 1rem; opacity: 0.3;">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="9" y1="9" x2="15" y2="9"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+                <p style="font-weight: 600; margin-bottom: 0.5rem;">No flashcard sets yet</p>
+                <p style="font-size: 0.875rem;">Upload notes to create your first set</p>
+              </div>
+            `;
+          } else {
+            data.sets.forEach(set => {
+              const div = document.createElement("div");
+              const link = document.createElement("a");
+              link.href = `/practice/${set.set_id}`;
+              link.style.textDecoration = "none";
+              
+              link.innerHTML = `
+                <div style="background: linear-gradient(135deg, var(--primary-light), var(--primary)); 
+                            color: white; 
+                            padding: 1.25rem; 
+                            border-radius: var(--radius-lg); 
+                            transition: var(--transition);
+                            cursor: pointer;"
+                     onmouseover="this.style.transform='translateX(4px)'"
+                     onmouseout="this.style.transform='translateX(0)'">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <p style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.25rem;">${set.name}</p>
+                      <p style="opacity: 0.9; font-size: 0.875rem;">${set.count} flashcards</p>
+                    </div>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </div>
+                </div>
+              `;
+              
+              div.appendChild(link);
+              flashcardSetsContainer.appendChild(div);
             });
-
-            function loadFlashcardSets() {
-                fetch("/flashcard-sets")
-                    .then(response => response.json())
-                    .then(data => {
-                        flashcardSetsContainer.innerHTML = "";
-                        if (data.sets.length === 0) {
-                            flashcardSetsContainer.innerHTML = "<p class='no-items'>No items to display</p>";
-                        } else {
-                            data.sets.forEach(set => {
-                                const div = document.createElement("div");
-                                div.classList.add("flashcard-item");
-                                const link = document.createElement("a");
-                                link.href = `/practice/${set.set_id}`;
-                                link.textContent = set.name;
-                                div.appendChild(link);
-                                flashcardSetsContainer.appendChild(div);
-                            });
-                        }
-                    })
-                    .catch(error => console.error("Error fetching flashcard sets:", error));
-            }
-
-            uploadForm.addEventListener("submit", function (event) {
-                event.preventDefault();
-                const formData = new FormData(uploadForm);
-                
-                // Show loading spinner
-                loadingDiv.style.display = "block";
-
-                fetch("/upload-notes", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    loadingDiv.style.display = "none"; // Hide spinner
-                    alert("File upload complete! " + data.message); // Show success popup
-                    loadFlashcardSets(); // Reload the flashcard sets
-                })
-                .catch(error => {
-                    loadingDiv.style.display = "none"; // Hide spinner
-                    alert("Error uploading notes: " + error);
-                });
-            });
-
-            loadFlashcardSets();
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching flashcard sets:", error);
+          flashcardSetsContainer.innerHTML = `
+            <div class="alert alert-error">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              Failed to load flashcard sets
+            </div>
+          `;
         });
-    </script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f8f8;
-            margin: 0;
-            padding: 0;
-        }
-        .flashcards-container {
-            display: flex;
-            justify-content: space-between;
-            max-width: 1000px;
-            margin: 20px auto;
-            gap: 20px;
-            align-items: flex-start;
-        }
-        .make-flashcards {
-            background-color: #f8a9a9;
-            padding: 20px;
-            width: 45%;
-            border-radius: 10px;
-            flex-shrink: 0;
-        }
-        .saved-flashcards {
-            background-color: #a4d4a4;
-            padding: 20px;
-            width: 55%;
-            border-radius: 10px;
-        }
-        .section-title {
-            margin-bottom: 15px;
-        }
-        .left-align {
-            text-align: left;
-        }
-        .flashcard-list {
-            padding: 10px;
-            border-radius: 10px;
-            text-align: left;
-        }
-        .flashcard-item {
-            background-color: #b6e6b6;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            text-align: left;
-        }
-        .flashcard-item a {
-            text-decoration: none;
-            color: black;
-            display: block;
-            width: 100%;
-        }
-        .no-items {
-            text-align: left;
-            font-style: italic;
-        }
-        .upload-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            cursor: pointer;
-            background-color: #fcdede;
-            border-radius: 10px;
-            border: none;
-        }
-        .input-field {
-            width: 100%;
-            box-shadow: none;
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px;
-            border-radius: 10px;
-            background-color: #fcdede;
-            outline: none;
-        }
-        .input-field:focus {
-            border: 1px solid #d67a7a;
-        }
-        .submit-button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            color: black;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #fcdede; /* Ensure default background matches upload box */
-            border: none;
-            border-radius: 10px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            appearance: none; /* Removes browser-specific styles */
-            box-shadow: none;
-        }
+    }
 
-        .submit-button:hover {
-            background-color: #e6bcbc; /* Ensures correct color on hover */
-            transform: scale(1.02);
-        }
+    uploadForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      const formData = new FormData(uploadForm);
+      
+      // Show loading spinner and hide form
+      uploadForm.style.display = "none";
+      loadingDiv.style.display = "block";
 
-        .submit-button:focus {
-            outline: none; /* Removes default browser outline */
-        }
+      fetch("/upload-notes", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        loadingDiv.style.display = "none";
+        uploadForm.style.display = "flex";
+        
+        // Show success message
+        const successDiv = document.createElement("div");
+        successDiv.className = "alert alert-success";
+        successDiv.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          ${data.message}
+        `;
+        uploadForm.parentElement.insertBefore(successDiv, uploadForm);
+        
+        setTimeout(() => successDiv.remove(), 5000);
+        
+        // Reset form
+        uploadForm.reset();
+        uploadText.textContent = "Click to upload notes";
+        uploadText.style.color = "var(--gray-700)";
+        
+        // Reload flashcard sets
+        loadFlashcardSets();
+      })
+      .catch(error => {
+        loadingDiv.style.display = "none";
+        uploadForm.style.display = "flex";
+        
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "alert alert-error";
+        errorDiv.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          Error uploading notes: ${error}
+        `;
+        uploadForm.parentElement.insertBefore(errorDiv, uploadForm);
+        
+        setTimeout(() => errorDiv.remove(), 5000);
+      });
+    });
 
-        @media (max-width: 768px) {
-            .flashcards-container {
-                flex-direction: column;
-                align-items: center;
-            }
-            .make-flashcards, .saved-flashcards {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-
-        /* Spinner styles */
-        .spinner {
-            border: 5px solid rgba(0, 0, 0, 0.1);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border-left-color: #09f;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        #loading {
-            text-align: center;
-            display: none;
-        }
-        }
-    </style>
+    loadFlashcardSets();
+  });
+</script>
 {% endblock %}

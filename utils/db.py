@@ -134,6 +134,12 @@ class DatabaseClient:
             )
             return response.data
         except Exception as e:
+            # Check if it's a 204 (no content) - this is normal, not an error
+            error_str = str(e)
+            if "204" in error_str or "Missing response" in error_str:
+                logger.debug(f"No record found in {table} where {column}={value}")
+                return None
+            # For other errors, log as error
             logger.error(
                 f"Select one failed for table {table}, {column}={value}: {str(e)}"
             )

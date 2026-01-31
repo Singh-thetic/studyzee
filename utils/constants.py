@@ -92,6 +92,9 @@ ACADEMIC_GOALS = [
     "Other",
 ]
 
+# Alias for compatibility
+GOALS = ACADEMIC_GOALS
+
 WEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 DAY_ABBREVIATIONS = {

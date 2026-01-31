@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}Flashcards{% endblock %}
+
+{% block content %}
+<h2 class="title" style="font-size: 36px; font-weight: bold; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Study with Flashcards - StudyZee</h2>
+    <div class="flashcards-container">
+        <!-- Make Flashcards Section -->
+        <div class="make-flashcards">
+            <h2 class="section-title left-align">Make Flashcards</h2>
+            <form id="upload-form" enctype="multipart/form-data">
+                <label for="notes-file" class="upload-box">
+                    <div class="upload-icon">+</div>
+                    <p>Click to upload notes</p>
+                    <input type="file" name="notes_file" id="notes-file" accept=".txt,.pdf,.docx" required hidden>
+                </label>
+                <input type="text" name="set_name" id="set-name" placeholder="Enter flashcard set name" required class="input-field">
+                <button type="submit" class="submit-button">Create Flashcards</button>
+            </form>
+            <div id="loading" style="display: none;"> <!-- Added loading spinner -->
+                <div class="spinner"></div>
+                <p>Generating flashcards...</p>
+            </div>
+        </div>
+        
+        <!-- Saved Flashcards Section -->
+        <div class="saved-flashcards">
+            <h2 class="section-title left-align">Saved Flashcards</h2>
+            <div class="flashcard-list" id="flashcard-sets"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const flashcardSetsContainer = document.getElementById("flashcard-sets");
+            const uploadForm = document.getElementById("upload-form");
+            const fileInput = document.getElementById("notes-file");
+            const uploadText = document.querySelector(".upload-box p");
+            const loadingDiv = document.getElementById("loading"); // Reference loading div
+
+            fileInput.addEventListener("change", function () {
+                if (fileInput.files.length > 0) {
+                    uploadText.textContent = fileInput.files[0].name;
+                } else {
+                    uploadText.textContent = "Click to upload notes";
+                }
+            });
+
+            function loadFlashcardSets() {
+                fetch("/flashcard-sets")
+                    .then(response => response.json())
+                    .then(data => {
+                        flashcardSetsContainer.innerHTML = "";
+                        if (data.sets.length === 0) {
+                            flashcardSetsContainer.innerHTML = "<p class='no-items'>No items to display</p>";
+                        } else {
+                            data.sets.forEach(set => {
+                                const div = document.createElement("div");
+                                div.classList.add("flashcard-item");
+                                const link = document.createElement("a");
+                                link.href = `/practice/${set.set_id}`;
+                                link.textContent = set.name;
+                                div.appendChild(link);
+                                flashcardSetsContainer.appendChild(div);
+                            });
+                        }
+                    })
+                    .catch(error => console.error("Error fetching flashcard sets:", error));
+            }
+
+            uploadForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                const formData = new FormData(uploadForm);
+                
+                // Show loading spinner
+                loadingDiv.style.display = "block";
+
+                fetch("/upload-notes", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadingDiv.style.display = "none"; // Hide spinner
+                    alert("File upload complete! " + data.message); // Show success popup
+                    loadFlashcardSets(); // Reload the flashcard sets
+                })
+                .catch(error => {
+                    loadingDiv.style.display = "none"; // Hide spinner
+                    alert("Error uploading notes: " + error);
+                });
+            });
+
+            loadFlashcardSets();
+        });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+        .flashcards-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1000px;
+            margin: 20px auto;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .make-flashcards {
+            background-color: #f8a9a9;
+            padding: 20px;
+            width: 45%;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        .saved-flashcards {
+            background-color: #a4d4a4;
+            padding: 20px;
+            width: 55%;
+            border-radius: 10px;
+        }
+        .section-title {
+            margin-bottom: 15px;
+        }
+        .left-align {
+            text-align: left;
+        }
+        .flashcard-list {
+            padding: 10px;
+            border-radius: 10px;
+            text-align: left;
+        }
+        .flashcard-item {
+            background-color: #b6e6b6;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            text-align: left;
+        }
+        .flashcard-item a {
+            text-decoration: none;
+            color: black;
+            display: block;
+            width: 100%;
+        }
+        .no-items {
+            text-align: left;
+            font-style: italic;
+        }
+        .upload-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            cursor: pointer;
+            background-color: #fcdede;
+            border-radius: 10px;
+            border: none;
+        }
+        .input-field {
+            width: 100%;
+            box-shadow: none;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px;
+            border-radius: 10px;
+            background-color: #fcdede;
+            outline: none;
+        }
+        .input-field:focus {
+            border: 1px solid #d67a7a;
+        }
+        .submit-button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            color: black;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #fcdede; /* Ensure default background matches upload box */
+            border: none;
+            border-radius: 10px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            appearance: none; /* Removes browser-specific styles */
+            box-shadow: none;
+        }
+
+        .submit-button:hover {
+            background-color: #e6bcbc; /* Ensures correct color on hover */
+            transform: scale(1.02);
+        }
+
+        .submit-button:focus {
+            outline: none; /* Removes default browser outline */
+        }
+
+        @media (max-width: 768px) {
+            .flashcards-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .make-flashcards, .saved-flashcards {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+        /* Spinner styles */
+        .spinner {
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading {
+            text-align: center;
+            display: none;
+        }
+        }
+    </style>
+{% endblock %}

@@ -1,107 +1,63 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Profile - StudyZee{% endblock %}
+{% block title %}Profile - StudyZee{% endblock %}
 
 {% block content %}
-<div class="profile-container">
-    
-    <div class="profile-content">
-        <!-- Profile Picture Section -->
-        <div class="profile-left">
-            <img src="{{ user.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}" alt="Profile Picture" class="profile-img" id="profile-pic">
-            <h3 class="username">{{ user.full_name }}</h3>
-            <p class="user-handle">@{{ user.username }}</p>
-            <br>
-            <button id="edit-name-btn" class="update-pic-btn">Edit Name</button>
-            <div id="edit-name-popup" class="popup">
-                <div class="popup-content">
-                    <span class="close-btn">&times;</span>
-                    <h3>Change Name</h3>
-                    <form method="POST" action="/change_name">
-                        <input type="text" name="new_name" value="{{ user.full_name }}" required>
-                        <button type="submit">Save</button>
-                    </form>
+<div class="profile-wrapper">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-header-content">
+            <div class="profile-avatar-section">
+                <div class="avatar-wrapper">
+                    <img src="{{ user.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}" 
+                         alt="Profile Picture" 
+                         class="avatar-img" 
+                         id="profile-pic">
+                    <button class="avatar-edit-btn" id="update-pic-btn" title="Change profile picture">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 8L12 5L5 12V15H8L15 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12.5 5.5L14.5 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
                 </div>
-            </div>
-            <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const editNameBtn = document.getElementById("edit-name-btn");
-                const editNamePopup = document.getElementById("edit-name-popup");
-                const closeNameBtn = document.querySelector(".close-btn");
-
-                editNameBtn.addEventListener("click", function() {
-                    editNamePopup.style.display = "block";
-                });
-
-                closeNameBtn.addEventListener("click", function() {
-                    editNamePopup.style.display = "none";
-                });
-
-                window.addEventListener("click", function(event) {
-                    if (event.target === editNamePopup) {
-                        editNamePopup.style.display = "none";
-                    }
-                });
-            });
-            </script>
-            
-            
-            <!-- Update Picture Button -->
-            <button id="update-pic-btn" class="update-pic-btn">Update Picture</button>
-        
-            <!-- Profile Picture Upload Popup -->
-            <div id="profile-pic-popup" class="popup">
-                <div class="popup-content">
-                    <span class="close-btn">&times;</span>
-                    <h3>Update Profile Picture</h3>
-                    <form id="update-pic-form" method="POST" action="/update_pic" enctype="multipart/form-data">
-                        <input type="file" name="profile_pic" accept="image/*" required>
-                        <button type="submit">Upload</button>
-                    </form>
+                <div class="profile-user-info">
+                    <h1 class="profile-name">{{ user.full_name }}</h1>
+                    <p class="profile-username">@{{ user.username }}</p>
+                    <button class="edit-name-btn" id="edit-name-btn">Edit Name</button>
                 </div>
             </div>
         </div>
-        
-        <!-- JavaScript for Popup -->
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const updatePicBtn = document.getElementById("update-pic-btn");
-                const profilePicPopup = document.getElementById("profile-pic-popup");
-                const closeBtn = document.querySelector(".close-btn");
-        
-                updatePicBtn.addEventListener("click", function() {
-                    profilePicPopup.style.display = "block";
-                });
-        
-                closeBtn.addEventListener("click", function() {
-                    profilePicPopup.style.display = "none";
-                });
-        
-                window.addEventListener("click", function(event) {
-                    if (event.target === profilePicPopup) {
-                        profilePicPopup.style.display = "none";
-                    }
-                });
-            });
-        </script>
+    </div>
 
-        <!-- Profile Form -->
-        <form method="POST" class="profile-form">
+    <!-- Profile Form -->
+    <div class="profile-container">
+        <form method="POST" action="{{ url_for('social.edit_profile') }}" class="profile-form">
+            <h2 class="form-section-title">Personal Information</h2>
+            
             <div class="form-grid">
-                <!-- Left Column (Blue Fields) -->
-                <div class="form-column blue-column">
-                    <div class="dropdown-container2">
-                        <label>Email</label>
-                        <input type="text" value="{{ user.email }}" disabled class="info-box blue">
+                <!-- Left Column -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" value="{{ user.email }}" disabled class="form-input disabled">
                     </div>
-                    <div class="dropdown-container2">
-                        <label>Study Year</label>
-                        <input type="number" name="year_of_study" value="{{ user.study_year or '' }}" min="1" max="10" class="info-box blue">
+
+                    <div class="form-group">
+                        <label for="year_of_study">Study Year</label>
+                        <input type="number" 
+                               id="year_of_study" 
+                               name="year_of_study" 
+                               value="{{ user.study_year or '' }}" 
+                               min="1" 
+                               max="10" 
+                               placeholder="Enter your year"
+                               class="form-input">
                     </div>
-                    <div class="dropdown-container2">
+
+                    <div class="form-group">
                         <label for="ethnicity">Ethnicity</label>
-                        <select name="ethnicity" class="dropdown blue">
-                            <option value="" disabled selected>Select</option>
+                        <select name="ethnicity" id="ethnicity" class="form-select">
+                            <option value="">Select your ethnicity</option>
                             <option value="Asian" {% if user.ethnicity == 'Asian' %}selected{% endif %}>Asian</option>
                             <option value="Black" {% if user.ethnicity == 'Black' %}selected{% endif %}>Black</option>
                             <option value="Hispanic/Latino" {% if user.ethnicity == 'Hispanic/Latino' %}selected{% endif %}>Hispanic/Latino</option>
@@ -117,240 +73,58 @@
                             <option value="Caribbean" {% if user.ethnicity == 'Caribbean' %}selected{% endif %}>Caribbean</option>
                             <option value="Other" {% if user.ethnicity == 'Other' %}selected{% endif %}>Other</option>
                         </select>
-                        
                     </div>
-                    <div class="dropdown-container2">
+
+                    <div class="form-group">
                         <label for="major">Major</label>
-                        <select name="major" class="dropdown blue">
-                            <option value="" disabled selected>Select</option>
+                        <select name="major" id="major" class="form-select">
+                            <option value="">Select your major</option>
                             <option value="business-management" {% if user.major == 'business-management' %}selected{% endif %}>Business & Management</option>
-                            <option value="cs-it-data-science" {% if user.major == 'cs-it-data-science' %}selected{% endif %}>Computer Science, IT &amp; Data Science</option>
-                            <option value="engineering-technology" {% if user.major == 'engineering-technology' %}selected{% endif %}>Engineering &amp; Technology</option>
-                            <option value="mathematics-statistics" {% if user.major == 'mathematics-statistics' %}selected{% endif %}>Mathematics &amp; Statistics</option>
-                            <option value="natural-environmental-sciences" {% if user.major == 'natural-environmental-sciences' %}selected{% endif %}>Natural Sciences &amp; Environmental Studies</option>
-                            <option value="health-sciences-medicine" {% if user.major == 'health-sciences-medicine' %}selected{% endif %}>Health Sciences, Nursing &amp; Medicine</option>
-                            <option value="pharmacy-pharmaceutical-sciences" {% if user.major == 'pharmacy-pharmaceutical-sciences' %}selected{% endif %}>Pharmacy &amp; Pharmaceutical Sciences</option>
-                            <option value="education-teaching" {% if user.major == 'education-teaching' %}selected{% endif %}>Education &amp; Teaching</option>
-                            <option value="law-legal-studies" {% if user.major == 'law-legal-studies' %}selected{% endif %}>Law &amp; Legal Studies</option>
-                            <option value="social-sciences-humanities" {% if user.major == 'social-sciences-humanities' %}selected{% endif %}>Social Sciences &amp; Humanities</option>
-                            <option value="economics-finance" {% if user.major == 'economics-finance' %}selected{% endif %}>Economics &amp; Finance</option>
-                            <option value="architecture-urban-planning" {% if user.major == 'architecture-urban-planning' %}selected{% endif %}>Architecture &amp; Urban Planning</option>
-                            <option value="fine-arts-design" {% if user.major == 'fine-arts-design' %}selected{% endif %}>Fine Arts &amp; Design</option>
-                            <option value="communications-media-studies" {% if user.major == 'communications-media-studies' %}selected{% endif %}>Communications &amp; Media Studies</option>
-                            <option value="agriculture-forestry" {% if user.major == 'agriculture-forestry' %}selected{% endif %}>Agriculture &amp; Forestry</option>
-                            <option value="hospitality-tourism" {% if user.major == 'hospitality-tourism' %}selected{% endif %}>Hospitality &amp; Tourism</option>
+                            <option value="cs-it-data-science" {% if user.major == 'cs-it-data-science' %}selected{% endif %}>Computer Science, IT & Data Science</option>
+                            <option value="engineering-technology" {% if user.major == 'engineering-technology' %}selected{% endif %}>Engineering & Technology</option>
+                            <option value="mathematics-statistics" {% if user.major == 'mathematics-statistics' %}selected{% endif %}>Mathematics & Statistics</option>
+                            <option value="natural-environmental-sciences" {% if user.major == 'natural-environmental-sciences' %}selected{% endif %}>Natural Sciences & Environmental Studies</option>
+                            <option value="health-sciences-medicine" {% if user.major == 'health-sciences-medicine' %}selected{% endif %}>Health Sciences, Nursing & Medicine</option>
+                            <option value="pharmacy-pharmaceutical-sciences" {% if user.major == 'pharmacy-pharmaceutical-sciences' %}selected{% endif %}>Pharmacy & Pharmaceutical Sciences</option>
+                            <option value="education-teaching" {% if user.major == 'education-teaching' %}selected{% endif %}>Education & Teaching</option>
+                            <option value="law-legal-studies" {% if user.major == 'law-legal-studies' %}selected{% endif %}>Law & Legal Studies</option>
+                            <option value="social-sciences-humanities" {% if user.major == 'social-sciences-humanities' %}selected{% endif %}>Social Sciences & Humanities</option>
+                            <option value="economics-finance" {% if user.major == 'economics-finance' %}selected{% endif %}>Economics & Finance</option>
+                            <option value="architecture-urban-planning" {% if user.major == 'architecture-urban-planning' %}selected{% endif %}>Architecture & Urban Planning</option>
+                            <option value="fine-arts-design" {% if user.major == 'fine-arts-design' %}selected{% endif %}>Fine Arts & Design</option>
+                            <option value="communications-media-studies" {% if user.major == 'communications-media-studies' %}selected{% endif %}>Communications & Media Studies</option>
+                            <option value="agriculture-forestry" {% if user.major == 'agriculture-forestry' %}selected{% endif %}>Agriculture & Forestry</option>
+                            <option value="hospitality-tourism" {% if user.major == 'hospitality-tourism' %}selected{% endif %}>Hospitality & Tourism</option>
                         </select>
                     </div>
                 </div>
-                
-                <!-- Right Column (Red Fields) -->
-                <div class="form-column red-column">
-                    <div class="dropdown-container">
+
+                <!-- Right Column -->
+                <div class="form-section">
+                    <div class="form-group">
                         <label for="study_level">Study Level</label>
-                        <select id="study_level" name="study_level" class="dropdown red">
-                            <option value="" disabled selected>Choose your level of study</option>
+                        <select name="study_level" id="study_level" class="form-select">
+                            <option value="">Select your level of study</option>
                             <option value="undergraduate" {% if user.study_level == 'undergraduate' %}selected{% endif %}>Undergraduate</option>
                             <option value="masters" {% if user.study_level == 'masters' %}selected{% endif %}>Masters</option>
                             <option value="phd" {% if user.study_level == 'phd' %}selected{% endif %}>PhD</option>
                         </select>
                     </div>
-                    <div class="dropdown-container">
-                        <label for="home-country">Home Country</label>
-                        <select id="home-country" name="home_country" class="dropdown red">
-                            <option value="" disabled selected>Choose your home country</option>
-                            <option value="Afghanistan" {% if user.home_country == 'Afghanistan' %}selected{% endif %}>Afghanistan</option>
-                            <option value="Albania" {% if user.home_country == 'Albania' %}selected{% endif %}>Albania</option>
-                            <option value="Algeria" {% if user.home_country == 'Algeria' %}selected{% endif %}>Algeria</option>
-                            <option value="Andorra" {% if user.home_country == 'Andorra' %}selected{% endif %}>Andorra</option>
-                            <option value="Angola" {% if user.home_country == 'Angola' %}selected{% endif %}>Angola</option>
-                            <option value="Antigua and Barbuda" {% if user.home_country == 'Antigua and Barbuda' %}selected{% endif %}>Antigua and Barbuda</option>
-                            <option value="Argentina" {% if user.home_country == 'Argentina' %}selected{% endif %}>Argentina</option>
-                            <option value="Armenia" {% if user.home_country == 'Armenia' %}selected{% endif %}>Armenia</option>
-                            <option value="Australia" {% if user.home_country == 'Australia' %}selected{% endif %}>Australia</option>
-                            <option value="Austria" {% if user.home_country == 'Austria' %}selected{% endif %}>Austria</option>
-                            <option value="Azerbaijan" {% if user.home_country == 'Azerbaijan' %}selected{% endif %}>Azerbaijan</option>
-                            <option value="Bahamas" {% if user.home_country == 'Bahamas' %}selected{% endif %}>Bahamas</option>
-                            <option value="Bahrain" {% if user.home_country == 'Bahrain' %}selected{% endif %}>Bahrain</option>
-                            <option value="Bangladesh" {% if user.home_country == 'Bangladesh' %}selected{% endif %}>Bangladesh</option>
-                            <option value="Barbados" {% if user.home_country == 'Barbados' %}selected{% endif %}>Barbados</option>
-                            <option value="Belarus" {% if user.home_country == 'Belarus' %}selected{% endif %}>Belarus</option>
-                            <option value="Belgium" {% if user.home_country == 'Belgium' %}selected{% endif %}>Belgium</option>
-                            <option value="Belize" {% if user.home_country == 'Belize' %}selected{% endif %}>Belize</option>
-                            <option value="Benin" {% if user.home_country == 'Benin' %}selected{% endif %}>Benin</option>
-                            <option value="Bhutan" {% if user.home_country == 'Bhutan' %}selected{% endif %}>Bhutan</option>
-                            <option value="Bolivia" {% if user.home_country == 'Bolivia' %}selected{% endif %}>Bolivia</option>
-                            <option value="Bosnia and Herzegovina" {% if user.home_country == 'Bosnia and Herzegovina' %}selected{% endif %}>Bosnia and Herzegovina</option>
-                            <option value="Botswana" {% if user.home_country == 'Botswana' %}selected{% endif %}>Botswana</option>
-                            <option value="Brazil" {% if user.home_country == 'Brazil' %}selected{% endif %}>Brazil</option>
-                            <option value="Brunei" {% if user.home_country == 'Brunei' %}selected{% endif %}>Brunei</option>
-                            <option value="Bulgaria" {% if user.home_country == 'Bulgaria' %}selected{% endif %}>Bulgaria</option>
-                            <option value="Burkina Faso" {% if user.home_country == 'Burkina Faso' %}selected{% endif %}>Burkina Faso</option>
-                            <option value="Burundi" {% if user.home_country == 'Burundi' %}selected{% endif %}>Burundi</option>
-                            <option value="Cambodia" {% if user.home_country == 'Cambodia' %}selected{% endif %}>Cambodia</option>
-                            <option value="Cameroon" {% if user.home_country == 'Cameroon' %}selected{% endif %}>Cameroon</option>
-                            <option value="Canada" {% if user.home_country == 'Canada' %}selected{% endif %}>Canada</option>
-                            <option value="Cape Verde" {% if user.home_country == 'Cape Verde' %}selected{% endif %}>Cape Verde</option>
-                            <option value="Central African Republic" {% if user.home_country == 'Central African Republic' %}selected{% endif %}>Central African Republic</option>
-                            <option value="Chad" {% if user.home_country == 'Chad' %}selected{% endif %}>Chad</option>
-                            <option value="Chile" {% if user.home_country == 'Chile' %}selected{% endif %}>Chile</option>
-                            <option value="China" {% if user.home_country == 'China' %}selected{% endif %}>China</option>
-                            <option value="Colombia" {% if user.home_country == 'Colombia' %}selected{% endif %}>Colombia</option>
-                            <option value="Comoros" {% if user.home_country == 'Comoros' %}selected{% endif %}>Comoros</option>
-                            <option value="Congo" {% if user.home_country == 'Congo' %}selected{% endif %}>Congo</option>
-                            <option value="Costa Rica" {% if user.home_country == 'Costa Rica' %}selected{% endif %}>Costa Rica</option>
-                            <option value="Croatia" {% if user.home_country == 'Croatia' %}selected{% endif %}>Croatia</option>
-                            <option value="Cuba" {% if user.home_country == 'Cuba' %}selected{% endif %}>Cuba</option>
-                            <option value="Cyprus" {% if user.home_country == 'Cyprus' %}selected{% endif %}>Cyprus</option>
-                            <option value="Czech Republic" {% if user.home_country == 'Czech Republic' %}selected{% endif %}>Czech Republic</option>
-                            <option value="Denmark" {% if user.home_country == 'Denmark' %}selected{% endif %}>Denmark</option>
-                            <option value="Djibouti" {% if user.home_country == 'Djibouti' %}selected{% endif %}>Djibouti</option>
-                            <option value="Dominican Republic" {% if user.home_country == 'Dominican Republic' %}selected{% endif %}>Dominican Republic</option>
-                            <option value="Ecuador" {% if user.home_country == 'Ecuador' %}selected{% endif %}>Ecuador</option>
-                            <option value="Egypt" {% if user.home_country == 'Egypt' %}selected{% endif %}>Egypt</option>
-                            <option value="El Salvador" {% if user.home_country == 'El Salvador' %}selected{% endif %}>El Salvador</option>
-                            <option value="Equatorial Guinea" {% if user.home_country == 'Equatorial Guinea' %}selected{% endif %}>Equatorial Guinea</option>
-                            <option value="Eritrea" {% if user.home_country == 'Eritrea' %}selected{% endif %}>Eritrea</option>
-                            <option value="Estonia" {% if user.home_country == 'Estonia' %}selected{% endif %}>Estonia</option>
-                            <option value="Eswatini" {% if user.home_country == 'Eswatini' %}selected{% endif %}>Eswatini</option>
-                            <option value="Ethiopia" {% if user.home_country == 'Ethiopia' %}selected{% endif %}>Ethiopia</option>
-                            <option value="Fiji" {% if user.home_country == 'Fiji' %}selected{% endif %}>Fiji</option>
-                            <option value="Finland" {% if user.home_country == 'Finland' %}selected{% endif %}>Finland</option>
-                            <option value="France" {% if user.home_country == 'France' %}selected{% endif %}>France</option>
-                            <option value="Gabon" {% if user.home_country == 'Gabon' %}selected{% endif %}>Gabon</option>
-                            <option value="Gambia" {% if user.home_country == 'Gambia' %}selected{% endif %}>Gambia</option>
-                            <option value="Georgia" {% if user.home_country == 'Georgia' %}selected{% endif %}>Georgia</option>
-                            <option value="Germany" {% if user.home_country == 'Germany' %}selected{% endif %}>Germany</option>
-                            <option value="Ghana" {% if user.home_country == 'Ghana' %}selected{% endif %}>Ghana</option>
-                            <option value="Greece" {% if user.home_country == 'Greece' %}selected{% endif %}>Greece</option>
-                            <option value="Grenada" {% if user.home_country == 'Grenada' %}selected{% endif %}>Grenada</option>
-                            <option value="Guatemala" {% if user.home_country == 'Guatemala' %}selected{% endif %}>Guatemala</option>
-                            <option value="Guinea" {% if user.home_country == 'Guinea' %}selected{% endif %}>Guinea</option>
-                            <option value="Guinea-Bissau" {% if user.home_country == 'Guinea-Bissau' %}selected{% endif %}>Guinea-Bissau</option>
-                            <option value="Guyana" {% if user.home_country == 'Guyana' %}selected{% endif %}>Guyana</option>
-                            <option value="Haiti" {% if user.home_country == 'Haiti' %}selected{% endif %}>Haiti</option>
-                            <option value="Honduras" {% if user.home_country == 'Honduras' %}selected{% endif %}>Honduras</option>
-                            <option value="Hungary" {% if user.home_country == 'Hungary' %}selected{% endif %}>Hungary</option>
-                            <option value="Iceland" {% if user.home_country == 'Iceland' %}selected{% endif %}>Iceland</option>
-                            <option value="India" {% if user.home_country == 'India' %}selected{% endif %}>India</option>
-                            <option value="Indonesia" {% if user.home_country == 'Indonesia' %}selected{% endif %}>Indonesia</option>
-                            <option value="Iran" {% if user.home_country == 'Iran' %}selected{% endif %}>Iran</option>
-                            <option value="Iraq" {% if user.home_country == 'Iraq' %}selected{% endif %}>Iraq</option>
-                            <option value="Ireland" {% if user.home_country == 'Ireland' %}selected{% endif %}>Ireland</option>
-                            <option value="Israel" {% if user.home_country == 'Israel' %}selected{% endif %}>Israel</option>
-                            <option value="Italy" {% if user.home_country == 'Italy' %}selected{% endif %}>Italy</option>
-                            <option value="Jamaica" {% if user.home_country == 'Jamaica' %}selected{% endif %}>Jamaica</option>
-                            <option value="Japan" {% if user.home_country == 'Japan' %}selected{% endif %}>Japan</option>
-                            <option value="Jordan" {% if user.home_country == 'Jordan' %}selected{% endif %}>Jordan</option>
-                            <option value="Kazakhstan" {% if user.home_country == 'Kazakhstan' %}selected{% endif %}>Kazakhstan</option>
-                            <option value="Kenya" {% if user.home_country == 'Kenya' %}selected{% endif %}>Kenya</option>
-                            <option value="Kiribati" {% if user.home_country == 'Kiribati' %}selected{% endif %}>Kiribati</option>
-                            <option value="Kuwait" {% if user.home_country == 'Kuwait' %}selected{% endif %}>Kuwait</option>
-                            <option value="Kyrgyzstan" {% if user.home_country == 'Kyrgyzstan' %}selected{% endif %}>Kyrgyzstan</option>
-                            <option value="Laos" {% if user.home_country == 'Laos' %}selected{% endif %}>Laos</option>
-                            <option value="Latvia" {% if user.home_country == 'Latvia' %}selected{% endif %}>Latvia</option>
-                            <option value="Lebanon" {% if user.home_country == 'Lebanon' %}selected{% endif %}>Lebanon</option>
-                            <option value="Lesotho" {% if user.home_country == 'Lesotho' %}selected{% endif %}>Lesotho</option>
-                            <option value="Liberia" {% if user.home_country == 'Liberia' %}selected{% endif %}>Liberia</option>
-                            <option value="Libya" {% if user.home_country == 'Libya' %}selected{% endif %}>Libya</option>
-                            <option value="Liechtenstein" {% if user.home_country == 'Liechtenstein' %}selected{% endif %}>Liechtenstein</option>
-                            <option value="Lithuania" {% if user.home_country == 'Lithuania' %}selected{% endif %}>Lithuania</option>
-                            <option value="Luxembourg" {% if user.home_country == 'Luxembourg' %}selected{% endif %}>Luxembourg</option>
-                            <option value="Madagascar" {% if user.home_country == 'Madagascar' %}selected{% endif %}>Madagascar</option>
-                            <option value="Malawi" {% if user.home_country == 'Malawi' %}selected{% endif %}>Malawi</option>
-                            <option value="Malaysia" {% if user.home_country == 'Malaysia' %}selected{% endif %}>Malaysia</option>
-                            <option value="Maldives" {% if user.home_country == 'Maldives' %}selected{% endif %}>Maldives</option>
-                            <option value="Mali" {% if user.home_country == 'Mali' %}selected{% endif %}>Mali</option>
-                            <option value="Malta" {% if user.home_country == 'Malta' %}selected{% endif %}>Malta</option>
-                            <option value="Marshall Islands" {% if user.home_country == 'Marshall Islands' %}selected{% endif %}>Marshall Islands</option>
-                            <option value="Mauritania" {% if user.home_country == 'Mauritania' %}selected{% endif %}>Mauritania</option>
-                            <option value="Mauritius" {% if user.home_country == 'Mauritius' %}selected{% endif %}>Mauritius</option>
-                            <option value="Mexico" {% if user.home_country == 'Mexico' %}selected{% endif %}>Mexico</option>
-                            <option value="Micronesia" {% if user.home_country == 'Micronesia' %}selected{% endif %}>Micronesia</option>
-                            <option value="Moldova" {% if user.home_country == 'Moldova' %}selected{% endif %}>Moldova</option>
-                            <option value="Monaco" {% if user.home_country == 'Monaco' %}selected{% endif %}>Monaco</option>
-                            <option value="Mongolia" {% if user.home_country == 'Mongolia' %}selected{% endif %}>Mongolia</option>
-                            <option value="Montenegro" {% if user.home_country == 'Montenegro' %}selected{% endif %}>Montenegro</option>
-                            <option value="Morocco" {% if user.home_country == 'Morocco' %}selected{% endif %}>Morocco</option>
-                            <option value="Mozambique" {% if user.home_country == 'Mozambique' %}selected{% endif %}>Mozambique</option>
-                            <option value="Myanmar" {% if user.home_country == 'Myanmar' %}selected{% endif %}>Myanmar</option>
-                            <option value="Namibia" {% if user.home_country == 'Namibia' %}selected{% endif %}>Namibia</option>
-                            <option value="Nauru" {% if user.home_country == 'Nauru' %}selected{% endif %}>Nauru</option>
-                            <option value="Nepal" {% if user.home_country == 'Nepal' %}selected{% endif %}>Nepal</option>
-                            <option value="Netherlands" {% if user.home_country == 'Netherlands' %}selected{% endif %}>Netherlands</option>
-                            <option value="New Zealand" {% if user.home_country == 'New Zealand' %}selected{% endif %}>New Zealand</option>
-                            <option value="Nicaragua" {% if user.home_country == 'Nicaragua' %}selected{% endif %}>Nicaragua</option>
-                            <option value="Niger" {% if user.home_country == 'Niger' %}selected{% endif %}>Niger</option>
-                            <option value="Nigeria" {% if user.home_country == 'Nigeria' %}selected{% endif %}>Nigeria</option>
-                            <option value="North Korea" {% if user.home_country == 'North Korea' %}selected{% endif %}>North Korea</option>
-                            <option value="North Macedonia" {% if user.home_country == 'North Macedonia' %}selected{% endif %}>North Macedonia</option>
-                            <option value="Norway" {% if user.home_country == 'Norway' %}selected{% endif %}>Norway</option>
-                            <option value="Oman" {% if user.home_country == 'Oman' %}selected{% endif %}>Oman</option>
-                            <option value="Pakistan" {% if user.home_country == 'Pakistan' %}selected{% endif %}>Pakistan</option>
-                            <option value="Palau" {% if user.home_country == 'Palau' %}selected{% endif %}>Palau</option>
-                            <option value="Panama" {% if user.home_country == 'Panama' %}selected{% endif %}>Panama</option>
-                            <option value="Papua New Guinea" {% if user.home_country == 'Papua New Guinea' %}selected{% endif %}>Papua New Guinea</option>
-                            <option value="Paraguay" {% if user.home_country == 'Paraguay' %}selected{% endif %}>Paraguay</option>
-                            <option value="Peru" {% if user.home_country == 'Peru' %}selected{% endif %}>Peru</option>
-                            <option value="Philippines" {% if user.home_country == 'Philippines' %}selected{% endif %}>Philippines</option>
-                            <option value="Poland" {% if user.home_country == 'Poland' %}selected{% endif %}>Poland</option>
-                            <option value="Portugal" {% if user.home_country == 'Portugal' %}selected{% endif %}>Portugal</option>
-                            <option value="Qatar" {% if user.home_country == 'Qatar' %}selected{% endif %}>Qatar</option>
-                            <option value="Romania" {% if user.home_country == 'Romania' %}selected{% endif %}>Romania</option>
-                            <option value="Russia" {% if user.home_country == 'Russia' %}selected{% endif %}>Russia</option>
-                            <option value="Rwanda" {% if user.home_country == 'Rwanda' %}selected{% endif %}>Rwanda</option>
-                            <option value="Saint Kitts and Nevis" {% if user.home_country == 'Saint Kitts and Nevis' %}selected{% endif %}>Saint Kitts and Nevis</option>
-                            <option value="Saint Lucia" {% if user.home_country == 'Saint Lucia' %}selected{% endif %}>Saint Lucia</option>
-                            <option value="Saint Vincent and the Grenadines" {% if user.home_country == 'Saint Vincent and the Grenadines' %}selected{% endif %}>Saint Vincent and the Grenadines</option>
-                            <option value="Samoa" {% if user.home_country == 'Samoa' %}selected{% endif %}>Samoa</option>
-                            <option value="San Marino" {% if user.home_country == 'San Marino' %}selected{% endif %}>San Marino</option>
-                            <option value="Saudi Arabia" {% if user.home_country == 'Saudi Arabia' %}selected{% endif %}>Saudi Arabia</option>
-                            <option value="Senegal" {% if user.home_country == 'Senegal' %}selected{% endif %}>Senegal</option>
-                            <option value="Serbia" {% if user.home_country == 'Serbia' %}selected{% endif %}>Serbia</option>
-                            <option value="Seychelles" {% if user.home_country == 'Seychelles' %}selected{% endif %}>Seychelles</option>
-                            <option value="Sierra Leone" {% if user.home_country == 'Sierra Leone' %}selected{% endif %}>Sierra Leone</option>
-                            <option value="Singapore" {% if user.home_country == 'Singapore' %}selected{% endif %}>Singapore</option>
-                            <option value="Slovakia" {% if user.home_country == 'Slovakia' %}selected{% endif %}>Slovakia</option>
-                            <option value="Slovenia" {% if user.home_country == 'Slovenia' %}selected{% endif %}>Slovenia</option>
-                            <option value="Solomon Islands" {% if user.home_country == 'Solomon Islands' %}selected{% endif %}>Solomon Islands</option>
-                            <option value="Somalia" {% if user.home_country == 'Somalia' %}selected{% endif %}>Somalia</option>
-                            <option value="South Africa" {% if user.home_country == 'South Africa' %}selected{% endif %}>South Africa</option>
-                            <option value="Spain" {% if user.home_country == 'Spain' %}selected{% endif %}>Spain</option>
-                            <option value="Sudan" {% if user.home_country == 'Sudan' %}selected{% endif %}>Sudan</option>
-                            <option value="Sweden" {% if user.home_country == 'Sweden' %}selected{% endif %}>Sweden</option>
-                            <option value="Switzerland" {% if user.home_country == 'Switzerland' %}selected{% endif %}>Switzerland</option>
-                            <option value="Syria" {% if user.home_country == 'Syria' %}selected{% endif %}>Syria</option>
-                            <option value="Tajikistan" {% if user.home_country == 'Tajikistan' %}selected{% endif %}>Tajikistan</option>
-                            <option value="Tanzania" {% if user.home_country == 'Tanzania' %}selected{% endif %}>Tanzania</option>
-                            <option value="Thailand" {% if user.home_country == 'Thailand' %}selected{% endif %}>Thailand</option>
-                            <option value="Timor-Leste" {% if user.home_country == 'Timor-Leste' %}selected{% endif %}>Timor-Leste</option>
-                            <option value="Togo" {% if user.home_country == 'Togo' %}selected{% endif %}>Togo</option>
-                            <option value="Tonga" {% if user.home_country == 'Tonga' %}selected{% endif %}>Tonga</option>
-                            <option value="Trinidad and Tobago" {% if user.home_country == 'Trinidad and Tobago' %}selected{% endif %}>Trinidad and Tobago</option>
-                            <option value="Tunisia" {% if user.home_country == 'Tunisia' %}selected{% endif %}>Tunisia</option>
-                            <option value="Turkey" {% if user.home_country == 'Turkey' %}selected{% endif %}>Turkey</option>
-                            <option value="Turkmenistan" {% if user.home_country == 'Turkmenistan' %}selected{% endif %}>Turkmenistan</option>
-                            <option value="Tuvalu" {% if user.home_country == 'Tuvalu' %}selected{% endif %}>Tuvalu</option>
-                            <option value="Uganda" {% if user.home_country == 'Uganda' %}selected{% endif %}>Uganda</option>
-                            <option value="Ukraine" {% if user.home_country == 'Ukraine' %}selected{% endif %}>Ukraine</option>
-                            <option value="United Arab Emirates" {% if user.home_country == 'United Arab Emirates' %}selected{% endif %}>United Arab Emirates</option>
-                            <option value="United Kingdom" {% if user.home_country == 'United Kingdom' %}selected{% endif %}>United Kingdom</option>
-                            <option value="United States" {% if user.home_country == 'United States' %}selected{% endif %}>United States</option>
-                            <option value="Uruguay" {% if user.home_country == 'Uruguay' %}selected{% endif %}>Uruguay</option>
-                            <option value="Uzbekistan" {% if user.home_country == 'Uzbekistan' %}selected{% endif %}>Uzbekistan</option>
-                            <option value="Vanuatu" {% if user.home_country == 'Vanuatu' %}selected{% endif %}>Vanuatu</option>
-                            <option value="Vatican City" {% if user.home_country == 'Vatican City' %}selected{% endif %}>Vatican City</option>
-                            <option value="Venezuela" {% if user.home_country == 'Venezuela' %}selected{% endif %}>Venezuela</option>
-                            <option value="Vietnam" {% if user.home_country == 'Vietnam' %}selected{% endif %}>Vietnam</option>
-                            <option value="Yemen" {% if user.home_country == 'Yemen' %}selected{% endif %}>Yemen</option>
-                            <option value="Zambia" {% if user.home_country == 'Zambia' %}selected{% endif %}>Zambia</option>
-                            <option value="Zimbabwe" {% if user.home_country == 'Zimbabwe' %}selected{% endif %}>Zimbabwe</option>
+
+                    <div class="form-group">
+                        <label for="home_country">Home Country</label>
+                        <select name="home_country" id="home_country" class="form-select">
+                            <option value="">Select your country</option>
+                            {% for country in ['Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea', 'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'Spain', 'Sudan', 'Sweden', 'Switzerland', 'Syria', 'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'] %}
+                            <option value="{{ country }}" {% if user.home_country == country %}selected{% endif %}>{{ country }}</option>
+                            {% endfor %}
                         </select>
                     </div>
 
-                    <div class="dropdown-container">
+                    <div class="form-group">
                         <label for="gender">Gender</label>
-                        <select name="gender" class="dropdown red">
-                            <option value="" disabled selected>Choose your gender</option>
+                        <select name="gender" id="gender" class="form-select">
+                            <option value="">Select your gender</option>
                             <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
                             <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
                             <option value="Non-binary" {% if user.gender == 'Non-binary' %}selected{% endif %}>Non-binary</option>
@@ -360,10 +134,11 @@
                             <option value="Prefer not to say" {% if user.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
                         </select>
                     </div>
-                    <div class="dropdown-container">
-                        <label>Academic Goal</label>
-                        <select name="academic_goal" class="dropdown red">
-                            <option value="" disabled selected>Select</option>
+
+                    <div class="form-group">
+                        <label for="academic_goal">Academic Goal</label>
+                        <select name="academic_goal" id="academic_goal" class="form-select">
+                            <option value="">Select your goal</option>
                             <option value="Graduate with honors" {% if user.academic_goal == 'Graduate with honors' %}selected{% endif %}>Graduate with honors</option>
                             <option value="Get a research position" {% if user.academic_goal == 'Get a research position' %}selected{% endif %}>Get a research position</option>
                             <option value="Start a business" {% if user.academic_goal == 'Start a business' %}selected{% endif %}>Start a business</option>
@@ -380,249 +155,487 @@
                 </div>
             </div>
 
-            <!-- Buttons -->
-            <div class="button-container">
-                <a href="{{ url_for('dashboard') }}" class="cancel-btn">Back</a>
-                <button type="submit" class="save-btn">Save</button>
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- CSS Styling -->
-<style>
-      header {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    background: #ffffff;
-    text-align: center;
-    z-index: 1000;
-  }
-    .profile-container {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        margin: 20px;
-    }
-    .profile-content {
-        display: flex;
-        gap: 50px;
-        justify-content: center;
-        align-items: flex-start;
-    }
-    .profile-left {
-        text-align: center;
-        margin-top: 100px;
-    }
-    .profile-img {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        cursor: pointer;
-    }
-    .profile-form {
-        width: 600px;
-    }
-    .form-grid {
-        display: flex;
-        gap: 40px;
-    }
-    /* .form-column {
-        width: 50%;
-        background: #F7F7F7;   
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
-    } */
-    
-    .info-box, .dropdown {
-        box-shadow: none !important;
-        /* border: 1px solid #ccc; */
-        width: 100%;
-        padding: 10px;
-        border-radius: 10px;
-        text-align: center;
-        margin: 10px 0;
-        color: #000;
-        text-align: center;
-        font-family: Inter;
-        font-size: 1em;
-        /* font-style: normal; */
-        font-weight: 400;
-        line-height: normal;
-    }
-    .blue-column { margin-right: 20px; 
-    margin-left: 200px;}
-    /* .blue { background: #D0E1F9; } */
-    .red { background: #F9C6C6; }
+<!-- Profile Picture Upload Modal -->
+<div id="profile-pic-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Update Profile Picture</h3>
+            <button class="modal-close" id="close-pic-modal">&times;</button>
+        </div>
+        <form id="update-pic-form" method="POST" action="{{ url_for('social.update_pic') }}" enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="file-upload-area">
+                    <input type="file" name="profile_pic" id="file-input" accept="image/*" required hidden>
+                    <label for="file-input" class="file-upload-label">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Click to upload image</span>
+                        <span class="file-name" id="file-name"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancel-pic-upload">Cancel</button>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-    .button-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center; /* Centers horizontally */
-    align-items: center; /* Aligns items in the center */
-    gap: 20px; /* Space between buttons */
-    width: 100%; /* Ensures full width */
-    text-align: center;
-    margin-left: 160px;
+<!-- Edit Name Modal -->
+<div id="edit-name-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Change Name</h3>
+            <button class="modal-close" id="close-name-modal">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('social.change_name') }}">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new_name">Full Name</label>
+                    <input type="text" name="new_name" id="new_name" value="{{ user.full_name }}" required class="form-input">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancel-name-edit">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+* {
+    box-sizing: border-box;
 }
 
-    /* .cancel-btn, .save-btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 15px;
-        font-size: 16px;
-        color: white;
-    } */
-    .dropdown-container {
-        display: flex;
-        flex-direction: column;
-        background: #F9C6C6;
-        padding: 10px 15px;
-        border-radius: 15px;
-        width: 230px;
-        font-family: Arial, sans-serif;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-    }
+.profile-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding-bottom: 60px;
+}
 
-    .dropdown-container2 {
-        display: flex;
-        flex-direction: column;
-        background: #D0E1F9;
-        padding: 10px 15px;
-        border-radius: 15px;
-        width: 230px;
-        font-family: Arial, sans-serif;
-        /* box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); */
-        margin-bottom: 20px;
-    }
+.profile-header {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 40px 20px;
+}
 
-    .dropdown-container label {
-        font-size: 18px;
-        font-weight: bold;
-        color: black;
-        margin-bottom: 5px;
-    }
+.profile-header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-    .dropdown-container2 label {
-        font-size: 18px;
-        font-weight: bold;
-        color: black;
-        margin-bottom: 5px;
-    }
+.profile-avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
 
-    .dropdown-container select {
-        appearance: none;
-        background: white;
-        border: none;
-        padding: 10px;
-        border-radius: 10px;
-        font-size: 16px;
-        /* font-weight: bold; */
-        color: black;
-        text-align: center;
-        cursor: pointer;
-        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
-    .dropdown-container2 select {
-        appearance: none;
-        background: white;
-        border: none;
-        padding: 10px;
-        border-radius: 10px;
-        font-size: 16px;
-        /* font-weight: bold; */
-        color: black;
-        text-align: center;
-        cursor: pointer;
-        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
+.avatar-wrapper {
+    position: relative;
+}
 
-    .dropdown-container select:focus {
-        outline: none;
-    }
+.avatar-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #667eea;
+}
 
-    .dropdown-container select::-ms-expand {
-        display: none;
-    }
-    .cancel-btn, .save-btn {
-    padding: 12px 24px;  /* Ensuring same padding */
-    border: none;
-    border-radius: 15px;
-    font-size: 16px;
+.avatar-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #667eea;
     color: white;
-    font-weight: bold;
-    width: 150px; /* Ensures both buttons have the same width */
-    height: 50px;
-    text-align: center;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    align-items: center; 
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.avatar-edit-btn:hover {
+    background: #5568d3;
+    transform: scale(1.1);
+}
+
+.profile-user-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 5px 0;
+}
+
+.profile-username {
+    font-size: 16px;
+    color: #718096;
+    margin: 0 0 15px 0;
+}
+
+.edit-name-btn {
+    background: transparent;
+    border: 2px solid #667eea;
+    color: #667eea;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.edit-name-btn:hover {
+    background: #667eea;
+    color: white;
+}
+
+.profile-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+}
+
+.form-section-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 30px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    margin-bottom: 30px;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 8px;
+}
+
+.form-input,
+.form-select {
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #2d3748;
+    background: white;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input.disabled {
+    background: #f7fafc;
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+.form-select {
     cursor: pointer;
 }
 
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 30px;
+    border-top: 2px solid #e2e8f0;
+}
 
-    .cancel-btn { background: #F76C6C; 
-        text-decoration: none; }
-    .save-btn { background: #A3D9A5;
-        position: relative;
-        top: -15px; }
-    .dropdown {
-        background: white;
-        padding: 15px;
-    }
-    .update-pic-btn {
-        margin-top: 15px;
-        padding: 10px 20px;
-        background: #007BFF;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-    }
+.btn {
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    .update-pic-btn:hover {
-        background: #0056b3;
-    }
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
 
-    .popup {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-    }
+.btn-primary:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
 
-    .popup-content {
+.btn-secondary {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.btn-secondary:hover {
+    background: #cbd5e0;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 24px 24px 16px;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    color: #a0aec0;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #f7fafc;
+    color: #4a5568;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 2px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.file-upload-area {
+    border: 2px dashed #cbd5e0;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.file-upload-area:hover {
+    border-color: #667eea;
+    background: #f7fafc;
+}
+
+.file-upload-label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #667eea;
+}
+
+.file-upload-label svg {
+    color: #667eea;
+}
+
+.file-upload-label span {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.file-name {
+    font-size: 13px;
+    color: #718096;
+    font-weight: 400;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .profile-avatar-section {
+        flex-direction: column;
         text-align: center;
     }
-
-    .close-btn {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 20px;
-        cursor: pointer;
+    
+    .profile-container {
+        padding: 24px;
+        margin: 20px;
     }
-
-    .close-btn:hover {
-        color: red;
+    
+    .form-actions {
+        flex-direction: column;
     }
-    footer {
-
-position: relative;
-bottom: 0;
-width: 100%;
-background: #ffffff;
-text-align: center;
-padding: 100px;
+    
+    .btn {
+        width: 100%;
+    }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile Picture Modal
+    const picModal = document.getElementById('profile-pic-modal');
+    const updatePicBtn = document.getElementById('update-pic-btn');
+    const closePicModal = document.getElementById('close-pic-modal');
+    const cancelPicUpload = document.getElementById('cancel-pic-upload');
+    
+    updatePicBtn.addEventListener('click', () => {
+        picModal.classList.add('active');
+    });
+    
+    closePicModal.addEventListener('click', () => {
+        picModal.classList.remove('active');
+    });
+    
+    cancelPicUpload.addEventListener('click', () => {
+        picModal.classList.remove('active');
+    });
+    
+    // Edit Name Modal
+    const nameModal = document.getElementById('edit-name-modal');
+    const editNameBtn = document.getElementById('edit-name-btn');
+    const closeNameModal = document.getElementById('close-name-modal');
+    const cancelNameEdit = document.getElementById('cancel-name-edit');
+    
+    editNameBtn.addEventListener('click', () => {
+        nameModal.classList.add('active');
+    });
+    
+    closeNameModal.addEventListener('click', () => {
+        nameModal.classList.remove('active');
+    });
+    
+    cancelNameEdit.addEventListener('click', () => {
+        nameModal.classList.remove('active');
+    });
+    
+    // Close modals on outside click
+    window.addEventListener('click', (e) => {
+        if (e.target === picModal) {
+            picModal.classList.remove('active');
+        }
+        if (e.target === nameModal) {
+            nameModal.classList.remove('active');
+        }
+    });
+    
+    // File input preview
+    const fileInput = document.getElementById('file-input');
+    const fileName = document.getElementById('file-name');
+    
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            fileName.textContent = e.target.files[0].name;
+        }
+    });
+});
+</script>
 
 {% endblock %}

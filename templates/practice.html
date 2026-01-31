@@ -1,74 +1,190 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Flashcard Quiz App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='fcstyle.css') }}" />
-    
-    <!-- Load MathJax -->
-    <script>
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-            svg: { fontCache: 'global' }
-        };
-    </script>
-    <script type="text/javascript" async
-    src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script type="text/javascript" async
-    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</head>
+{% extends "base.html" %}
+{% block title %}Practice Flashcards - StudyZee{% endblock %}
 
-<body>
-    <div class="flashcard-container">
-        <h1>Flashcard Quiz</h1>
-        <div id="flashcard" class="flashcard">
-            <div class="front">
-                <p id="question">Question will appear here</p>
-            </div>
-            <div class="back">
-                <p id="answer">Answer will appear here</p>
-            </div>
-        </div>
-        <button id="flip-card">Flip Card</button>
-        <button id="next-card">Next</button>
+{% block styles %}
+<style>
+  .flashcard-practice {
+    perspective: 1000px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .flashcard {
+    position: relative;
+    width: 100%;
+    min-height: 400px;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+  }
+
+  .flashcard.is-flipped {
+    transform: rotateY(180deg);
+  }
+
+  .flashcard-face {
+    position: absolute;
+    width: 100%;
+    min-height: 400px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+  }
+
+  .flashcard-back {
+    transform: rotateY(180deg);
+  }
+
+  .flashcard-content {
+    font-size: 1.5rem;
+    line-height: 1.8;
+    color: var(--gray-900);
+  }
+
+  .controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .card-indicator {
+    text-align: center;
+    color: white;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.125rem;
+  }
+</style>
+
+<!-- MathJax for LaTeX rendering -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script type="text/javascript" async src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div style="text-align: center; margin-bottom: 3rem;">
+    <h1 class="page-title">Practice Flashcards</h1>
+    <p style="color: var(--gray-700); font-size: 1.125rem;">Click the card to flip it</p>
+  </div>
+
+  <div class="flashcard-practice">
+    <div class="card-indicator">
+      <span id="card-number">1</span> / <span id="total-cards">{{ flashcards|length }}</span>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const flashcards = {{ flashcards | tojson | safe }}; // JSON-Safe LaTeX
-            let currentCard = 0;
+    <div id="flashcard" class="flashcard" onclick="flipCard()">
+      <div class="flashcard-face flashcard-front">
+        <div class="flashcard-content" id="question"></div>
+      </div>
+      <div class="flashcard-face flashcard-back">
+        <div class="flashcard-content" id="answer"></div>
+      </div>
+    </div>
 
-            const flashcardElement = document.getElementById('flashcard');
-            const questionElement = document.getElementById('question');
-            const answerElement = document.getElementById('answer');
+    <div class="controls">
+      <button class="btn btn-secondary btn-lg" onclick="previousCard()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Previous
+      </button>
 
-            function displayCard() {
-                if (flashcards.length === 0) return;
+      <button class="btn btn-primary btn-lg" onclick="flipCard()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 4v6h6"></path>
+          <path d="M23 20v-6h-6"></path>
+          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+        </svg>
+        Flip Card
+      </button>
 
-                // Ensure LaTeX is not double-escaped
-                questionElement.innerHTML = flashcards[currentCard].question;
-                answerElement.innerHTML = flashcards[currentCard].answer;
-                flashcardElement.classList.remove('is-flipped');
+      <button class="btn btn-success btn-lg" onclick="nextCard()">
+        Next
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
 
-                // Ensure MathJax updates the new content
-                if (window.MathJax) {
-                    MathJax.typesetPromise([questionElement, answerElement]);
-                }
-            }
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="{{ url_for('flashcards.flashcards') }}" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Flashcards
+      </a>
+    </div>
+  </div>
+</div>
 
-            document.getElementById('flip-card').addEventListener('click', () => {
-                flashcardElement.classList.toggle('is-flipped');
-            });
+<script>
+  const flashcards = {{ flashcards | tojson | safe }};
+  let currentCard = 0;
 
-            document.getElementById('next-card').addEventListener('click', () => {
-                currentCard = (currentCard + 1) % flashcards.length;
-                displayCard();
-            });
+  const flashcardElement = document.getElementById('flashcard');
+  const questionElement = document.getElementById('question');
+  const answerElement = document.getElementById('answer');
+  const cardNumberElement = document.getElementById('card-number');
 
-            displayCard();
-        });
-    </script>
-</body>
-</html>
+  function displayCard() {
+    if (flashcards.length === 0) {
+      questionElement.innerHTML = '<p style="color: var(--gray-500);">No flashcards in this set</p>';
+      answerElement.innerHTML = '';
+      return;
+    }
+
+    questionElement.innerHTML = flashcards[currentCard].question;
+    answerElement.innerHTML = flashcards[currentCard].answer;
+    flashcardElement.classList.remove('is-flipped');
+    cardNumberElement.textContent = currentCard + 1;
+
+    // Render MathJax if available
+    if (window.MathJax) {
+      MathJax.typesetPromise([questionElement, answerElement]);
+    }
+  }
+
+  function flipCard() {
+    flashcardElement.classList.toggle('is-flipped');
+  }
+
+  function nextCard() {
+    currentCard = (currentCard + 1) % flashcards.length;
+    displayCard();
+  }
+
+  function previousCard() {
+    currentCard = (currentCard - 1 + flashcards.length) % flashcards.length;
+    displayCard();
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') nextCard();
+    if (e.key === 'ArrowLeft') previousCard();
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      flipCard();
+    }
+  });
+
+  // Initialize
+  displayCard();
+</script>
+{% endblock %}

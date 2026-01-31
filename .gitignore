@@ -1,4 +1,5 @@
 .venv/
+venv/
 
 **/.DS_Store
 *.pyc
@@ -17,3 +18,20 @@ build/
 .lh/
 .env
 REFACTORING_PLAN.md
+
+# Uploads and temporary files
+static/uploads/*
+!static/uploads/.gitkeep
+static/profile_pics/*
+!static/profile_pics/.gitkeep
+static/event_images/*
+!static/event_images/.gitkeep
+
+# PDFs
+*.pdf
+
+# Response files
+response.txt
+
+# Database setup (contains project URLs)
+DATABASE_SETUP.md

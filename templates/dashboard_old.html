@@ -1,0 +1,456 @@
+{% extends "base.html" %} {% block title %}Dashboard - StudyZee{% endblock %} {%
+block content %}
+<div class="dashboard-container">
+  <h2 class="title" style="font-size: 36px; font-weight: bold; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Dashboard - StudyZee</h2>
+  <div class="action-buttons">
+    <a href="{{ url_for('flashcards.flashcards') }}" class="action-btn">Study</a>
+    <a href="{{ url_for('study_groups.study_groups') }}" class="action-btn">Study Groups</a>
+    <a href="{{ url_for('social.event_feed') }}" class="action-btn">Explore Events</a>
+    <a href="{{ url_for('auth.logout') }}" class="action-btn logout-btn">Logout</a>
+  </div>
+
+  <div style="height: 20px;"></div> <!-- Added gap -->
+
+  <div class="main-content">
+    <!-- Sidebar (User Profile) -->
+    <div class="sidebar">
+      <a href="{{ url_for('social.edit_profile') }}">
+        <img
+          src="{{ user.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}"
+          alt="Profile Picture"
+          class="profile-img"
+        />
+      </a>
+      <h3 class="username">{{ user.full_name }}</h3>
+      <p class="user-handle">@{{ user.username }}</p>
+
+      <div class="info-box major">
+        <p class="label">Major</p>
+        <p class="value">{{ user.major }}</p>
+      </div>
+      <div class="info-box study-level">
+        <p class="label">Study Level</p>
+        <p class="value">{{ user.study_level }}</p>
+      </div>
+    </div>
+
+    <!-- Courses Section -->
+    <div class="courses-section">
+      <div class="courses-header">
+      <h3>Courses</h3>
+      <a
+        href="{{ url_for('courses.add_course') }}"
+        class="add-btn"
+        style="background: #f8afaf; color: white"
+        >Add</a
+      >
+      </div>
+      <ul class="courses-list">
+        {% for course in courses %}
+        <li class="course-item">
+          <a href="{{ url_for('courses.course_page', course_id=course['id']) }}">
+            <div>
+              {{ course['subject_id'] }} {{ course['course_code'] }}
+            </div>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="friends-section">
+      <div class="friends-header">
+        <h3>Your Friends</h3>
+        <button onclick="openFriendRequests()" class="friend-requests-btn">
+          Friend Requests
+        </button>
+      </div>
+      <ul id="friends-list"></ul>
+      <a href="{{ url_for('social.meet_new_friends') }}" class="friend-requests-btn" style="margin-top: 10px; width: 100%; text-align: center;">
+        Meet New Friends
+      </a>
+    </div>
+
+    <script>
+      fetch("/friends_list")
+        .then((response) => response.json())
+        .then((data) => {
+          let list = document.getElementById("friends-list");
+          data.friends.forEach((friend) => {
+            let li = document.createElement("li");
+            li.innerHTML = `@${friend.username} 
+                    <button onclick="startPrivateChat('${friend.id}')" class="message-btn">Message</button>`;
+            list.appendChild(li);
+          });
+        });
+
+      function startPrivateChat(friendId) {
+        window.location.href = `/chat/${friendId}`;
+      }
+    </script>
+  </div>
+</div>
+
+<!-- Assignments Section -->
+<div class="assignments-section" style="max-width: 1500px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <h3 style="margin: 0;">Assignments</h3>
+    <select onchange="window.location.href='{{ url_for('dashboard.dashboard') }}?month=' + this.value" 
+            style="padding: 8px 12px; border-radius: 5px; border: 1px solid #ddd; background: white; cursor: pointer;">
+      <option value="current" {% if filter_month == 'current' %}selected{% endif %}>This Month</option>
+      <option value="all" {% if filter_month == 'all' %}selected{% endif %}>All Upcoming</option>
+      <option value="{{ current_date.strftime('%Y-%m') }}" {% if filter_month == current_date.strftime('%Y-%m') %}selected{% endif %}>{{ current_date.strftime('%B %Y') }}</option>
+    </select>
+  </div>
+  <ul class="assignments-list">
+    {% for task in tasks %}
+    <li class="assignment-item" id="task-{{ loop.index0 }}">
+      <input
+        type="checkbox"
+        {%
+        if
+        task[2]
+        %}checked{%
+        endif
+        %}
+      />
+      {{ task[0] }} - Due: {{ task[1] if task[1] else 'No due date' }}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div id="friendRequestsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeFriendRequests()">&times;</span>
+    <h3>Friend Requests</h3>
+    <ul id="requests-list"></ul>
+  </div>
+</div>
+
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<script>
+  // Fetch and Display Friend Requests in the Modal
+  function openFriendRequests() {
+  fetch("/friend_requests")
+    .then((response) => response.json())
+    .then((data) => {
+      let list = document.getElementById("requests-list");
+      list.innerHTML = ""; // Clear previous requests
+
+      if (data.requests.length === 0) {
+        list.innerHTML = "<p class='no-requests'>No new friend requests.</p>";
+        return;
+      }
+
+      data.requests.forEach((req) => {
+        let li = document.createElement("li");
+        li.innerHTML = `
+          <div class="friend-request">
+            <p><strong>${req.sender_email}</strong></p>
+            <p class="message">${req.message}</p>
+            <button class="accept-btn" onclick="respondRequest('${req.id}', 'accepted')">Accept</button>
+            <button class="reject-btn" onclick="respondRequest('${req.id}', 'rejected')">Reject</button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+    });
+
+  document.getElementById("friendRequestsModal").style.display = "flex";
+}
+
+function closeFriendRequests() {
+  document.getElementById("friendRequestsModal").style.display = "none";
+}
+
+
+  function closeFriendRequests() {
+    document.getElementById("friendRequestsModal").style.display = "none";
+  }
+
+  function respondRequest(requestId, response) {
+    console.log('Responding to request:', requestId, 'with:', response);
+    fetch("/respond_friend_request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ request_id: requestId, response: response }),
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log('Response:', data);
+      if (data.error) {
+        alert("Error: " + data.error);
+      } else {
+        alert("Friend request " + response + "!");
+        closeFriendRequests();
+        location.reload();
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert("Failed to respond to friend request");
+    });
+  }
+</script>
+
+<style>
+  header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background: #ffffff;
+    text-align: center;
+    z-index: 1000;
+  }
+
+  /* General Layout */
+  .dashboard-container {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .page-title {
+    font-size: 32px;
+    font-weight: bold;
+    font-family: "Inter", sans-serif;
+    margin-bottom: 20px;
+    color: #4a90e2;
+  }
+  .title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #4a90e2;
+    /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); */
+  }
+  .main-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr;
+    gap: 20px;
+    max-width: 1500px;
+    margin: auto;
+  }
+
+  /* Sidebar (Profile Section) */
+  .sidebar {
+    background: #eaf8e6;
+    padding: 50px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .profile-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+  .username {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  .user-handle {
+    font-size: 14px;
+    color: gray;
+  }
+  .info-box {
+    background: #a3d9a5;
+    padding: 5px 20px;
+    border-radius: 10px;
+    margin: 5px 0;
+    text-align: center;
+    width: 100%;
+  }
+  .label {
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .value {
+    font-size: 14px;
+    text-align: center;
+  }
+  .logout-btn {
+    margin-top: 15px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    background: #ff6b6b;
+    padding: 10px 20px;
+    border-radius: 10px;
+    display: inline-block;
+    transition: background 0.3s ease;
+  }
+
+  .action-btn {
+    margin-top: 15px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    background: #ff6b6b;
+    padding: 10px 20px;
+    border-radius: 10px;
+    display: inline-block;
+    transition: background 0.3s ease;
+  }
+
+  .logout-btn:hover {
+    background: #ff4c4c;
+  }
+
+  /* Courses Section */
+  .courses-section {
+    background: #f9c6c6;
+    padding: 15px;
+    border-radius: 15px;
+    text-align: left;
+  }
+  .courses-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .add-btn {
+    background: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .courses-list {
+    list-style: none;
+    padding: 0;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .course-item {
+    background: #f8afaf;
+    padding: 8px;
+    border-radius: 10px;
+    margin: 5px 0;
+  }
+
+  /* Notes Section */
+  .notes-section {
+    background: #fff9c4;
+    border-radius: 15px;
+    min-height: 150px;
+  }
+
+  /* Assignments Section */
+  .assignments-section {
+    background: #d0e1f9;
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 20px;
+    max-width: 95vw;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  .assignments-list {
+    list-style: none;
+    padding: 0;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .assignment-item {
+    background: #b0c4f0;
+    padding: 12px;
+    border-radius: 10px;
+    margin: 6px 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .assignment-item input {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+  }
+  footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    background: #ffffff;
+    text-align: center;
+    padding: 100px;
+  }
+  .friends-section {
+    background: #f1ef7d;
+    padding: 15px;
+    border-radius: 15px;
+    text-align: left;
+    position: relative;
+  }
+
+  /* Friends Header (Align title & button properly) */
+  .friends-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+
+  /* Styled Friend Requests Button to Match Add Button */
+  .friend-requests-btn {
+    background: #dfc936; /* Same as Add button in courses */
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-decoration: underline;
+  }
+  .friends-section ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .friends-section li {
+    background: #a3d9a5;
+    padding: 8px;
+    border-radius: 10px;
+    margin: 5px 0;
+  }
+  #friendRequestsModal {
+    display: none; /* Ensures it's hidden initially */
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    background: #ffffff;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .close {
+    cursor: pointer;
+    font-size: 20px;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+  }
+  .message-btn {
+    margin-right: auto;
+    background: #bea40e; /* Green color */
+    color: white;
+    padding: 6px 12px;
+    font-size: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+</style>
+
+{% endblock %}

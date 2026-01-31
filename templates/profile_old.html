@@ -1,0 +1,628 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - StudyZee{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    
+    <div class="profile-content">
+        <!-- Profile Picture Section -->
+        <div class="profile-left">
+            <img src="{{ user.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}" alt="Profile Picture" class="profile-img" id="profile-pic">
+            <h3 class="username">{{ user.full_name }}</h3>
+            <p class="user-handle">@{{ user.username }}</p>
+            <br>
+            <button id="edit-name-btn" class="update-pic-btn">Edit Name</button>
+            <div id="edit-name-popup" class="popup">
+                <div class="popup-content">
+                    <span class="close-btn">&times;</span>
+                    <h3>Change Name</h3>
+                    <form method="POST" action="{{ url_for('social.change_name') }}">
+                        <input type="text" name="new_name" value="{{ user.full_name }}" required>
+                        <button type="submit">Save</button>
+                    </form>
+                </div>
+            </div>
+            <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const editNameBtn = document.getElementById("edit-name-btn");
+                const editNamePopup = document.getElementById("edit-name-popup");
+                const closeNameBtn = document.querySelector(".close-btn");
+
+                editNameBtn.addEventListener("click", function() {
+                    editNamePopup.style.display = "block";
+                });
+
+                closeNameBtn.addEventListener("click", function() {
+                    editNamePopup.style.display = "none";
+                });
+
+                window.addEventListener("click", function(event) {
+                    if (event.target === editNamePopup) {
+                        editNamePopup.style.display = "none";
+                    }
+                });
+            });
+            </script>
+            
+            
+            <!-- Update Picture Button -->
+            <button id="update-pic-btn" class="update-pic-btn">Update Picture</button>
+        
+            <!-- Profile Picture Upload Popup -->
+            <div id="profile-pic-popup" class="popup">
+                <div class="popup-content">
+                    <span class="close-btn">&times;</span>
+                    <h3>Update Profile Picture</h3>
+                    <form id="update-pic-form" method="POST" action="{{ url_for('social.update_pic') }}" enctype="multipart/form-data">
+                        <input type="file" name="profile_pic" accept="image/*" required>
+                        <button type="submit">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- JavaScript for Popup -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const updatePicBtn = document.getElementById("update-pic-btn");
+                const profilePicPopup = document.getElementById("profile-pic-popup");
+                const closeBtn = document.querySelector(".close-btn");
+        
+                updatePicBtn.addEventListener("click", function() {
+                    profilePicPopup.style.display = "block";
+                });
+        
+                closeBtn.addEventListener("click", function() {
+                    profilePicPopup.style.display = "none";
+                });
+        
+                window.addEventListener("click", function(event) {
+                    if (event.target === profilePicPopup) {
+                        profilePicPopup.style.display = "none";
+                    }
+                });
+            });
+        </script>
+
+        <!-- Profile Form -->
+        <form method="POST" action="{{ url_for('social.edit_profile') }}" class="profile-form">
+            <div class="form-grid">
+                <!-- Left Column (Blue Fields) -->
+                <div class="form-column blue-column">
+                    <div class="dropdown-container2">
+                        <label>Email</label>
+                        <input type="text" value="{{ user.email }}" disabled class="info-box blue">
+                    </div>
+                    <div class="dropdown-container2">
+                        <label>Study Year</label>
+                        <input type="number" name="year_of_study" value="{{ user.study_year or '' }}" min="1" max="10" class="info-box blue">
+                    </div>
+                    <div class="dropdown-container2">
+                        <label for="ethnicity">Ethnicity</label>
+                        <select name="ethnicity" class="dropdown blue">
+                            <option value="" disabled selected>Select</option>
+                            <option value="Asian" {% if user.ethnicity == 'Asian' %}selected{% endif %}>Asian</option>
+                            <option value="Black" {% if user.ethnicity == 'Black' %}selected{% endif %}>Black</option>
+                            <option value="Hispanic/Latino" {% if user.ethnicity == 'Hispanic/Latino' %}selected{% endif %}>Hispanic/Latino</option>
+                            <option value="White" {% if user.ethnicity == 'White' %}selected{% endif %}>White</option>
+                            <option value="South Asian" {% if user.ethnicity == 'South Asian' %}selected{% endif %}>South Asian</option>
+                            <option value="Middle Eastern/North African" {% if user.ethnicity == 'Middle Eastern/North African' %}selected{% endif %}>Middle Eastern/North African</option>
+                            <option value="Indigenous American" {% if user.ethnicity == 'Indigenous American' %}selected{% endif %}>Indigenous American</option>
+                            <option value="Pacific Islander" {% if user.ethnicity == 'Pacific Islander' %}selected{% endif %}>Pacific Islander</option>
+                            <option value="Jewish" {% if user.ethnicity == 'Jewish' %}selected{% endif %}>Jewish</option>
+                            <option value="African" {% if user.ethnicity == 'African' %}selected{% endif %}>African</option>
+                            <option value="East Asian" {% if user.ethnicity == 'East Asian' %}selected{% endif %}>East Asian</option>
+                            <option value="Central Asian" {% if user.ethnicity == 'Central Asian' %}selected{% endif %}>Central Asian</option>
+                            <option value="Caribbean" {% if user.ethnicity == 'Caribbean' %}selected{% endif %}>Caribbean</option>
+                            <option value="Other" {% if user.ethnicity == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                        
+                    </div>
+                    <div class="dropdown-container2">
+                        <label for="major">Major</label>
+                        <select name="major" class="dropdown blue">
+                            <option value="" disabled selected>Select</option>
+                            <option value="business-management" {% if user.major == 'business-management' %}selected{% endif %}>Business & Management</option>
+                            <option value="cs-it-data-science" {% if user.major == 'cs-it-data-science' %}selected{% endif %}>Computer Science, IT &amp; Data Science</option>
+                            <option value="engineering-technology" {% if user.major == 'engineering-technology' %}selected{% endif %}>Engineering &amp; Technology</option>
+                            <option value="mathematics-statistics" {% if user.major == 'mathematics-statistics' %}selected{% endif %}>Mathematics &amp; Statistics</option>
+                            <option value="natural-environmental-sciences" {% if user.major == 'natural-environmental-sciences' %}selected{% endif %}>Natural Sciences &amp; Environmental Studies</option>
+                            <option value="health-sciences-medicine" {% if user.major == 'health-sciences-medicine' %}selected{% endif %}>Health Sciences, Nursing &amp; Medicine</option>
+                            <option value="pharmacy-pharmaceutical-sciences" {% if user.major == 'pharmacy-pharmaceutical-sciences' %}selected{% endif %}>Pharmacy &amp; Pharmaceutical Sciences</option>
+                            <option value="education-teaching" {% if user.major == 'education-teaching' %}selected{% endif %}>Education &amp; Teaching</option>
+                            <option value="law-legal-studies" {% if user.major == 'law-legal-studies' %}selected{% endif %}>Law &amp; Legal Studies</option>
+                            <option value="social-sciences-humanities" {% if user.major == 'social-sciences-humanities' %}selected{% endif %}>Social Sciences &amp; Humanities</option>
+                            <option value="economics-finance" {% if user.major == 'economics-finance' %}selected{% endif %}>Economics &amp; Finance</option>
+                            <option value="architecture-urban-planning" {% if user.major == 'architecture-urban-planning' %}selected{% endif %}>Architecture &amp; Urban Planning</option>
+                            <option value="fine-arts-design" {% if user.major == 'fine-arts-design' %}selected{% endif %}>Fine Arts &amp; Design</option>
+                            <option value="communications-media-studies" {% if user.major == 'communications-media-studies' %}selected{% endif %}>Communications &amp; Media Studies</option>
+                            <option value="agriculture-forestry" {% if user.major == 'agriculture-forestry' %}selected{% endif %}>Agriculture &amp; Forestry</option>
+                            <option value="hospitality-tourism" {% if user.major == 'hospitality-tourism' %}selected{% endif %}>Hospitality &amp; Tourism</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Right Column (Red Fields) -->
+                <div class="form-column red-column">
+                    <div class="dropdown-container">
+                        <label for="study_level">Study Level</label>
+                        <select id="study_level" name="study_level" class="dropdown red">
+                            <option value="" disabled selected>Choose your level of study</option>
+                            <option value="undergraduate" {% if user.study_level == 'undergraduate' %}selected{% endif %}>Undergraduate</option>
+                            <option value="masters" {% if user.study_level == 'masters' %}selected{% endif %}>Masters</option>
+                            <option value="phd" {% if user.study_level == 'phd' %}selected{% endif %}>PhD</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-container">
+                        <label for="home-country">Home Country</label>
+                        <select id="home-country" name="home_country" class="dropdown red">
+                            <option value="" disabled selected>Choose your home country</option>
+                            <option value="Afghanistan" {% if user.home_country == 'Afghanistan' %}selected{% endif %}>Afghanistan</option>
+                            <option value="Albania" {% if user.home_country == 'Albania' %}selected{% endif %}>Albania</option>
+                            <option value="Algeria" {% if user.home_country == 'Algeria' %}selected{% endif %}>Algeria</option>
+                            <option value="Andorra" {% if user.home_country == 'Andorra' %}selected{% endif %}>Andorra</option>
+                            <option value="Angola" {% if user.home_country == 'Angola' %}selected{% endif %}>Angola</option>
+                            <option value="Antigua and Barbuda" {% if user.home_country == 'Antigua and Barbuda' %}selected{% endif %}>Antigua and Barbuda</option>
+                            <option value="Argentina" {% if user.home_country == 'Argentina' %}selected{% endif %}>Argentina</option>
+                            <option value="Armenia" {% if user.home_country == 'Armenia' %}selected{% endif %}>Armenia</option>
+                            <option value="Australia" {% if user.home_country == 'Australia' %}selected{% endif %}>Australia</option>
+                            <option value="Austria" {% if user.home_country == 'Austria' %}selected{% endif %}>Austria</option>
+                            <option value="Azerbaijan" {% if user.home_country == 'Azerbaijan' %}selected{% endif %}>Azerbaijan</option>
+                            <option value="Bahamas" {% if user.home_country == 'Bahamas' %}selected{% endif %}>Bahamas</option>
+                            <option value="Bahrain" {% if user.home_country == 'Bahrain' %}selected{% endif %}>Bahrain</option>
+                            <option value="Bangladesh" {% if user.home_country == 'Bangladesh' %}selected{% endif %}>Bangladesh</option>
+                            <option value="Barbados" {% if user.home_country == 'Barbados' %}selected{% endif %}>Barbados</option>
+                            <option value="Belarus" {% if user.home_country == 'Belarus' %}selected{% endif %}>Belarus</option>
+                            <option value="Belgium" {% if user.home_country == 'Belgium' %}selected{% endif %}>Belgium</option>
+                            <option value="Belize" {% if user.home_country == 'Belize' %}selected{% endif %}>Belize</option>
+                            <option value="Benin" {% if user.home_country == 'Benin' %}selected{% endif %}>Benin</option>
+                            <option value="Bhutan" {% if user.home_country == 'Bhutan' %}selected{% endif %}>Bhutan</option>
+                            <option value="Bolivia" {% if user.home_country == 'Bolivia' %}selected{% endif %}>Bolivia</option>
+                            <option value="Bosnia and Herzegovina" {% if user.home_country == 'Bosnia and Herzegovina' %}selected{% endif %}>Bosnia and Herzegovina</option>
+                            <option value="Botswana" {% if user.home_country == 'Botswana' %}selected{% endif %}>Botswana</option>
+                            <option value="Brazil" {% if user.home_country == 'Brazil' %}selected{% endif %}>Brazil</option>
+                            <option value="Brunei" {% if user.home_country == 'Brunei' %}selected{% endif %}>Brunei</option>
+                            <option value="Bulgaria" {% if user.home_country == 'Bulgaria' %}selected{% endif %}>Bulgaria</option>
+                            <option value="Burkina Faso" {% if user.home_country == 'Burkina Faso' %}selected{% endif %}>Burkina Faso</option>
+                            <option value="Burundi" {% if user.home_country == 'Burundi' %}selected{% endif %}>Burundi</option>
+                            <option value="Cambodia" {% if user.home_country == 'Cambodia' %}selected{% endif %}>Cambodia</option>
+                            <option value="Cameroon" {% if user.home_country == 'Cameroon' %}selected{% endif %}>Cameroon</option>
+                            <option value="Canada" {% if user.home_country == 'Canada' %}selected{% endif %}>Canada</option>
+                            <option value="Cape Verde" {% if user.home_country == 'Cape Verde' %}selected{% endif %}>Cape Verde</option>
+                            <option value="Central African Republic" {% if user.home_country == 'Central African Republic' %}selected{% endif %}>Central African Republic</option>
+                            <option value="Chad" {% if user.home_country == 'Chad' %}selected{% endif %}>Chad</option>
+                            <option value="Chile" {% if user.home_country == 'Chile' %}selected{% endif %}>Chile</option>
+                            <option value="China" {% if user.home_country == 'China' %}selected{% endif %}>China</option>
+                            <option value="Colombia" {% if user.home_country == 'Colombia' %}selected{% endif %}>Colombia</option>
+                            <option value="Comoros" {% if user.home_country == 'Comoros' %}selected{% endif %}>Comoros</option>
+                            <option value="Congo" {% if user.home_country == 'Congo' %}selected{% endif %}>Congo</option>
+                            <option value="Costa Rica" {% if user.home_country == 'Costa Rica' %}selected{% endif %}>Costa Rica</option>
+                            <option value="Croatia" {% if user.home_country == 'Croatia' %}selected{% endif %}>Croatia</option>
+                            <option value="Cuba" {% if user.home_country == 'Cuba' %}selected{% endif %}>Cuba</option>
+                            <option value="Cyprus" {% if user.home_country == 'Cyprus' %}selected{% endif %}>Cyprus</option>
+                            <option value="Czech Republic" {% if user.home_country == 'Czech Republic' %}selected{% endif %}>Czech Republic</option>
+                            <option value="Denmark" {% if user.home_country == 'Denmark' %}selected{% endif %}>Denmark</option>
+                            <option value="Djibouti" {% if user.home_country == 'Djibouti' %}selected{% endif %}>Djibouti</option>
+                            <option value="Dominican Republic" {% if user.home_country == 'Dominican Republic' %}selected{% endif %}>Dominican Republic</option>
+                            <option value="Ecuador" {% if user.home_country == 'Ecuador' %}selected{% endif %}>Ecuador</option>
+                            <option value="Egypt" {% if user.home_country == 'Egypt' %}selected{% endif %}>Egypt</option>
+                            <option value="El Salvador" {% if user.home_country == 'El Salvador' %}selected{% endif %}>El Salvador</option>
+                            <option value="Equatorial Guinea" {% if user.home_country == 'Equatorial Guinea' %}selected{% endif %}>Equatorial Guinea</option>
+                            <option value="Eritrea" {% if user.home_country == 'Eritrea' %}selected{% endif %}>Eritrea</option>
+                            <option value="Estonia" {% if user.home_country == 'Estonia' %}selected{% endif %}>Estonia</option>
+                            <option value="Eswatini" {% if user.home_country == 'Eswatini' %}selected{% endif %}>Eswatini</option>
+                            <option value="Ethiopia" {% if user.home_country == 'Ethiopia' %}selected{% endif %}>Ethiopia</option>
+                            <option value="Fiji" {% if user.home_country == 'Fiji' %}selected{% endif %}>Fiji</option>
+                            <option value="Finland" {% if user.home_country == 'Finland' %}selected{% endif %}>Finland</option>
+                            <option value="France" {% if user.home_country == 'France' %}selected{% endif %}>France</option>
+                            <option value="Gabon" {% if user.home_country == 'Gabon' %}selected{% endif %}>Gabon</option>
+                            <option value="Gambia" {% if user.home_country == 'Gambia' %}selected{% endif %}>Gambia</option>
+                            <option value="Georgia" {% if user.home_country == 'Georgia' %}selected{% endif %}>Georgia</option>
+                            <option value="Germany" {% if user.home_country == 'Germany' %}selected{% endif %}>Germany</option>
+                            <option value="Ghana" {% if user.home_country == 'Ghana' %}selected{% endif %}>Ghana</option>
+                            <option value="Greece" {% if user.home_country == 'Greece' %}selected{% endif %}>Greece</option>
+                            <option value="Grenada" {% if user.home_country == 'Grenada' %}selected{% endif %}>Grenada</option>
+                            <option value="Guatemala" {% if user.home_country == 'Guatemala' %}selected{% endif %}>Guatemala</option>
+                            <option value="Guinea" {% if user.home_country == 'Guinea' %}selected{% endif %}>Guinea</option>
+                            <option value="Guinea-Bissau" {% if user.home_country == 'Guinea-Bissau' %}selected{% endif %}>Guinea-Bissau</option>
+                            <option value="Guyana" {% if user.home_country == 'Guyana' %}selected{% endif %}>Guyana</option>
+                            <option value="Haiti" {% if user.home_country == 'Haiti' %}selected{% endif %}>Haiti</option>
+                            <option value="Honduras" {% if user.home_country == 'Honduras' %}selected{% endif %}>Honduras</option>
+                            <option value="Hungary" {% if user.home_country == 'Hungary' %}selected{% endif %}>Hungary</option>
+                            <option value="Iceland" {% if user.home_country == 'Iceland' %}selected{% endif %}>Iceland</option>
+                            <option value="India" {% if user.home_country == 'India' %}selected{% endif %}>India</option>
+                            <option value="Indonesia" {% if user.home_country == 'Indonesia' %}selected{% endif %}>Indonesia</option>
+                            <option value="Iran" {% if user.home_country == 'Iran' %}selected{% endif %}>Iran</option>
+                            <option value="Iraq" {% if user.home_country == 'Iraq' %}selected{% endif %}>Iraq</option>
+                            <option value="Ireland" {% if user.home_country == 'Ireland' %}selected{% endif %}>Ireland</option>
+                            <option value="Israel" {% if user.home_country == 'Israel' %}selected{% endif %}>Israel</option>
+                            <option value="Italy" {% if user.home_country == 'Italy' %}selected{% endif %}>Italy</option>
+                            <option value="Jamaica" {% if user.home_country == 'Jamaica' %}selected{% endif %}>Jamaica</option>
+                            <option value="Japan" {% if user.home_country == 'Japan' %}selected{% endif %}>Japan</option>
+                            <option value="Jordan" {% if user.home_country == 'Jordan' %}selected{% endif %}>Jordan</option>
+                            <option value="Kazakhstan" {% if user.home_country == 'Kazakhstan' %}selected{% endif %}>Kazakhstan</option>
+                            <option value="Kenya" {% if user.home_country == 'Kenya' %}selected{% endif %}>Kenya</option>
+                            <option value="Kiribati" {% if user.home_country == 'Kiribati' %}selected{% endif %}>Kiribati</option>
+                            <option value="Kuwait" {% if user.home_country == 'Kuwait' %}selected{% endif %}>Kuwait</option>
+                            <option value="Kyrgyzstan" {% if user.home_country == 'Kyrgyzstan' %}selected{% endif %}>Kyrgyzstan</option>
+                            <option value="Laos" {% if user.home_country == 'Laos' %}selected{% endif %}>Laos</option>
+                            <option value="Latvia" {% if user.home_country == 'Latvia' %}selected{% endif %}>Latvia</option>
+                            <option value="Lebanon" {% if user.home_country == 'Lebanon' %}selected{% endif %}>Lebanon</option>
+                            <option value="Lesotho" {% if user.home_country == 'Lesotho' %}selected{% endif %}>Lesotho</option>
+                            <option value="Liberia" {% if user.home_country == 'Liberia' %}selected{% endif %}>Liberia</option>
+                            <option value="Libya" {% if user.home_country == 'Libya' %}selected{% endif %}>Libya</option>
+                            <option value="Liechtenstein" {% if user.home_country == 'Liechtenstein' %}selected{% endif %}>Liechtenstein</option>
+                            <option value="Lithuania" {% if user.home_country == 'Lithuania' %}selected{% endif %}>Lithuania</option>
+                            <option value="Luxembourg" {% if user.home_country == 'Luxembourg' %}selected{% endif %}>Luxembourg</option>
+                            <option value="Madagascar" {% if user.home_country == 'Madagascar' %}selected{% endif %}>Madagascar</option>
+                            <option value="Malawi" {% if user.home_country == 'Malawi' %}selected{% endif %}>Malawi</option>
+                            <option value="Malaysia" {% if user.home_country == 'Malaysia' %}selected{% endif %}>Malaysia</option>
+                            <option value="Maldives" {% if user.home_country == 'Maldives' %}selected{% endif %}>Maldives</option>
+                            <option value="Mali" {% if user.home_country == 'Mali' %}selected{% endif %}>Mali</option>
+                            <option value="Malta" {% if user.home_country == 'Malta' %}selected{% endif %}>Malta</option>
+                            <option value="Marshall Islands" {% if user.home_country == 'Marshall Islands' %}selected{% endif %}>Marshall Islands</option>
+                            <option value="Mauritania" {% if user.home_country == 'Mauritania' %}selected{% endif %}>Mauritania</option>
+                            <option value="Mauritius" {% if user.home_country == 'Mauritius' %}selected{% endif %}>Mauritius</option>
+                            <option value="Mexico" {% if user.home_country == 'Mexico' %}selected{% endif %}>Mexico</option>
+                            <option value="Micronesia" {% if user.home_country == 'Micronesia' %}selected{% endif %}>Micronesia</option>
+                            <option value="Moldova" {% if user.home_country == 'Moldova' %}selected{% endif %}>Moldova</option>
+                            <option value="Monaco" {% if user.home_country == 'Monaco' %}selected{% endif %}>Monaco</option>
+                            <option value="Mongolia" {% if user.home_country == 'Mongolia' %}selected{% endif %}>Mongolia</option>
+                            <option value="Montenegro" {% if user.home_country == 'Montenegro' %}selected{% endif %}>Montenegro</option>
+                            <option value="Morocco" {% if user.home_country == 'Morocco' %}selected{% endif %}>Morocco</option>
+                            <option value="Mozambique" {% if user.home_country == 'Mozambique' %}selected{% endif %}>Mozambique</option>
+                            <option value="Myanmar" {% if user.home_country == 'Myanmar' %}selected{% endif %}>Myanmar</option>
+                            <option value="Namibia" {% if user.home_country == 'Namibia' %}selected{% endif %}>Namibia</option>
+                            <option value="Nauru" {% if user.home_country == 'Nauru' %}selected{% endif %}>Nauru</option>
+                            <option value="Nepal" {% if user.home_country == 'Nepal' %}selected{% endif %}>Nepal</option>
+                            <option value="Netherlands" {% if user.home_country == 'Netherlands' %}selected{% endif %}>Netherlands</option>
+                            <option value="New Zealand" {% if user.home_country == 'New Zealand' %}selected{% endif %}>New Zealand</option>
+                            <option value="Nicaragua" {% if user.home_country == 'Nicaragua' %}selected{% endif %}>Nicaragua</option>
+                            <option value="Niger" {% if user.home_country == 'Niger' %}selected{% endif %}>Niger</option>
+                            <option value="Nigeria" {% if user.home_country == 'Nigeria' %}selected{% endif %}>Nigeria</option>
+                            <option value="North Korea" {% if user.home_country == 'North Korea' %}selected{% endif %}>North Korea</option>
+                            <option value="North Macedonia" {% if user.home_country == 'North Macedonia' %}selected{% endif %}>North Macedonia</option>
+                            <option value="Norway" {% if user.home_country == 'Norway' %}selected{% endif %}>Norway</option>
+                            <option value="Oman" {% if user.home_country == 'Oman' %}selected{% endif %}>Oman</option>
+                            <option value="Pakistan" {% if user.home_country == 'Pakistan' %}selected{% endif %}>Pakistan</option>
+                            <option value="Palau" {% if user.home_country == 'Palau' %}selected{% endif %}>Palau</option>
+                            <option value="Panama" {% if user.home_country == 'Panama' %}selected{% endif %}>Panama</option>
+                            <option value="Papua New Guinea" {% if user.home_country == 'Papua New Guinea' %}selected{% endif %}>Papua New Guinea</option>
+                            <option value="Paraguay" {% if user.home_country == 'Paraguay' %}selected{% endif %}>Paraguay</option>
+                            <option value="Peru" {% if user.home_country == 'Peru' %}selected{% endif %}>Peru</option>
+                            <option value="Philippines" {% if user.home_country == 'Philippines' %}selected{% endif %}>Philippines</option>
+                            <option value="Poland" {% if user.home_country == 'Poland' %}selected{% endif %}>Poland</option>
+                            <option value="Portugal" {% if user.home_country == 'Portugal' %}selected{% endif %}>Portugal</option>
+                            <option value="Qatar" {% if user.home_country == 'Qatar' %}selected{% endif %}>Qatar</option>
+                            <option value="Romania" {% if user.home_country == 'Romania' %}selected{% endif %}>Romania</option>
+                            <option value="Russia" {% if user.home_country == 'Russia' %}selected{% endif %}>Russia</option>
+                            <option value="Rwanda" {% if user.home_country == 'Rwanda' %}selected{% endif %}>Rwanda</option>
+                            <option value="Saint Kitts and Nevis" {% if user.home_country == 'Saint Kitts and Nevis' %}selected{% endif %}>Saint Kitts and Nevis</option>
+                            <option value="Saint Lucia" {% if user.home_country == 'Saint Lucia' %}selected{% endif %}>Saint Lucia</option>
+                            <option value="Saint Vincent and the Grenadines" {% if user.home_country == 'Saint Vincent and the Grenadines' %}selected{% endif %}>Saint Vincent and the Grenadines</option>
+                            <option value="Samoa" {% if user.home_country == 'Samoa' %}selected{% endif %}>Samoa</option>
+                            <option value="San Marino" {% if user.home_country == 'San Marino' %}selected{% endif %}>San Marino</option>
+                            <option value="Saudi Arabia" {% if user.home_country == 'Saudi Arabia' %}selected{% endif %}>Saudi Arabia</option>
+                            <option value="Senegal" {% if user.home_country == 'Senegal' %}selected{% endif %}>Senegal</option>
+                            <option value="Serbia" {% if user.home_country == 'Serbia' %}selected{% endif %}>Serbia</option>
+                            <option value="Seychelles" {% if user.home_country == 'Seychelles' %}selected{% endif %}>Seychelles</option>
+                            <option value="Sierra Leone" {% if user.home_country == 'Sierra Leone' %}selected{% endif %}>Sierra Leone</option>
+                            <option value="Singapore" {% if user.home_country == 'Singapore' %}selected{% endif %}>Singapore</option>
+                            <option value="Slovakia" {% if user.home_country == 'Slovakia' %}selected{% endif %}>Slovakia</option>
+                            <option value="Slovenia" {% if user.home_country == 'Slovenia' %}selected{% endif %}>Slovenia</option>
+                            <option value="Solomon Islands" {% if user.home_country == 'Solomon Islands' %}selected{% endif %}>Solomon Islands</option>
+                            <option value="Somalia" {% if user.home_country == 'Somalia' %}selected{% endif %}>Somalia</option>
+                            <option value="South Africa" {% if user.home_country == 'South Africa' %}selected{% endif %}>South Africa</option>
+                            <option value="Spain" {% if user.home_country == 'Spain' %}selected{% endif %}>Spain</option>
+                            <option value="Sudan" {% if user.home_country == 'Sudan' %}selected{% endif %}>Sudan</option>
+                            <option value="Sweden" {% if user.home_country == 'Sweden' %}selected{% endif %}>Sweden</option>
+                            <option value="Switzerland" {% if user.home_country == 'Switzerland' %}selected{% endif %}>Switzerland</option>
+                            <option value="Syria" {% if user.home_country == 'Syria' %}selected{% endif %}>Syria</option>
+                            <option value="Tajikistan" {% if user.home_country == 'Tajikistan' %}selected{% endif %}>Tajikistan</option>
+                            <option value="Tanzania" {% if user.home_country == 'Tanzania' %}selected{% endif %}>Tanzania</option>
+                            <option value="Thailand" {% if user.home_country == 'Thailand' %}selected{% endif %}>Thailand</option>
+                            <option value="Timor-Leste" {% if user.home_country == 'Timor-Leste' %}selected{% endif %}>Timor-Leste</option>
+                            <option value="Togo" {% if user.home_country == 'Togo' %}selected{% endif %}>Togo</option>
+                            <option value="Tonga" {% if user.home_country == 'Tonga' %}selected{% endif %}>Tonga</option>
+                            <option value="Trinidad and Tobago" {% if user.home_country == 'Trinidad and Tobago' %}selected{% endif %}>Trinidad and Tobago</option>
+                            <option value="Tunisia" {% if user.home_country == 'Tunisia' %}selected{% endif %}>Tunisia</option>
+                            <option value="Turkey" {% if user.home_country == 'Turkey' %}selected{% endif %}>Turkey</option>
+                            <option value="Turkmenistan" {% if user.home_country == 'Turkmenistan' %}selected{% endif %}>Turkmenistan</option>
+                            <option value="Tuvalu" {% if user.home_country == 'Tuvalu' %}selected{% endif %}>Tuvalu</option>
+                            <option value="Uganda" {% if user.home_country == 'Uganda' %}selected{% endif %}>Uganda</option>
+                            <option value="Ukraine" {% if user.home_country == 'Ukraine' %}selected{% endif %}>Ukraine</option>
+                            <option value="United Arab Emirates" {% if user.home_country == 'United Arab Emirates' %}selected{% endif %}>United Arab Emirates</option>
+                            <option value="United Kingdom" {% if user.home_country == 'United Kingdom' %}selected{% endif %}>United Kingdom</option>
+                            <option value="United States" {% if user.home_country == 'United States' %}selected{% endif %}>United States</option>
+                            <option value="Uruguay" {% if user.home_country == 'Uruguay' %}selected{% endif %}>Uruguay</option>
+                            <option value="Uzbekistan" {% if user.home_country == 'Uzbekistan' %}selected{% endif %}>Uzbekistan</option>
+                            <option value="Vanuatu" {% if user.home_country == 'Vanuatu' %}selected{% endif %}>Vanuatu</option>
+                            <option value="Vatican City" {% if user.home_country == 'Vatican City' %}selected{% endif %}>Vatican City</option>
+                            <option value="Venezuela" {% if user.home_country == 'Venezuela' %}selected{% endif %}>Venezuela</option>
+                            <option value="Vietnam" {% if user.home_country == 'Vietnam' %}selected{% endif %}>Vietnam</option>
+                            <option value="Yemen" {% if user.home_country == 'Yemen' %}selected{% endif %}>Yemen</option>
+                            <option value="Zambia" {% if user.home_country == 'Zambia' %}selected{% endif %}>Zambia</option>
+                            <option value="Zimbabwe" {% if user.home_country == 'Zimbabwe' %}selected{% endif %}>Zimbabwe</option>
+                        </select>
+                    </div>
+
+                    <div class="dropdown-container">
+                        <label for="gender">Gender</label>
+                        <select name="gender" class="dropdown red">
+                            <option value="" disabled selected>Choose your gender</option>
+                            <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+                            <option value="Non-binary" {% if user.gender == 'Non-binary' %}selected{% endif %}>Non-binary</option>
+                            <option value="Genderqueer" {% if user.gender == 'Genderqueer' %}selected{% endif %}>Genderqueer</option>
+                            <option value="Genderfluid" {% if user.gender == 'Genderfluid' %}selected{% endif %}>Genderfluid</option>
+                            <option value="Agender" {% if user.gender == 'Agender' %}selected{% endif %}>Agender</option>
+                            <option value="Prefer not to say" {% if user.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-container">
+                        <label>Academic Goal</label>
+                        <select name="academic_goal" class="dropdown red">
+                            <option value="" disabled selected>Select</option>
+                            <option value="Graduate with honors" {% if user.academic_goal == 'Graduate with honors' %}selected{% endif %}>Graduate with honors</option>
+                            <option value="Get a research position" {% if user.academic_goal == 'Get a research position' %}selected{% endif %}>Get a research position</option>
+                            <option value="Start a business" {% if user.academic_goal == 'Start a business' %}selected{% endif %}>Start a business</option>
+                            <option value="Pursue higher education" {% if user.academic_goal == 'Pursue higher education' %}selected{% endif %}>Pursue higher education</option>
+                            <option value="Secure a job in my field" {% if user.academic_goal == 'Secure a job in my field' %}selected{% endif %}>Secure a job in my field</option>
+                            <option value="Develop technical skills" {% if user.academic_goal == 'Develop technical skills' %}selected{% endif %}>Develop technical skills</option>
+                            <option value="Gain international experience" {% if user.academic_goal == 'Gain international experience' %}selected{% endif %}>Gain international experience</option>
+                            <option value="Contribute to community service" {% if user.academic_goal == 'Contribute to community service' %}selected{% endif %}>Contribute to community service</option>
+                            <option value="Publish academic papers" {% if user.academic_goal == 'Publish academic papers' %}selected{% endif %}>Publish academic papers</option>
+                            <option value="Network with professionals" {% if user.academic_goal == 'Network with professionals' %}selected{% endif %}>Network with professionals</option>
+                            <option value="Other" {% if user.academic_goal == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-container">
+                <a href="{{ url_for('dashboard.dashboard') }}" class="cancel-btn">Back</a>
+                <button type="submit" class="save-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- CSS Styling -->
+<style>
+      header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background: #ffffff;
+    text-align: center;
+    z-index: 1000;
+  }
+    .profile-container {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 20px;
+    }
+    .profile-content {
+        display: flex;
+        gap: 50px;
+        justify-content: center;
+        align-items: flex-start;
+    }
+    .profile-left {
+        text-align: center;
+        margin-top: 100px;
+    }
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    .profile-form {
+        width: 600px;
+    }
+    .form-grid {
+        display: flex;
+        gap: 40px;
+    }
+    /* .form-column {
+        width: 50%;
+        background: #F7F7F7;   
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+    } */
+    
+    .info-box, .dropdown {
+        box-shadow: none !important;
+        /* border: 1px solid #ccc; */
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 10px 0;
+        color: #000;
+        text-align: center;
+        font-family: Inter;
+        font-size: 1em;
+        /* font-style: normal; */
+        font-weight: 400;
+        line-height: normal;
+    }
+    .blue-column { margin-right: 20px; 
+    margin-left: 200px;}
+    /* .blue { background: #D0E1F9; } */
+    .red { background: #F9C6C6; }
+
+    .button-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Aligns items in the center */
+    gap: 20px; /* Space between buttons */
+    width: 100%; /* Ensures full width */
+    text-align: center;
+    margin-left: 160px;
+}
+
+    /* .cancel-btn, .save-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 15px;
+        font-size: 16px;
+        color: white;
+    } */
+    .dropdown-container {
+        display: flex;
+        flex-direction: column;
+        background: #F9C6C6;
+        padding: 10px 15px;
+        border-radius: 15px;
+        width: 230px;
+        font-family: Arial, sans-serif;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .dropdown-container2 {
+        display: flex;
+        flex-direction: column;
+        background: #D0E1F9;
+        padding: 10px 15px;
+        border-radius: 15px;
+        width: 230px;
+        font-family: Arial, sans-serif;
+        /* box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); */
+        margin-bottom: 20px;
+    }
+
+    .dropdown-container label {
+        font-size: 18px;
+        font-weight: bold;
+        color: black;
+        margin-bottom: 5px;
+    }
+
+    .dropdown-container2 label {
+        font-size: 18px;
+        font-weight: bold;
+        color: black;
+        margin-bottom: 5px;
+    }
+
+    .dropdown-container select {
+        appearance: none;
+        background: white;
+        border: none;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 16px;
+        /* font-weight: bold; */
+        color: black;
+        text-align: center;
+        cursor: pointer;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    .dropdown-container2 select {
+        appearance: none;
+        background: white;
+        border: none;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 16px;
+        /* font-weight: bold; */
+        color: black;
+        text-align: center;
+        cursor: pointer;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .dropdown-container select:focus {
+        outline: none;
+    }
+
+    .dropdown-container select::-ms-expand {
+        display: none;
+    }
+    .cancel-btn, .save-btn {
+    padding: 12px 24px;  /* Ensuring same padding */
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+    width: 150px; /* Ensures both buttons have the same width */
+    height: 50px;
+    text-align: center;
+    justify-content: center;
+    align-items: center; 
+    cursor: pointer;
+}
+
+
+    .cancel-btn { background: #F76C6C; 
+        text-decoration: none; }
+    .save-btn { background: #A3D9A5;
+        position: relative;
+        top: -15px; }
+    .dropdown {
+        background: white;
+        padding: 15px;
+    }
+    .update-pic-btn {
+        margin-top: 15px;
+        padding: 10px 20px;
+        background: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .update-pic-btn:hover {
+        background: #0056b3;
+    }
+
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    .popup-content {
+        text-align: center;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .close-btn:hover {
+        color: red;
+    }
+    footer {
+
+position: relative;
+bottom: 0;
+width: 100%;
+background: #ffffff;
+text-align: center;
+padding: 100px;
+}
+</style>
+
+{% endblock %}

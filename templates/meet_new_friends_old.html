@@ -1,0 +1,133 @@
+{% extends "base.html" %} 
+{% block title %}Meet New Friends - StudyZee{% endblock %} 
+
+{% block content %}
+<div class="meet-friends-wrapper">
+  <div class="meet-friends-container">
+    <h2 class="title" style="font-size: 36px; font-weight: bold; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Meet New Friends</h2>
+
+    <div id="suggested-friends">
+      <h3>Suggested Friends</h3>
+      <ul id="suggestions-list"></ul>
+    </div>
+
+    <button class="close-btn" onclick="closePopup()">Close</button>
+  </div>
+</div>
+
+<script>
+  function fetchSuggestedFriends() {
+    fetch("/suggested_friends")
+      .then(response => response.json())
+      .then(data => {
+        let suggestionsList = document.getElementById("suggestions-list");
+        suggestionsList.innerHTML = "";
+        if (data.suggestions.length === 0) {
+          suggestionsList.innerHTML = "<p>No new people to add right now.</p>";
+          return;
+        }
+        data.suggestions.forEach(user => {
+          let li = document.createElement("li");
+          li.innerHTML = `
+            <strong>${user.full_name} (${user.email})</strong> 
+            <p style="color: gray;">Matched because: ${user.match_reason}</p>
+            <button onclick="sendFriendRequest('${user.id}')">Add Friend</button>`;
+          suggestionsList.appendChild(li);
+        });
+      });
+  }
+
+  function sendFriendRequest(receiverId) {
+    let message = prompt("Enter a connection message:");
+    fetch("/send_friend_request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ receiver_id: receiverId, message: message })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message || "Friend request sent!");
+    })
+    .catch(error => console.error("Error:", error));
+  }
+
+  function closePopup() {
+    window.history.back();
+  }
+
+  // Load suggested friends on page load
+  document.addEventListener("DOMContentLoaded", fetchSuggestedFriends);
+</script>
+
+<style>
+  /* Full-page wrapper to center content */
+  .meet-friends-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: rgba(240, 240, 240, 0.8);
+  }
+
+  .meet-friends-container {
+    text-align: center;
+    max-width: 500px;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+  }
+
+  ul li {
+    background: #eaf8e6;
+    padding: 12px;
+    margin: 6px 0;
+    border-radius: 10px;
+    text-align: left;
+  }
+
+  ul li strong {
+    font-size: 16px;
+  }
+
+  ul li button {
+    display: block;
+    width: 100%;
+    margin-top: 5px;
+    padding: 8px;
+    background: #f9c6c6;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+
+  .close-btn {
+    margin-top: 20px;
+    background: #ff5c5c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 16px;
+  }
+
+  .close-btn:hover {
+    background: #e04e4e;
+  }
+</style>
+
+{% endblock %}

@@ -1,99 +1,232 @@
-{% extends "base.html" %} {% block title %}Auth - StudyZee{% endblock %} {%
-  block content %}
-  <div class="auth-container">
-    <div class="form-box">
-      <h2 id="form-title">Login</h2>
-  
-  
+{% extends "base.html" %}
+{% block title %}Welcome - StudyZee{% endblock %}
+
+{% block styles %}
+<style>
+  .auth-page {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .auth-card {
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-width: 500px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .auth-header {
+    background: #2563eb;
+    color: white;
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+  }
+
+  .auth-header h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+
+  .auth-header p {
+    opacity: 0.95;
+    font-size: 1rem;
+  }
+
+  .auth-body {
+    padding: 2rem;
+  }
+
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .auth-toggle {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--gray-200);
+  }
+
+  .auth-toggle a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+  }
+
+  .auth-toggle a:hover {
+    color: var(--primary-dark);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2 id="form-title">Welcome Back!</h2>
+      <p id="form-subtitle">Login to continue your learning journey</p>
+    </div>
+
+    <div class="auth-body">
       <!-- Login Form -->
-      <form id="login-form" action="{{ url_for('login') }}" method="POST">
-        <input type="name" name="username" placeholder="Username" required />
-        <input type="password" name="password" placeholder="Password" required />
-        <button type="submit">Login</button>
+      <form id="login-form" class="auth-form" action="{{ url_for('auth.login') }}" method="POST">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" name="username" class="form-input" placeholder="Enter your username" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-input" placeholder="Enter your password" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+          Login
+        </button>
       </form>
-  
+
       <!-- Signup Form (Initially Hidden) -->
-      <form
-        id="signup-form"
-        action="{{ url_for('signup') }}"
-        method="POST"
-        style="display: none"
-      >
-        <input type="name" name="username" placeholder="Username" required />
-        <input type="email" name="email" placeholder="Email" required />
-        <input type="password" name="password" placeholder="Password" required />
-        <input
-          type="password"
-          name="confirm_password"
-          placeholder="Confirm Password"
-          required
-        />
-        <input type="text" name="full_name" placeholder="Full Name" required />
-        <!-- <label for="study_level">Study Level</label> -->
-        <select name="study_level" id="study_level" required>
-          <option value="undergraduate">Undergraduate</option>
-          <option value="masters">Masters</option>
-          <option value="phd">PhD</option>
-      </select>
-        <!-- <label for="year_of_study">Year of Study</label> -->
-        <select name="year_of_study" id="year_of_study" required>
-          <option value="" disabled selected>Year of Study</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-        </select>
-        <!-- <label for="major">Major</label> -->
-        <select name="major" id="major" required>
-          <option value="business-management">Business & Management</option>
-          <option value="cs-it-data-science">Computer Science, IT &amp; Data Science</option>
-          <option value="engineering-technology">Engineering &amp; Technology</option>
-          <option value="mathematics-statistics">Mathematics &amp; Statistics</option>
-          <option value="natural-environmental-sciences">Natural Sciences &amp; Environmental Studies</option>
-          <option value="health-sciences-medicine">Health Sciences, Nursing &amp; Medicine</option>
-          <option value="pharmacy-pharmaceutical-sciences">Pharmacy &amp; Pharmaceutical Sciences</option>
-          <option value="education-teaching">Education &amp; Teaching</option>
-          <option value="law-legal-studies">Law &amp; Legal Studies</option>
-          <option value="social-sciences-humanities">Social Sciences &amp; Humanities</option>
-          <option value="economics-finance">Economics &amp; Finance</option>
-          <option value="architecture-urban-planning">Architecture &amp; Urban Planning</option>
-          <option value="fine-arts-design">Fine Arts &amp; Design</option>
-          <option value="communications-media-studies">Communications &amp; Media Studies</option>
-          <option value="agriculture-forestry">Agriculture &amp; Forestry</option>
-          <option value="hospitality-tourism-management">Hospitality &amp; Tourism Management</option>
-      </select>
-        <button type="submit">Sign Up</button>
+      <form id="signup-form" class="auth-form" action="{{ url_for('auth.signup') }}" method="POST" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="full_name" class="form-input" placeholder="Enter your full name" required />
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-input" placeholder="Choose a username" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-input" placeholder="your@email.com" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-input" placeholder="Create password" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="confirm_password" class="form-input" placeholder="Confirm password" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Study Level</label>
+            <select name="study_level" class="form-select" required>
+              <option value="" disabled selected>Select level</option>
+              <option value="undergraduate">Undergraduate</option>
+              <option value="masters">Masters</option>
+              <option value="phd">PhD</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Year of Study</label>
+            <select name="year_of_study" class="form-select" required>
+              <option value="" disabled selected>Select year</option>
+              <option value="1">Year 1</option>
+              <option value="2">Year 2</option>
+              <option value="3">Year 3</option>
+              <option value="4">Year 4</option>
+              <option value="5">Year 5</option>
+              <option value="6">Year 6</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Major</label>
+          <select name="major" class="form-select" required>
+            <option value="" disabled selected>Select your major</option>
+            <option value="business-management">Business & Management</option>
+            <option value="cs-it-data-science">Computer Science, IT & Data Science</option>
+            <option value="engineering-technology">Engineering & Technology</option>
+            <option value="mathematics-statistics">Mathematics & Statistics</option>
+            <option value="natural-environmental-sciences">Natural Sciences & Environmental Studies</option>
+            <option value="health-sciences-medicine">Health Sciences, Nursing & Medicine</option>
+            <option value="pharmacy-pharmaceutical-sciences">Pharmacy & Pharmaceutical Sciences</option>
+            <option value="education-teaching">Education & Teaching</option>
+            <option value="law-legal-studies">Law & Legal Studies</option>
+            <option value="social-sciences-humanities">Social Sciences & Humanities</option>
+            <option value="economics-finance">Economics & Finance</option>
+            <option value="architecture-urban-planning">Architecture & Urban Planning</option>
+            <option value="fine-arts-design">Fine Arts & Design</option>
+            <option value="communications-media-studies">Communications & Media Studies</option>
+            <option value="agriculture-forestry">Agriculture & Forestry</option>
+            <option value="hospitality-tourism-management">Hospitality & Tourism Management</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+          Create Account
+        </button>
       </form>
-  
-      <p class="toggle-text">
+
+      <div class="auth-toggle">
         <a href="#" id="toggle-link">First time user? Sign up</a>
-      </p>
+      </div>
     </div>
   </div>
-  
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const loginForm = document.getElementById("login-form");
-      const signupForm = document.getElementById("signup-form");
-      const formTitle = document.getElementById("form-title");
-      const toggleLink = document.getElementById("toggle-link");
-  
-      toggleLink.addEventListener("click", function (event) {
-        event.preventDefault();
-        if (loginForm.style.display !== "none") {
-          loginForm.style.display = "none";
-          signupForm.style.display = "block";
-          formTitle.textContent = "Sign Up";
-          toggleLink.textContent = "Already have an account? Log in";
-        } else {
-          loginForm.style.display = "block";
-          signupForm.style.display = "none";
-          formTitle.textContent = "Login";
-          toggleLink.textContent = "First time user? Sign up";
-        }
-      });
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const loginForm = document.getElementById("login-form");
+    const signupForm = document.getElementById("signup-form");
+    const formTitle = document.getElementById("form-title");
+    const formSubtitle = document.getElementById("form-subtitle");
+    const toggleLink = document.getElementById("toggle-link");
+
+    toggleLink.addEventListener("click", function (event) {
+      event.preventDefault();
+      if (loginForm.style.display !== "none") {
+        loginForm.style.display = "none";
+        signupForm.style.display = "flex";
+        formTitle.textContent = "Create Account";
+        formSubtitle.textContent = "Join StudyZee and start learning together";
+        toggleLink.textContent = "Already have an account? Log in";
+      } else {
+        loginForm.style.display = "flex";
+        signupForm.style.display = "none";
+        formTitle.textContent = "Welcome Back!";
+        formSubtitle.textContent = "Login to continue your learning journey";
+        toggleLink.textContent = "First time user? Sign up";
+      }
     });
-  </script>
-  {% endblock %}
+  });
+</script>
+{% endblock %}

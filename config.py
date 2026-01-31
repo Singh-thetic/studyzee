@@ -40,7 +40,7 @@ class Config:
         Returns:
             List of missing environment variables. Empty list if all valid.
         """
-        required_vars = ["SUPABASE_URL", "SUPABASE_KEY", "OPENAI_API_KEY"]
+        required_vars = ["SUPABASE_URL", "SUPABASE_KEY"]
         missing = [var for var in required_vars if not getattr(cls, var)]
         return missing
 

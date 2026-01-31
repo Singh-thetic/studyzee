@@ -1,165 +1,403 @@
-{% extends "base.html" %} {% block title %}Dashboard - StudyZee{% endblock %} {%
-block content %}
-<div class="dashboard-container">
-  <h2 class="title" style="font-size: 36px; font-weight: bold; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">Dashboard - StudyZee</h2>
-  <div class="action-buttons">
-    <a href="{{ url_for('flashcards') }}" class="action-btn">Study</a>
-    <a href="{{ url_for('study_groups') }}" class="action-btn">Study Groups</a>
-    <a href="{{ url_for('event_feed') }}" class="action-btn">Explore Events</a>
-    <a href="{{ url_for('logout') }}" class="action-btn logout-btn">Logout</a>
+{% extends "base.html" %}
+{% block title %}Dashboard - StudyZee{% endblock %}
+
+{% block styles %}
+<style>
+  /* Dashboard responsive grid */
+  @media (max-width: 1024px) {
+    .dashboard-main-grid {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .dashboard-main-grid {
+      grid-template-columns: 1fr !important;
+    }
+    
+    /* Make profile photo smaller on mobile */
+    .profile-photo-mobile {
+      width: 120px !important;
+      height: 120px !important;
+    }
+    
+    /* Stack stat cards 2x2 on mobile */
+    .stats-grid-mobile {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    /* Profile photo even smaller on tiny screens */
+    .profile-photo-mobile {
+      width: 100px !important;
+      height: 100px !important;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Welcome Header -->
+  <div style="text-align: center; margin-bottom: 3rem;">
+    <h1 class="page-title">Welcome back, {{ user.full_name }}!</h1>
+    <p style="color: var(--gray-700); font-size: 1.125rem;">Let's make today productive</p>
   </div>
 
-  <div style="height: 20px;"></div> <!-- Added gap -->
-
-  <div class="main-content">
-    <!-- Sidebar (User Profile) -->
-    <div class="sidebar">
-      <a href="{{ url_for('edit_profile') }}">
-        <img
-          src="{{ user_data.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}"
-          alt="Profile Picture"
-          class="profile-img"
-        />
-      </a>
-      <h3 class="username">{{ user_data.full_name }}</h3>
-      <p class="user-handle">@{{ user_data.username }}</p>
-
-      <div class="info-box major">
-        <p class="label">Major</p>
-        <p class="value">{{ user_data.major }}</p>
-      </div>
-      <div class="info-box study-level">
-        <p class="label">Study Level</p>
-        <p class="value">{{ user_data.study_level }}</p>
+  <!-- Quick Stats -->
+  <div class="grid grid-4 stats-grid-mobile" style="margin-bottom: 2rem;">
+    <div class="card" style="background: #2563eb; color: white;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <p style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.5rem;">Total Courses</p>
+          <p style="font-size: 2rem; font-weight: 800;">{{ courses|length }}</p>
+        </div>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        </svg>
       </div>
     </div>
 
-    <!-- Courses Section -->
-    <div class="courses-section">
-      <div class="courses-header">
-      <h3>Courses</h3>
-      <a
-        href="{{ url_for('add_course') }}"
-        class="add-btn"
-        style="background: #f8afaf; color: white"
-        >Add</a
-      >
+    <div class="card" style="background: #8b5cf6; color: white;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <p style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.5rem;">Assignments</p>
+          <p style="font-size: 2rem; font-weight: 800;">{{ tasks|length }}</p>
+        </div>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
       </div>
-      <ul class="courses-list">
-        {% for course in courses %}
-        <li class="course-item">
-          <a href="{{ url_for('course_page', subject_id=course['subject_id'], course_code=course['course_code']) }}">
-            <div>
-              {{ course['subject_id'] }} {{ course['course_code'] }}
+    </div>
+
+    <div class="card" style="background: #10b981; color: white;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <p style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.5rem;">Friends</p>
+          <p style="font-size: 2rem; font-weight: 800;" id="friends-count">0</p>
+        </div>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card" style="background: #f59e0b; color: white;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <p style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.5rem;">Study Level</p>
+          <p style="font-size: 1.25rem; font-weight: 700; text-transform: capitalize;">{{ user.study_level }}</p>
+        </div>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="grid grid-3 dashboard-main-grid" style="grid-template-columns: 1fr 2fr 1.5fr;">
+    <!-- Profile Card -->
+    <div class="card" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 2px solid var(--gray-200);">
+      <div style="text-align: center;">
+        <a href="{{ url_for('social.edit_profile') }}" style="display: block; margin-bottom: 1.5rem;">
+          <div style="position: relative; display: inline-block;">
+            <img src="{{ user.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}" 
+                 alt="Profile" 
+                 class="profile-photo-mobile"
+                 style="width: 160px; 
+                        height: 160px;
+                        border-radius: 50%; 
+                        object-fit: cover; 
+                        cursor: pointer; 
+                        border: 6px solid white;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+                        transition: transform 0.3s ease;"
+                 onmouseover="this.style.transform='scale(1.05)'"
+                 onmouseout="this.style.transform='scale(1)'">
+            <div style="position: absolute; 
+                        bottom: 10px; 
+                        right: 10px; 
+                        width: 40px; 
+                        height: 40px; 
+                        background: var(--primary); 
+                        border-radius: 50%; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center;
+                        border: 4px solid white;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
             </div>
-          </a>
-        </li>
-        {% endfor %}
-      </ul>
+          </div>
+        </a>
+        
+        <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--gray-900);">{{ user.full_name }}</h3>
+        <p style="color: var(--gray-500); margin-bottom: 0.5rem; font-size: 1rem;">@{{ user.username }}</p>
+        <p style="color: var(--gray-600); margin-bottom: 2rem; font-size: 0.875rem;">{{ user.email }}</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div style="background: white; padding: 1rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Major</p>
+            <p style="font-weight: 700; color: var(--gray-900); font-size: 1rem;">{{ user.major }}</p>
+          </div>
+          <div style="background: white; padding: 1rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Study Level</p>
+            <p style="font-weight: 700; color: var(--gray-900); font-size: 1rem; text-transform: capitalize;">{{ user.study_level }}</p>
+          </div>
+          <div style="background: white; padding: 1rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.75rem; color: var(--gray-500); margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Year</p>
+            <p style="font-weight: 700; color: var(--gray-900); font-size: 1rem;">Year {{ user.year_of_study }}</p>
+          </div>
+        </div>
+        
+        <a href="{{ url_for('social.edit_profile') }}" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Edit Profile
+        </a>
+      </div>
     </div>
 
-    <div class="friends-section">
-      <div class="friends-header">
-        <h3>Your Friends</h3>
-        <button onclick="openFriendRequests()" class="friend-requests-btn">
-          Friend Requests
+    <!-- Courses Card -->
+    <div class="card">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="margin: 0; font-size: 1.5rem;">My Courses</h3>
+        <a href="{{ url_for('courses.add_course') }}" class="btn btn-primary btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Course
+        </a>
+      </div>
+      
+      {% if courses %}
+      <div style="display: grid; gap: 0.75rem; max-height: 400px; overflow-y: auto;">
+        {% for course in courses %}
+        <a href="{{ url_for('courses.course_page', course_id=course['id']) }}" style="text-decoration: none;">
+          <div style="background: linear-gradient(135deg, var(--primary-light), var(--primary)); 
+                      color: white; 
+                      padding: 1.25rem; 
+                      border-radius: var(--radius-lg); 
+                      transition: var(--transition);
+                      cursor: pointer;"
+               onmouseover="this.style.transform='translateX(4px)'"
+               onmouseout="this.style.transform='translateX(0)'">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <p style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.25rem;">
+                  {{ course['subject_id'] }} {{ course['course_code'] }}
+                </p>
+                <p style="opacity: 0.9; font-size: 0.875rem;">{{ course['name'] or 'Course' }}</p>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align: center; padding: 3rem 1rem; color: var(--gray-500);">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin: 0 auto 1rem; opacity: 0.3;">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        </svg>
+        <p style="font-weight: 600; margin-bottom: 0.5rem;">No courses yet</p>
+        <p style="font-size: 0.875rem;">Add your first course to get started</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Friends Card -->
+    <div class="card">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="margin: 0; font-size: 1.5rem;">Friends</h3>
+        <button onclick="openFriendRequests()" class="btn btn-secondary btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+          Requests
         </button>
       </div>
-      <ul id="friends-list"></ul>
-      <a href="{{ url_for('meet_new_friends') }}" class="friend-requests-btn" style="margin-top: 10px; width: 100%; text-align: center;">
+      
+      <div id="friends-list" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 300px; overflow-y: auto;"></div>
+      
+      <a href="{{ url_for('social.meet_new_friends') }}" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
         Meet New Friends
       </a>
     </div>
+  </div>
 
-    <script>
-      fetch("/friends_list")
-        .then((response) => response.json())
-        .then((data) => {
-          let list = document.getElementById("friends-list");
-          data.friends.forEach((friend) => {
-            let li = document.createElement("li");
-            li.innerHTML = `@${friend.username} 
-                    <button onclick="startPrivateChat('${friend.room_code}')"class="message-btn">Message</button>`;
-            list.appendChild(li);
-          });
-        });
-
-      function startPrivateChat(roomCode) {
-        window.location.href = `/chat?room=${roomCode}`;
-      }
-    </script>
+  <!-- Assignments Section -->
+  <div class="card" style="margin-top: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h3 style="margin: 0; font-size: 1.5rem;">Upcoming Assignments</h3>
+      <select onchange="window.location.href='{{ url_for('dashboard.dashboard') }}?month=' + this.value" 
+              class="form-select" style="width: auto; min-width: 200px;">
+        <option value="current" {% if filter_month == 'current' %}selected{% endif %}>This Month</option>
+        <option value="all" {% if filter_month == 'all' %}selected{% endif %}>All Upcoming</option>
+        <option value="{{ current_date.strftime('%Y-%m') }}" {% if filter_month == current_date.strftime('%Y-%m') %}selected{% endif %}>{{ current_date.strftime('%B %Y') }}</option>
+      </select>
+    </div>
+    
+    {% if tasks %}
+    <div style="display: grid; gap: 0.75rem;">
+      {% for task in tasks %}
+      <div class="assignment-item" style="background: var(--gray-50); 
+                                           padding: 1rem; 
+                                           border-radius: var(--radius-md); 
+                                           border-left: 4px solid var(--primary);
+                                           display: flex;
+                                           align-items: center;
+                                           gap: 1rem;">
+        <input type="checkbox" {% if task[2] %}checked{% endif %} 
+               style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary);" />
+        <div style="flex: 1;">
+          <p style="font-weight: 600; margin-bottom: 0.25rem; color: var(--gray-800);">{{ task[0] }}</p>
+          <p style="font-size: 0.875rem; color: var(--gray-600);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; margin-right: 4px;">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Due: {{ task[1] if task[1] else 'No due date' }}
+          </p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1rem; color: var(--gray-500);">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin: 0 auto 1rem; opacity: 0.3;">
+        <path d="M9 11l3 3L22 4"></path>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+      </svg>
+      <p style="font-weight: 600; margin-bottom: 0.5rem;">No assignments</p>
+      <p style="font-size: 0.875rem;">You're all caught up!</p>
+    </div>
+    {% endif %}
   </div>
 </div>
 
-<!-- Assignments Section -->
-<div class="assignments-section" style="max-width: 1500px;">
-  <h3>Assignments</h3>
-  <ul class="assignments-list">
-    {% for task in tasks %}
-    <li class="assignment-item" id="task-{{ loop.index0 }}">
-      <input
-        type="checkbox"
-        {%
-        if
-        task[2]
-        %}checked{%
-        endif
-        %}
-        onclick="window.location.href='{{ url_for('complete_task', task_id=task[3], type=task[4]) }}'"
-      />
-      {{ task[0] }} - Due: {{ task[1] if task[1] else 'No due date' }}
-    </li>
-    {% endfor %}
-  </ul>
-</div>
-
+<!-- Friend Requests Modal -->
 <div id="friendRequestsModal" class="modal">
   <div class="modal-content">
-    <span class="close" onclick="closeFriendRequests()">&times;</span>
-    <h3>Friend Requests</h3>
-    <ul id="requests-list"></ul>
+    <div class="modal-header">
+      <h3 class="modal-title">Friend Requests</h3>
+      <button class="modal-close" onclick="closeFriendRequests()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <ul id="requests-list" style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1rem;"></ul>
+    </div>
   </div>
 </div>
 
-<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
 <script>
-  // Fetch and Display Friend Requests in the Modal
-  function openFriendRequests() {
-  fetch("/friend_requests")
+  // Fetch and Display Friends
+  fetch("/friends_list")
     .then((response) => response.json())
     .then((data) => {
-      let list = document.getElementById("requests-list");
-      list.innerHTML = ""; // Clear previous requests
-
-      if (data.requests.length === 0) {
-        list.innerHTML = "<p class='no-requests'>No new friend requests.</p>";
-        return;
-      }
-
-      data.requests.forEach((req) => {
-        let li = document.createElement("li");
-        li.innerHTML = `
-          <div class="friend-request">
-            <p><strong>${req.sender_email}</strong></p>
-            <p class="message">${req.message}</p>
-            <button class="accept-btn" onclick="respondRequest('${req.id}', 'accepted')">Accept</button>
-            <button class="reject-btn" onclick="respondRequest('${req.id}', 'rejected')">Reject</button>
+      let list = document.getElementById("friends-list");
+      let count = document.getElementById("friends-count");
+      
+      count.textContent = data.friends.length;
+      
+      if (data.friends.length === 0) {
+        list.innerHTML = `
+          <div style="text-align: center; padding: 2rem 1rem; color: var(--gray-500);">
+            <p style="font-weight: 600; margin-bottom: 0.5rem;">No friends yet</p>
+            <p style="font-size: 0.875rem;">Start connecting with others!</p>
           </div>
         `;
-        list.appendChild(li);
+        return;
+      }
+      
+      data.friends.forEach((friend) => {
+        let div = document.createElement("div");
+        div.style.cssText = "background: var(--gray-50); padding: 0.75rem; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center;";
+        div.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 40px; height: 40px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+              ${friend.username.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p style="font-weight: 600; color: var(--gray-800); margin-bottom: 0.125rem;">@${friend.username}</p>
+              <p style="font-size: 0.75rem; color: var(--gray-600);">${friend.full_name || 'Friend'}</p>
+            </div>
+          </div>
+          <button onclick="startPrivateChat('${friend.id}')" class="btn btn-primary btn-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        `;
+        list.appendChild(div);
       });
     });
 
-  document.getElementById("friendRequestsModal").style.display = "flex";
-}
+  function startPrivateChat(friendId) {
+    window.location.href = `/chat/${friendId}`;
+  }
 
-function closeFriendRequests() {
-  document.getElementById("friendRequestsModal").style.display = "none";
-}
+  function openFriendRequests() {
+    fetch("/friend_requests")
+      .then((response) => response.json())
+      .then((data) => {
+        let list = document.getElementById("requests-list");
+        list.innerHTML = "";
 
+        if (data.requests.length === 0) {
+          list.innerHTML = '<p style="text-align: center; color: var(--gray-500); padding: 2rem;">No new friend requests.</p>';
+          document.getElementById("friendRequestsModal").classList.add("active");
+          return;
+        }
+
+        data.requests.forEach((req) => {
+          let li = document.createElement("li");
+          li.innerHTML = `
+            <div style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); border-left: 4px solid var(--primary);">
+              <p style="font-weight: 700; margin-bottom: 0.5rem; color: var(--gray-800);">${req.sender_email}</p>
+              <p style="color: var(--gray-600); margin-bottom: 1rem; font-size: 0.875rem;">${req.message}</p>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-success btn-sm" onclick="respondRequest('${req.id}', 'accepted')" style="flex: 1;">Accept</button>
+                <button class="btn btn-secondary btn-sm" onclick="respondRequest('${req.id}', 'rejected')" style="flex: 1;">Reject</button>
+              </div>
+            </div>
+          `;
+          list.appendChild(li);
+        });
+
+        document.getElementById("friendRequestsModal").classList.add("active");
+      });
+  }
 
   function closeFriendRequests() {
-    document.getElementById("friendRequestsModal").style.display = "none";
+    document.getElementById("friendRequestsModal").classList.remove("active");
   }
 
   function respondRequest(requestId, response) {
@@ -167,271 +405,20 @@ function closeFriendRequests() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ request_id: requestId, response: response }),
-    }).then(() => {
-      alert("Friend request " + response);
-      closeFriendRequests();
-      location.reload();
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert("Error: " + data.error);
+      } else {
+        closeFriendRequests();
+        location.reload();
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert("Failed to respond to friend request");
     });
   }
 </script>
-
-<style>
-  header {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    background: #ffffff;
-    text-align: center;
-    z-index: 1000;
-  }
-
-  /* General Layout */
-  .dashboard-container {
-    text-align: center;
-    margin-top: 20px;
-  }
-  .page-title {
-    font-size: 32px;
-    font-weight: bold;
-    font-family: "Inter", sans-serif;
-    margin-bottom: 20px;
-    color: #4a90e2;
-  }
-  .title {
-    font-size: 32px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #4a90e2;
-    /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); */
-  }
-  .main-content {
-    display: grid;
-    grid-template-columns: 1fr 2fr 2fr;
-    gap: 20px;
-    max-width: 1500px;
-    margin: auto;
-  }
-
-  /* Sidebar (Profile Section) */
-  .sidebar {
-    background: #eaf8e6;
-    padding: 50px;
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .profile-img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 10px;
-  }
-  .username {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  .user-handle {
-    font-size: 14px;
-    color: gray;
-  }
-  .info-box {
-    background: #a3d9a5;
-    padding: 5px 20px;
-    border-radius: 10px;
-    margin: 5px 0;
-    text-align: center;
-    width: 100%;
-  }
-  .label {
-    font-size: 12px;
-    font-weight: bold;
-  }
-  .value {
-    font-size: 14px;
-    text-align: center;
-  }
-  .logout-btn {
-    margin-top: 15px;
-    text-decoration: none;
-    color: white;
-    font-weight: bold;
-    background: #ff6b6b;
-    padding: 10px 20px;
-    border-radius: 10px;
-    display: inline-block;
-    transition: background 0.3s ease;
-  }
-
-  .action-btn {
-    margin-top: 15px;
-    text-decoration: none;
-    color: white;
-    font-weight: bold;
-    background: #ff6b6b;
-    padding: 10px 20px;
-    border-radius: 10px;
-    display: inline-block;
-    transition: background 0.3s ease;
-  }
-
-  .logout-btn:hover {
-    background: #ff4c4c;
-  }
-
-  /* Courses Section */
-  .courses-section {
-    background: #f9c6c6;
-    padding: 15px;
-    border-radius: 15px;
-    text-align: left;
-  }
-  .courses-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .add-btn {
-    background: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 10px;
-    cursor: pointer;
-  }
-  .courses-list {
-    list-style: none;
-    padding: 0;
-    max-height: 180px;
-    overflow-y: auto;
-  }
-  .course-item {
-    background: #f8afaf;
-    padding: 8px;
-    border-radius: 10px;
-    margin: 5px 0;
-  }
-
-  /* Notes Section */
-  .notes-section {
-    background: #fff9c4;
-    border-radius: 15px;
-    min-height: 150px;
-  }
-
-  /* Assignments Section */
-  .assignments-section {
-    background: #d0e1f9;
-    padding: 15px;
-    border-radius: 15px;
-    margin-top: 20px;
-    max-width: 95vw;
-    margin-left: auto;
-    margin-right: auto;
-    max-height: 250px;
-    overflow-y: auto;
-  }
-  .assignments-list {
-    list-style: none;
-    padding: 0;
-    max-height: 180px;
-    overflow-y: auto;
-  }
-  .assignment-item {
-    background: #b0c4f0;
-    padding: 12px;
-    border-radius: 10px;
-    margin: 6px 0;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .assignment-item input {
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-  }
-  footer {
-    position: relative;
-    bottom: 0;
-    width: 100%;
-    background: #ffffff;
-    text-align: center;
-    padding: 100px;
-  }
-  .friends-section {
-    background: #f1ef7d;
-    padding: 15px;
-    border-radius: 15px;
-    text-align: left;
-    position: relative;
-  }
-
-  /* Friends Header (Align title & button properly) */
-  .friends-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-  }
-
-  /* Styled Friend Requests Button to Match Add Button */
-  .friend-requests-btn {
-    background: #dfc936; /* Same as Add button in courses */
-    color: white;
-    border: none;
-    padding: 5px 12px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    text-decoration: underline;
-  }
-  .friends-section ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  .friends-section li {
-    background: #a3d9a5;
-    padding: 8px;
-    border-radius: 10px;
-    margin: 5px 0;
-  }
-  #friendRequestsModal {
-    display: none; /* Ensures it's hidden initially */
-    position: fixed;
-    z-index: 1000;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 300px;
-    background: #ffffff;
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-  }
-  .close {
-    cursor: pointer;
-    font-size: 20px;
-    position: absolute;
-    top: 10px;
-    right: 15px;
-  }
-  .message-btn {
-    margin-right: auto;
-    background: #bea40e; /* Green color */
-    color: white;
-    padding: 6px 12px;
-    font-size: 12px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-</style>
-
 {% endblock %}

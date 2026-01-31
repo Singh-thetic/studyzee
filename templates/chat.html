@@ -19,14 +19,15 @@
 
 <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
 <script>
-    var socket = io.connect("http://127.0.0.1:5000");
-    var room = "{{ room_code }}";
+    var socket = io.connect(window.location.protocol + "//" + window.location.hostname + ":" + window.location.port);
+    var room = "{{ room_key }}";
     var userId = "{{ user_id }}";
-    var friendName = "{{ friend_name }}";
-    var friendPfp = "{{ friend_pfp }}";
-    var userPfp = "{{ current_user.profile_picture }}";
+    var friendId = "{{ friend.id }}";
+    var friendName = "{{ friend.full_name }}";
+    var friendPfp = "{{ friend.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}";
+    var userPfp = "{{ current_user.profile_picture or url_for('static', filename='images/default-pfp.jpg') }}";
 
-    socket.emit("join_room", { room: room });
+    socket.emit("join_room", { room_key: room });
 
 function appendMessage(message, senderId, messageId) {
     let chatBox = document.getElementById("messages");
@@ -61,7 +62,7 @@ function appendMessage(message, senderId, messageId) {
 
 
     // Load previous messages
-fetch(`/chat_history/${room}`)
+fetch(`/chat_history/${friendId}`)
     .then(response => response.json())
     .then(data => {
         console.log("Fetched messages:", data);  // Debugging
@@ -89,8 +90,9 @@ function sendMessage() {
 
         // Send to server with message ID
         socket.emit("send_message", { 
-            room: room, 
+            room_key: room, 
             message: message, 
+            recipient_id: friendId,
             sender_id: userId,
             message_id: messageId
         });
@@ -103,7 +105,7 @@ function sendMessage() {
 }
 
 function fetchChatHistory() {
-    fetch(`/chat_history/${room}`)
+    fetch(`/chat_history/${friendId}`)
         .then(response => response.json())
         .then(data => {
             console.log("Fetched messages:", data);

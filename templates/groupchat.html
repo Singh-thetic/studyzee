@@ -24,7 +24,7 @@
     var userMap = JSON.parse('{{ users_json|safe }}');
     // userMap[senderId] = { "id": "...", "username": "...", "profile_picture": "..." }
     // Connect to the Socket.IO server
-    var socket = io.connect("http://127.0.0.1:5000");
+    var socket = io.connect(window.location.protocol + "//" + window.location.hostname + ":" + window.location.port);
 
     // These variables are passed from Flask
     var roomKey = "{{ room_key }}";
@@ -34,7 +34,7 @@
     // Optionally: var groupIcon = "{{ group_icon }}"; // if used in the UI
 
     // Join the group chat room
-    socket.emit("join_group_room", { room_key: roomKey });
+    socket.emit("join_room", { room_key: roomKey });
 
 function appendMessage(message, senderId, messageId) {
     let chatBox = document.getElementById("messages");

@@ -12,6 +12,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_socketio import SocketIO
 from config import CURRENT_CONFIG, Config
+from utils.db import DatabaseClient
 
 # Configure logging
 logging.basicConfig(
@@ -46,16 +47,51 @@ def create_app(config_class=CURRENT_CONFIG) -> tuple:
 
     # Initialize extensions
     CORS(app)
-    Bcrypt(app)
+    bcrypt = Bcrypt(app)
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = "auth.home"
     socketio = SocketIO(app, cors_allowed_origins="*")
 
+    # Initialize database client
+    db = DatabaseClient(app.config["SUPABASE_URL"], app.config["SUPABASE_KEY"])
+    app.db = db
+    app.bcrypt = bcrypt
+
     # Create upload folders
     import os
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
     os.makedirs("static/profile_pics", exist_ok=True)
+
+    # Register routes
+    from routes.auth import auth_bp
+    from routes.dashboard import dashboard_bp
+    from routes.courses import courses_bp
+    from routes.study_groups import study_groups_bp
+    from routes.chat import chat_bp, register_socket_events
+    from routes.social import social_bp
+    from routes.flashcards import flashcards_bp
+    
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(dashboard_bp)
+    app.register_blueprint(courses_bp)
+    app.register_blueprint(study_groups_bp)
+    app.register_blueprint(chat_bp)
+    app.register_blueprint(social_bp)
+    app.register_blueprint(flashcards_bp)
+    
+    # Register WebSocket event handlers
+    register_socket_events(socketio)
+
+    # User loader for Flask-Login
+    from models.user import User
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        user_data = db.select_one("users", "id", user_id)
+        if user_data:
+            return User.from_dict(user_data)
+        return None
 
     logger.info(f"Application initialized with {config_class.__name__}")
 
@@ -70,4 +106,4 @@ except ValueError as e:
     raise
 
 if __name__ == "__main__":
-    socketio.run(app, debug=Config.DEBUG, host="0.0.0.0", port=5000)
+    socketio.run(app, debug=Config.DEBUG, host="0.0.0.0", port=5001)

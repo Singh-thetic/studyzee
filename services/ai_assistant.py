@@ -62,7 +62,7 @@ def parse_course_info(pdf_texts: List[str]) -> Dict[str, Any]:
         return {}
 
 
-def generate_flashcards(pdf_text: str) -> List[Tuple[str, str]]:
+def generate_flashcards(pdf_text: str) -> List[Dict[str, str]]:
     """
     Generate flashcards from study notes using OpenAI.
 
@@ -70,7 +70,7 @@ def generate_flashcards(pdf_text: str) -> List[Tuple[str, str]]:
         pdf_text: Extracted text from study notes PDF.
 
     Returns:
-        List of (question, answer) tuples.
+        List of dictionaries with 'question' and 'answer' keys.
     """
     prompt = """Here are notes from a topic. Can you create flashcards for me?
 
@@ -100,7 +100,7 @@ def generate_flashcards(pdf_text: str) -> List[Tuple[str, str]]:
         return []
 
 
-def _parse_flashcard_response(response_text: str) -> List[Tuple[str, str]]:
+def _parse_flashcard_response(response_text: str) -> List[Dict[str, str]]:
     """
     Parse flashcard response from AI.
 
@@ -108,7 +108,7 @@ def _parse_flashcard_response(response_text: str) -> List[Tuple[str, str]]:
         response_text: Raw response from OpenAI.
 
     Returns:
-        List of (question, answer) tuples.
+        List of dictionaries with 'question' and 'answer' keys.
     """
     flashcards = []
     try:
@@ -120,7 +120,10 @@ def _parse_flashcard_response(response_text: str) -> List[Tuple[str, str]]:
                     q_text = question.split(": ", 1)[1].strip() if ": " in question else question.strip()
                     a_text = answer.split(": ", 1)[1].split("\n")[0].strip() if ": " in answer else answer.strip()
                     if q_text and a_text:
-                        flashcards.append((q_text, a_text))
+                        flashcards.append({
+                            "question": q_text,
+                            "answer": a_text
+                        })
                 except (IndexError, ValueError) as e:
                     logger.warning(f"Could not parse flashcard pair: {str(e)}")
                     continue

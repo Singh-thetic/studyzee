@@ -6,7 +6,7 @@ Course Details
 {% block content %}
 <h2 class="course-title">{{ course.subject_id }} {{ course.course_code }}</h2>
 
-<form id="courseForm" method="POST" action="{{ url_for('course_page', subject_id=course.subject_id, course_code=course.course_code) }}">
+<form id="courseForm" method="POST" action="{{ url_for('courses.course_page', course_id=course.id) }}">
     <fieldset id="courseFields" disabled>
         <div class="form-group">
             <label for="section">Section:</label>
