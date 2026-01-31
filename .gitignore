@@ -35,3 +35,4 @@ response.txt
 
 # Database setup (contains project URLs)
 DATABASE_SETUP.md
+.vercel
